@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Gitty Project Summary
+
+## Project Overview
+This is Gitty, a web app that takes any public GitHub repository and converts it into an educational shortform video that onboards the user to the project's system design, tech stack, and other relevant information for onboarding.
+
+## Key Features
+- Generate system design diagrams and important protocol graphics.
+- Support for public GitHub repositories.
+- Voice over that analyzes generated diagrams and graphics and explain them in an efficient manner making sure the user can be onboarded to all the technologies rapidly.
+
+## Tech Stack
+- **Frontend**: Next.js 15, TypeScript, TailwindCSS, SHADCN
+- **Backend**: FastAPI, Server Actions
+- **Database**: Postgres
+- **AI**: Gemini 2.5 Flash
