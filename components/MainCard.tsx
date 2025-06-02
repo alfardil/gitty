@@ -1,5 +1,4 @@
 import DiagramInput from "@/components/DiagramInput";
-import { Card } from "@/components/ui/card";
 
 type MainCardProps = {
   username?: string;
