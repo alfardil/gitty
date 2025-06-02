@@ -14,10 +14,10 @@ client = OpenAI(api_key=apiKey)
 @router.get("")
 async def generate_story():
     response = client.chat.completions.create(
-        model="o4-mini-2025-04-16",  # Use the correct model name for GPT-4.1
+        model="o4-mini-2025-04-16",
         messages=[
             {"role": "user", "content": "Write a one-sentence bedtime story about a unicorn."}
         ]
     )
-    print(response.choices[0].message)
+    print("Generated a sample story for you.")
     return {"output_text": response.choices[0].message.content}
