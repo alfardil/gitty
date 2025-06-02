@@ -30,6 +30,7 @@ export default function DiagramInput({ username, repo }: DiagramInputProps) {
     if (match) {
       const [, user, repository] = match;
       router.push(`/${user}/${repository}`);
+      toast.success("Navigated to repository!");
       return;
     }
 
@@ -37,6 +38,7 @@ export default function DiagramInput({ username, repo }: DiagramInputProps) {
     if (match) {
       const [, user, repository] = match;
       router.push(`/${user}/${repository}`);
+      toast.success("Navigated to repository!");
       return;
     }
 
