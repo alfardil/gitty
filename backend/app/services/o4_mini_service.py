@@ -12,6 +12,9 @@ class OpenAIo4Service:
         self.default_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.model = "o4-mini-2025-04-16"
         self.encoding = tiktoken.get_encoding("o200k_base")
+        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.base_url = "https://api.openai.com/v1/chat/completions"
+        self.reasoning_effort = "low"
 
     def call_o4_api(
             self,
@@ -43,6 +46,7 @@ class OpenAIo4Service:
                     {"role": "user", "content": user_message},
                 ],
                 max_completion_tokens=12000,
+                reasoning_effort=self.reasoning_effort
             )
 
             print("API call completed successfully")
@@ -63,10 +67,10 @@ class OpenAIo4Service:
         self,
         system_prompt: str,
         data: dict,
-        api_key: str,
     ) -> AsyncGenerator[str, None]:
         
         user_message = format_user_message(data)
+        api_key = self.api_key
 
         headers = {
             "Content-Type": "application/json",
@@ -81,6 +85,8 @@ class OpenAIo4Service:
             ],
             "max_completion_tokens": 12000,
             "stream": True,
+            "reasoning_effort": self.reasoning_effort
+            
         }
 
         try:
