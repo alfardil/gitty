@@ -17,4 +17,4 @@ This is Gitty, a web app that takes any public GitHub repository and converts it
 - **Frontend**: Next.js 15, TypeScript, TailwindCSS, SHADCN
 - **Backend**: FastAPI, Server Actions
 - **Database**: Postgres
-- **AI**: Gemini 2.5 Flash
+- **AI**: OpenAI GPT 4o mini
