@@ -7,10 +7,12 @@ make dev
 OR
 
 ```bash
-(cd backend && uvicorn main:app --reload) & pnpm run dev
+(cd backend && pip install -r requirements.txt && uvicorn main:app --reload) & (pnpm i && pnpm run dev)
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Documentation is availible at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
 ## Features
 
