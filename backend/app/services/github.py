@@ -6,7 +6,7 @@ class GitHubService:
         self.access_token = None
         self.token_expires_at = None
 
-    def _get_headers_(self):
+    def _get_headers(self):
         return {"Accept": "application/vnd.github+json"}
 
     def _check_repository_exists(self, username, repo):
@@ -123,3 +123,37 @@ class GitHubService:
         raise ValueError(
             "Could not fetch repository file tree. Repository might not exist, be empty or private."
         )
+    
+    def get_github_readme(self, username, repo):
+        """
+        Fetches the README contents of an open-source GitHub repository.
+
+        Args:
+            username (str): The GitHub username or organization name
+            repo (str): The repository name
+
+        Returns:
+            str: The contents of the README file.
+
+        Raises:
+            ValueError: If repository does not exist or has no README.
+            Exception: For other unexpected API errors.
+        """
+        # First check if the repository exists
+        self._check_repository_exists(username, repo)
+
+        # Then attempt to fetch the README
+        api_url = f"https://api.github.com/repos/{username}/{repo}/readme"
+        response = requests.get(api_url, headers=self._get_headers())
+
+        if response.status_code == 404:
+            raise ValueError("No README found for the specified repository.")
+        elif response.status_code != 200:
+            raise Exception(
+                f"Failed to fetch README: {
+                            response.status_code}, {response.json()}"
+            )
+
+        data = response.json()
+        readme_content = requests.get(data["download_url"]).text
+        return readme_content
