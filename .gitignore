@@ -43,7 +43,7 @@ next-env.d.ts
 .venv
 
 # Python cache
-**/__pycache__/
+__pycache__/
 *.pyc
 *.pyo
 
