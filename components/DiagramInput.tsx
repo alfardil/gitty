@@ -26,26 +26,27 @@ export default function DiagramInput({ username, repo }: DiagramInputProps) {
     e.preventDefault();
     setError("");
 
-    let match = url.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/);
-    if (match) {
-      const [, user, repository] = match;
-      router.push(`/${user}/${repository}`);
-      toast.success("Navigated to repository!");
+    const githubUrlPattern =
+      /^https?:\/\/github\.com\/([a-zA-Z0-9-_]+)\/([a-zA-Z0-9-_\.]+)\/?$/;
+    const match = githubUrlPattern.exec(url.trim());
+
+    if (!match) {
+      setError("Please enter a valid GitHub repository URL.");
+      toast.error(error);
       return;
     }
 
-    match = url.match(/^([^\/]+)\/([^\/]+)$/);
-    if (match) {
-      const [, user, repository] = match;
-      router.push(`/${user}/${repository}`);
-      toast.success("Navigated to repository!");
+    const [, username, repo] = match || [];
+    if (!username || !repo) {
+      setError("Invalid repository URL format.");
+      toast.error(error);
       return;
     }
 
-    const errorMsg =
-      "Please enter a valid GitHub repository URL or username/repo.";
-    setError(errorMsg);
-    toast.error(errorMsg);
+    const sanitizedUsername = encodeURIComponent(username);
+    const sanitizedRepo = encodeURIComponent(repo);
+    router.push(`/${sanitizedUsername}/${sanitizedRepo}`);
+    toast.success("Navigated to repository!");
   };
 
   return (
