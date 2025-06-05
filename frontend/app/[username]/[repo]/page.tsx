@@ -1,11 +1,12 @@
 "use client";
 
-import MainCard from "@/components/MainCard";
-import { Card } from "@/components/ui/card";
+import MainCard from "../../../components/MainCard";
+import { Card } from "../../../components/ui/card";
 import { useParams } from "next/navigation";
-import MermaidChart from "@/components/Mermaid-Diagram";
-import { useDiagram } from "@/lib/hooks/useDiagram";
-import { Spinner } from "@/components/ui/spinner";
+import MermaidChart from "../../../components/Mermaid-Diagram";
+import { useDiagram } from "../../../lib/hooks/useDiagram";
+import { Spinner } from "../../../components/ui/spinner";
+import React from "react";
 
 export default function Repo() {
   const params = useParams<{ username: string; repo: string }>();

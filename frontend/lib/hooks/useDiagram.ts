@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCost } from "../fetchBackend";
+import { getCost } from "../../lib/fetchBackend";
 
 interface StreamState {
   status:

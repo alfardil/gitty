@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import mermaid from "mermaid";
+import React from "react";
 
 interface MermaidChartProps {
   chart: string;
