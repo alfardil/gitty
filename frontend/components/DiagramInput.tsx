@@ -53,14 +53,14 @@ export default function DiagramInput({ username, repo }: DiagramInputProps) {
     <>
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-2 mb-4 w-full"
+        className="flex flex-col sm:flex-row gap-2 mb-4 w-full mt-4"
       >
         <Input
           type="text"
           placeholder="https://github.com/username/repo"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          className="flex-1 px-3 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="flex-1 min-w-[250px] w-full px-3 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
         <Button
           type="submit"

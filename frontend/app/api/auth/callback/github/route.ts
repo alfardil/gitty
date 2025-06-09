@@ -49,7 +49,6 @@ export async function GET(request: NextRequest) {
     });
 
     const userData = await userResponse.json();
-    console.log(userData);
 
     // Upsert user in the database
     const upsertResult = await upsertUser({
@@ -92,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     cookieStore.delete("github_oauth_state");
 
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   } catch (error) {
     console.error("GitHub OAuth error:", error);
     return NextResponse.redirect(new URL("/auth/error", request.url));
