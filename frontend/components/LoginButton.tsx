@@ -10,7 +10,7 @@ export function GitHubLoginButton() {
 
   if (loading) {
     return (
-      <div className="fixed top-4 right-4 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg min-w-[120px] min-h-[48px]">
+      <div className="flex items-center justify-center bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg min-w-[120px] min-h-[48px] mt-4 mb-4">
         <svg
           className="animate-spin h-6 w-6 text-blue-400"
           xmlns="http://www.w3.org/2000/svg"
@@ -39,7 +39,7 @@ export function GitHubLoginButton() {
     return (
       <Button
         variant="default"
-        className="fixed top-4 right-4 z-50 bg-blue-300 hover:bg-blue-400 text-black font-semibold px-6 py-2 rounded shadow flex items-center justify-center gap-2 transition-colors duration-200 sm:w-auto focus:outline-none cursor-pointer"
+        className="bg-blue-300 hover:bg-blue-400 text-black font-semibold px-6 py-2 rounded shadow flex items-center justify-center gap-2 transition-colors duration-200 sm:w-auto focus:outline-none cursor-pointer mt-4 mb-4"
         onClick={() => {
           window.location.href = "/api/auth/github";
         }}
@@ -51,7 +51,7 @@ export function GitHubLoginButton() {
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg">
+    <div className="flex items-center gap-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg mt-4 mb-4">
       <div className="flex items-center gap-3">
         <div className="relative h-10 w-10 rounded-full overflow-hidden">
           <Image
@@ -77,7 +77,7 @@ export function GitHubLoginButton() {
         <Button
           variant="default"
           size="sm"
-          className="bg-red-500 hover:bg-red-600 text-white"
+          className="bg-red-500 hover:bg-red-600 text-white cursor-pointer"
           onClick={logout}
         >
           <LogOut className="h-4 w-4" />

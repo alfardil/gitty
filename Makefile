@@ -16,3 +16,6 @@ orgPush:
 	git remote -v
 	git remote set-url origin https://github.com/Lexor-Strategies/Gitty.git
 	git push -u origin main
+
+migrate:
+	cd frontend && npx drizzle-kit push

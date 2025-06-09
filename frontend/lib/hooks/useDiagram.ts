@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCost } from "../../lib/fetchBackend";
+import { getCost } from "../fetchBackend";
+import { toast } from "sonner";
 
 interface StreamState {
   status:
@@ -289,9 +290,56 @@ export function useDiagram(username: string, repo: string) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(diagram);
+      toast.success("Diagram copied to clipboard");
     } catch (error) {
       console.error("Failed to copy to clipboard:", error);
       setError("Failed to copy to clipboard. Please try again.");
+    }
+  };
+
+  const handleExportImage = () => {
+    const svgElement = document.querySelector(".mermaid svg");
+    if (!(svgElement instanceof SVGSVGElement)) return;
+
+    try {
+      const canvas = document.createElement("canvas");
+      const scale = 4;
+
+      const bbox = svgElement.getBBox();
+      const transform = svgElement.getScreenCTM();
+      if (!transform) return;
+
+      const width = Math.ceil(bbox.width * transform.a);
+      const height = Math.ceil(bbox.height * transform.d);
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const img = new Image();
+
+      img.onload = () => {
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const a = document.createElement("a");
+        a.download = "diagram.png";
+        a.href = canvas.toDataURL("image/png", 1.0);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+
+      img.src =
+        "data:image/svg+xml;base64," +
+        btoa(unescape(encodeURIComponent(svgData)));
+    } catch (error) {
+      console.error("Error generating PNG:", error);
     }
   };
 
@@ -304,5 +352,6 @@ export function useDiagram(username: string, repo: string) {
     handleModify,
     handleRegenerate,
     handleCopy,
+    handleExportImage,
   };
 }
