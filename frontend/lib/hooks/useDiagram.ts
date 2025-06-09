@@ -34,6 +34,12 @@ interface StreamResponse {
   error?: string;
 }
 
+function getGithubAccessTokenFromCookie(): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(/(?:^|; )github_access_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 export function useDiagram(username: string, repo: string) {
   const [state, setState] = useState<StreamState>({ status: "idle" });
   const [diagram, setDiagram] = useState<string>("");
@@ -224,7 +230,13 @@ export function useDiagram(username: string, repo: string) {
     setCost("");
 
     try {
-      const costEstimate = await getCost(username, repo, "");
+      const githubAccessToken = getGithubAccessTokenFromCookie();
+      const costEstimate = await getCost(
+        username,
+        repo,
+        githubAccessToken ?? "",
+        ""
+      );
 
       if (costEstimate.error) {
         console.error("Cost estimation failed: ", costEstimate.error);
@@ -267,7 +279,13 @@ export function useDiagram(username: string, repo: string) {
     setError("");
     setCost("");
     try {
-      const costEstimate = await getCost(username, repo, "");
+      const githubAccessToken = getGithubAccessTokenFromCookie();
+      const costEstimate = await getCost(
+        username,
+        repo,
+        githubAccessToken ?? "",
+        ""
+      );
 
       if (costEstimate.error) {
         console.error("Cost estimation failed:", costEstimate.error);
