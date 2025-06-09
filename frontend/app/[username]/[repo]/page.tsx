@@ -3,7 +3,7 @@
 import MainCard from "../../../components/MainCard";
 import { Card } from "../../../components/ui/card";
 import { useParams } from "next/navigation";
-import MermaidChart from "../../../components/Mermaid-Diagram";
+import MermaidChart from "../../../components/MermaidDiagram";
 import { useDiagram } from "../../../lib/hooks/useDiagram";
 import { Spinner } from "../../../components/ui/spinner";
 import React from "react";
