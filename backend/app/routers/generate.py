@@ -50,6 +50,7 @@ def get_github_data(username: str, repo: str):
 class ApiRequest(BaseModel):
     username: str
     repo: str
+    github_access_token: str
     instructions: str = ""
 
 
@@ -57,7 +58,7 @@ class ApiRequest(BaseModel):
 async def get_generation_cost(request: Request, body: ApiRequest):
     try:
         # Get file tree and README content
-        github_data = get_github_data(body.username, body.repo)
+        github_data = get_github_data(body.username, body.repo, body.github_access_token)
         file_tree = github_data["file_tree"]
         readme = github_data["readme"]
 
