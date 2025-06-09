@@ -10,6 +10,10 @@ export async function getCost(
   instructions: string
 ): Promise<CostApiResponse> {
   try {
+    console.log(
+      "Trying with the following githubAccessToken: ",
+      githubAccessToken
+    );
     const baseUrl = "http://localhost:8000";
     const url = new URL(`${baseUrl}/generate/cost`);
 
