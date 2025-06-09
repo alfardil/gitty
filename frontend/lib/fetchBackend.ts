@@ -6,6 +6,7 @@ interface CostApiResponse {
 export async function getCost(
   username: string,
   repo: string,
+  githubAccessToken: string,
   instructions: string
 ): Promise<CostApiResponse> {
   try {
@@ -20,6 +21,7 @@ export async function getCost(
       body: JSON.stringify({
         username,
         repo,
+        githubAccessToken,
         instructions: instructions ?? "",
       }),
     });
