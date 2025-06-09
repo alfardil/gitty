@@ -3,20 +3,69 @@
 import MainCard from "../../../components/MainCard";
 import { Card } from "../../../components/ui/card";
 import { useParams } from "next/navigation";
-import MermaidChart from "../../../components/MermaidDiagram";
+import MermaidChart, {
+  MermaidChartHandle,
+} from "../../../components/MermaidDiagram";
 import { useDiagram } from "../../../lib/hooks/useDiagram";
 import { Spinner } from "../../../components/ui/spinner";
 import React from "react";
+import { GitHubLoginButton } from "@/components/LoginButton";
+import { Button } from "@/components/ui/button";
+import { CopyIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Repo() {
   const params = useParams<{ username: string; repo: string }>();
-  const { diagram, loading, error, cost, state } = useDiagram(
-    params.username.toLowerCase(),
-    params.repo.toLowerCase()
-  );
+  const {
+    diagram,
+    loading,
+    error,
+    cost,
+    state,
+    handleRegenerate,
+    // handleExportImage,
+  } = useDiagram(params.username.toLowerCase(), params.repo.toLowerCase());
+  const mermaidRef = React.useRef<MermaidChartHandle>(null);
+
+  // Copy SVG as text
+  const handleCopySVG = async () => {
+    const svg = mermaidRef.current?.getSvgElement();
+    if (!svg) {
+      toast.error("No diagram to copy.");
+      return;
+    }
+    try {
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(svg);
+      await navigator.clipboard.writeText(svgString);
+      toast.success("SVG copied to clipboard!");
+    } catch (e) {
+      toast.error("Failed to copy SVG.");
+    }
+  };
+
+  {
+    /* 
+    TODO: MAKE THIS WORK!! 
+  // Download as PNG image using handleExportImage
+
+  const handleDownloadPNG = () => {
+    try {
+      handleExportImage();
+      toast.success("PNG downloaded!");
+    } catch (e) {
+      toast.error("Failed to download PNG.");
+    }
+  };
+} 
+*/
+  }
 
   return (
     <div className="min-h-screen bg-primary flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl flex justify-end mb-4">
+        <GitHubLoginButton />
+      </div>
       <Card className="bg-white rounded-xl shadow-lg p-8 border-4 border-black flex flex-col items-center gap-4 w-full max-w-4xl">
         <MainCard
           username={params.username.toLowerCase()}
@@ -37,7 +86,6 @@ export default function Repo() {
           </p>
         </div>
 
-        {/* State Debug Info */}
         <div className="w-full bg-gray-50 border border-gray-300 rounded p-4 my-4 text-left overflow-x-auto">
           <div className="mb-2 font-semibold">Diagram Generation State</div>
           <div className="mb-1">
@@ -77,7 +125,21 @@ export default function Repo() {
 
         {!loading && !error && diagram && (
           <div className="w-full mt-4">
-            <MermaidChart chart={diagram} />
+            <MermaidChart
+              ref={mermaidRef}
+              chart={diagram}
+              onAutoRegenerate={() => handleRegenerate("")}
+            />
+            <div className="flex justify-center mt-4 gap-2">
+              <Button onClick={handleCopySVG}>
+                <CopyIcon className="w-4 h-4" />
+                Copy as SVG
+              </Button>
+              {/* <Button onClick={() => handleDownloadPNG()}>
+                <CopyIcon className="w-4 h-4" />
+                Download as PNG
+              </Button> */}
+            </div>
           </div>
         )}
       </Card>

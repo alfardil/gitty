@@ -1,52 +1,80 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import mermaid from "mermaid";
 import React from "react";
 
 interface MermaidChartProps {
   chart: string;
+  onAutoRegenerate?: () => void;
 }
 
-const MermaidChart = ({ chart }: MermaidChartProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+export interface MermaidChartHandle {
+  getSvgElement: () => SVGSVGElement | null;
+}
 
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: "neutral",
-      htmlLabels: true,
-      flowchart: {
-        htmlLabels: true,
-        curve: "basis",
-        nodeSpacing: 50,
-        rankSpacing: 50,
-        padding: 15,
+const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
+  ({ chart, onAutoRegenerate }, ref) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    useImperativeHandle(ref, () => ({
+      getSvgElement: () => {
+        if (!containerRef.current) return null;
+        return containerRef.current.querySelector("svg");
       },
-      themeCSS: `
-        .clickable {
-          transition: transform 0.2s ease;
-        }
-        .clickable:hover {
-          transform: scale(1.05);
-          cursor: pointer;
-        }
-        .clickable:hover > * {
-          filter: brightness(0.85);
-        }
-      `,
-    });
+    }));
 
-    mermaid.contentLoaded();
-  }, [chart]);
+    useEffect(() => {
+      setError(null);
+      if (!containerRef.current) return;
+      // Clear previous diagram
+      containerRef.current.innerHTML = "";
+      const renderMermaid = async () => {
+        try {
+          mermaid.parse(chart); // Validate syntax first
+          const { svg } = await mermaid.render("mermaidChart", chart);
+          if (containerRef.current) {
+            containerRef.current.innerHTML = svg;
+          }
+        } catch (e: any) {
+          if (onAutoRegenerate) {
+            // Show a toast to the user
+            if (typeof window !== "undefined") {
+              // Dynamically import toast to avoid SSR issues
+              import("sonner").then(({ toast }) => {
+                toast.error("Diagram generation failed. Retrying...");
+              });
+            }
+            onAutoRegenerate();
+          } else {
+            setError(e?.message || "Invalid Mermaid diagram syntax.");
+          }
+        }
+      };
+      renderMermaid();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [chart, onAutoRegenerate]);
 
-  return (
-    <div ref={containerRef} className="w-full max-w-full p-4">
-      <div key={chart} className="mermaid">
-        {chart}
-      </div>
-    </div>
-  );
-};
+    if (error) {
+      return (
+        <div className="text-red-600 bg-red-50 p-4 rounded">
+          <strong>Diagram Error:</strong> {error}
+          <pre className="mt-2 bg-gray-100 p-2 rounded whitespace-pre-wrap overflow-x-auto">
+            {chart}
+          </pre>
+        </div>
+      );
+    }
+
+    return <div ref={containerRef} className="w-full max-w-full p-4" />;
+  }
+);
 
 export default MermaidChart;

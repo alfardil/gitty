@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
     });
 
     const userData = await userResponse.json();
+    console.log(userData);
 
     // Upsert user in the database
     const upsertResult = await upsertUser({
@@ -57,10 +58,9 @@ export async function GET(request: NextRequest) {
       lastName: userData.name
         ? userData.name.split(" ").slice(1).join(" ")
         : undefined,
-      email:
-        userData.email || `${userData.githubUsername}@users.noreply.github.com`,
+      email: userData.email || `${userData.login}@users.noreply.github.com`,
       avatarUrl: userData.avatar_url,
-      githubUsername: userData.githubUsername,
+      githubUsername: userData.login,
       bio: userData.bio,
       joinedAt: userData.created_at ? new Date(userData.created_at) : undefined,
     });
