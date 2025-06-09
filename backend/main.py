@@ -7,19 +7,19 @@ app.include_router(generate.router)
 
 origins = ["http://localhost:3000"]
 
-# Allow CORS for your Next.js frontend
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Update if deploying
+    allow_origins=origins,  # update when we deploy
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+def root():
+    return {
+        "message": "Welcome to the API for this project.",
+        "author": "Authored by Alfardil Alam."
+        }
 
-@app.get("/repo/{username}/{repo}")
-def get_repo(username: str, repo: str):
-    return {"username": username, "repo": repo}
