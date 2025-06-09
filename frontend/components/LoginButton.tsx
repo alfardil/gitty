@@ -10,7 +10,7 @@ export function GitHubLoginButton() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg min-w-[120px] min-h-[48px] mt-4 mb-4">
+      <div className="flex items-center justify-center bg-white/90 p-2 rounded-lg shadow-lg min-w-[120px] min-h-[48px] mt-4 mb-4">
         <svg
           className="animate-spin h-6 w-6 text-blue-400"
           xmlns="http://www.w3.org/2000/svg"
@@ -51,13 +51,14 @@ export function GitHubLoginButton() {
   }
 
   return (
-    <div className="flex items-center gap-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg mt-4 mb-4">
+    <div className="flex items-center gap-4 bg-white/90 p-2 rounded-lg shadow-lg mt-4 mb-4">
       <div className="flex items-center gap-3">
         <div className="relative h-10 w-10 rounded-full overflow-hidden">
           <Image
             src={user.avatar_url}
             alt={user.name || user.login}
             fill
+            sizes="100px"
             className="object-cover"
           />
         </div>

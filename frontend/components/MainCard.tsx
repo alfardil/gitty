@@ -6,5 +6,10 @@ type MainCardProps = {
 };
 
 export default function MainCard({ username, repo }: MainCardProps) {
-  return <DiagramInput username={username} repo={repo} />;
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="text-lg font-bold">System Design Analysis</div>
+      <DiagramInput username={username} repo={repo} />
+    </div>
+  );
 }

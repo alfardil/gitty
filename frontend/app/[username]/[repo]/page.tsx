@@ -62,87 +62,89 @@ export default function Repo() {
   }
 
   return (
-    <div className="min-h-screen bg-primary flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-4xl flex justify-end mb-4">
+    <div className="min-h-screen bg-primary">
+      <div className="w-full h-20 flex items-center justify-end px-4 fixed top-0 left-0 z-20 bg-primary/80 backdrop-blur-sm pt-10">
         <GitHubLoginButton />
       </div>
-      <Card className="bg-white rounded-xl shadow-lg p-8 border-4 border-black flex flex-col items-center gap-4 w-full max-w-4xl">
-        <MainCard
-          username={params.username.toLowerCase()}
-          repo={params.repo.toLowerCase()}
-        />
-        <div className="text-center text-lg font-medium">
-          Your username is {params.username} and your repo is
-          <a
-            href={`https://github.com/${params.username}/${params.repo}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-2 inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 hover:underline transition-colors duration-150"
-          >
-            {params.repo}
-          </a>
-          <p className="text-sm text-gray-600">
-            {cost ? `Cost: ${cost}` : "Cost: Calculating..."}
-          </p>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen pt-24 px-2 sm:px-0">
+        <Card className="bg-white rounded-xl shadow-lg p-8 border-4 border-black flex flex-col items-center gap-4 w-full max-w-4xl">
+          <MainCard
+            username={params.username.toLowerCase()}
+            repo={params.repo.toLowerCase()}
+          />
+          <div className="text-center text-lg font-medium">
+            Your username is {params.username} and your repo is
+            <a
+              href={`https://github.com/${params.username}/${params.repo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-2 inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 hover:underline transition-colors duration-150"
+            >
+              {params.repo}
+            </a>
+            <p className="text-sm text-gray-600">
+              {cost ? `Cost: ${cost}` : "Cost: Calculating..."}
+            </p>
+          </div>
 
-        <div className="w-full bg-gray-50 border border-gray-300 rounded p-4 my-4 text-left overflow-x-auto">
-          <div className="mb-2 font-semibold">Diagram Generation State</div>
-          <div className="mb-1">
-            <span className="font-medium">Status:</span> {state.status}
-          </div>
-          <div className="mb-1">
-            <span className="font-medium">Explanation:</span>
-            <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-              {state.explanation || "(none)"}
-            </pre>
-          </div>
-          <div className="mb-1">
-            <span className="font-medium">Mapping:</span>
-            <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-              {state.mapping || "(none)"}
-            </pre>
-          </div>
-          <div>
-            <span className="font-medium">Diagram:</span>
-            <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-              {state.diagram || "(none)"}
-            </pre>
-          </div>
-        </div>
-
-        {loading && (
-          <div className="w-full text-center py-4">
-            <Spinner>
-              <p className="mt-2 text-gray-600">Generating diagram...</p>
-            </Spinner>
-          </div>
-        )}
-
-        {error && (
-          <div className="w-full text-center py-4 text-red-600">{error}</div>
-        )}
-
-        {!loading && !error && diagram && (
-          <div className="w-full mt-4">
-            <MermaidChart
-              ref={mermaidRef}
-              chart={diagram}
-              onAutoRegenerate={() => handleRegenerate("")}
-            />
-            <div className="flex justify-center mt-4 gap-2">
-              <Button onClick={handleCopySVG}>
-                <CopyIcon className="w-4 h-4" />
-                Copy as SVG
-              </Button>
-              {/* <Button onClick={() => handleDownloadPNG()}>
-                <CopyIcon className="w-4 h-4" />
-                Download as PNG
-              </Button> */}
+          <div className="w-full bg-gray-50 border border-gray-300 rounded p-4 my-4 text-left overflow-x-auto">
+            <div className="mb-2 font-semibold">Diagram Generation State</div>
+            <div className="mb-1">
+              <span className="font-medium">Status:</span> {state.status}
+            </div>
+            <div className="mb-1">
+              <span className="font-medium">Explanation:</span>
+              <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {state.explanation || "(none)"}
+              </pre>
+            </div>
+            <div className="mb-1">
+              <span className="font-medium">Mapping:</span>
+              <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {state.mapping || "(none)"}
+              </pre>
+            </div>
+            <div>
+              <span className="font-medium">Diagram:</span>
+              <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                {state.diagram || "(none)"}
+              </pre>
             </div>
           </div>
-        )}
-      </Card>
+
+          {loading && (
+            <div className="w-full text-center py-4">
+              <Spinner>
+                <p className="mt-2 text-gray-600">Generating diagram...</p>
+              </Spinner>
+            </div>
+          )}
+
+          {error && (
+            <div className="w-full text-center py-4 text-red-600">{error}</div>
+          )}
+
+          {!loading && !error && diagram && (
+            <div className="w-full mt-4">
+              <MermaidChart
+                ref={mermaidRef}
+                chart={diagram}
+                onAutoRegenerate={() => handleRegenerate("")}
+              />
+              <div className="flex justify-center mt-4 gap-2">
+                <Button onClick={handleCopySVG}>
+                  <CopyIcon className="w-4 h-4" />
+                  Copy as SVG
+                </Button>
+                {/* <Button onClick={() => handleDownloadPNG()}>
+                  <CopyIcon className="w-4 h-4" />
+                  Download as PNG
+                </Button> */}
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }
