@@ -10,7 +10,7 @@ export default function Home() {
         get started.
       </p>
       <Link href="/dashboard" className="mt-4">
-        <Button className="bg-blue-400 text-white p-2 rounded-md cursor-pointer hover:bg-blue-500">
+        <Button className="bg-blue-400 text-black font-bold p-2 rounded-md cursor-pointer hover:bg-blue-500">
           Dashboard
         </Button>
       </Link>

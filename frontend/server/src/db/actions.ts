@@ -58,7 +58,7 @@ export async function createSession({
   expiresAt,
   deletedAt,
 }: {
-  userId: number;
+  userId: string;
   expiresAt: Date;
   deletedAt?: Date | null;
 }) {
@@ -67,4 +67,8 @@ export async function createSession({
     .values({ userId, expiresAt, deletedAt })
     .returning();
   return { created: true, session: inserted[0] };
+}
+
+export async function deleteSession({ id }: { id: string }) {
+  await db.delete(sessionsTable).where(eq(sessionsTable.id, id));
 }
