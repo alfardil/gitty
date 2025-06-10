@@ -67,10 +67,18 @@ export async function GET(request: NextRequest) {
     // Create a session in the database
     if (upsertResult && upsertResult.user) {
       const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 1 week
-      await createSession({
+      const sessionResult = await createSession({
         userId: upsertResult.user.id,
         expiresAt,
         deletedAt: null,
+      });
+
+      // Store the session ID in a cookie
+      cookieStore.set("session_id", String(sessionResult.session.id), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 1 week
       });
     }
 

@@ -1,5 +1,4 @@
 import {
-  integer,
   pgTable,
   varchar,
   timestamp,
@@ -7,9 +6,8 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: uuidType().primaryKey().defaultRandom(),
   githubId: varchar({ length: 32 }).notNull().unique(),
-  uuid: uuidType().defaultRandom().notNull().unique(),
   githubUsername: varchar({ length: 255 }),
   firstName: varchar({ length: 255 }),
   lastName: varchar({ length: 255 }),
@@ -20,8 +18,10 @@ export const usersTable = pgTable("users", {
 });
 
 export const sessionsTable = pgTable("sessions", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  userId: integer().notNull(),
+  id: uuidType().primaryKey().defaultRandom(),
+  userId: uuidType()
+    .notNull()
+    .references(() => usersTable.id),
   expiresAt: timestamp().notNull(),
   deletedAt: timestamp(),
 });
