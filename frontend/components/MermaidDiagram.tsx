@@ -12,7 +12,7 @@ import React from "react";
 
 interface MermaidChartProps {
   chart: string;
-  onAutoRegenerate?: () => void;
+  onRegenerate?: () => void;
 }
 
 export interface MermaidChartHandle {
@@ -20,7 +20,7 @@ export interface MermaidChartHandle {
 }
 
 const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
-  ({ chart, onAutoRegenerate }, ref) => {
+  ({ chart, onRegenerate }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -38,29 +38,17 @@ const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
       containerRef.current.innerHTML = "";
       const renderMermaid = async () => {
         try {
-          mermaid.parse(chart); // Validate syntax first
           const { svg } = await mermaid.render("mermaidChart", chart);
           if (containerRef.current) {
             containerRef.current.innerHTML = svg;
           }
         } catch (e: any) {
-          if (onAutoRegenerate) {
-            // Show a toast to the user
-            if (typeof window !== "undefined") {
-              // Dynamically import toast to avoid SSR issues
-              import("sonner").then(({ toast }) => {
-                toast.error("Diagram generation failed. Retrying...");
-              });
-            }
-            onAutoRegenerate();
-          } else {
-            setError(e?.message || "Invalid Mermaid diagram syntax.");
-          }
+          setError(e?.message || "Invalid Mermaid diagram syntax.");
         }
       };
       renderMermaid();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [chart, onAutoRegenerate]);
+    }, [chart]);
 
     if (error) {
       return (
@@ -69,6 +57,14 @@ const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
           <pre className="mt-2 bg-gray-100 p-2 rounded whitespace-pre-wrap overflow-x-auto">
             {chart}
           </pre>
+          {onRegenerate && (
+            <button
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={onRegenerate}
+            >
+              Regenerate Diagram
+            </button>
+          )}
         </div>
       );
     }
