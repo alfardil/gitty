@@ -122,6 +122,15 @@ To create the Mermaid.js diagram:
    b. Relationships between components are clearly shown
    c. The diagram accurately reflects the architecture described in the explanation
    d. The layout is logical and easy to understand
+   e. It is visually appealing
+
+Tips to keep the diagram visually appealing:
+   -  Prefer vertical or block-style layouts over long horizontal chains.
+	-	Use subgraphs and grouping to organize related components.
+	-	Keep node spacing tight but readable.
+	-	Prioritize clarity and flow: aim for intuitive, top-to-bottom or left-to-right connections.
+	-	Use labels, groupings, and direction hints (like TB or LR) to enhance visual structure.
+	-	Avoid duplicating connections or creating unnecessary cross-links that clutter the view.
 
 Guidelines for diagram components and relationships:
 - Use appropriate shapes for different types of components (e.g., rectangles for services, cylinders for databases, etc.)

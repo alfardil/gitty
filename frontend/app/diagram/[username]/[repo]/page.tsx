@@ -124,20 +124,15 @@ export default function Repo() {
 
           {!loading && !error && diagram && (
             <div className="w-full mt-4">
-              <MermaidChart
-                ref={mermaidRef}
-                chart={diagram}
-                onAutoRegenerate={() => handleRegenerate("")}
-              />
+              <MermaidChart ref={mermaidRef} chart={diagram} />
               <div className="flex justify-center mt-4 gap-2">
                 <Button onClick={handleCopySVG}>
                   <CopyIcon className="w-4 h-4" />
                   Copy as SVG
                 </Button>
-                {/* <Button onClick={() => handleDownloadPNG()}>
-                  <CopyIcon className="w-4 h-4" />
-                  Download as PNG
-                </Button> */}
+                <Button onClick={() => handleRegenerate("")}>
+                  Regenerate Diagram
+                </Button>
               </div>
             </div>
           )}
