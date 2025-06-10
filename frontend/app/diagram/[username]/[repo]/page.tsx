@@ -1,18 +1,18 @@
 "use client";
 
-import MainCard from "../../../components/MainCard";
-import { Card } from "../../../components/ui/card";
+import MainCard from "../../../../components/MainCard";
+import { Card } from "../../../../components/ui/card";
 import { useParams } from "next/navigation";
 import MermaidChart, {
   MermaidChartHandle,
-} from "../../../components/MermaidDiagram";
-import { useDiagram } from "../../../lib/hooks/useDiagram";
-import { Spinner } from "../../../components/ui/spinner";
+} from "../../../../components/MermaidDiagram";
+import { useDiagram } from "../../../../lib/hooks/useDiagram";
+import { Spinner } from "../../../../components/ui/spinner";
 import React from "react";
-import { GitHubLoginButton } from "@/components/LoginButton";
 import { Button } from "@/components/ui/button";
 import { CopyIcon } from "lucide-react";
 import { toast } from "sonner";
+import Header from "@/components/Header";
 
 export default function Repo() {
   const params = useParams<{ username: string; repo: string }>();
@@ -63,9 +63,7 @@ export default function Repo() {
 
   return (
     <div className="min-h-screen bg-primary">
-      <div className="w-full h-20 flex items-center justify-end px-4 fixed top-0 left-0 z-20 bg-primary/80 backdrop-blur-sm pt-10">
-        <GitHubLoginButton />
-      </div>
+      <Header />
       <div className="flex flex-col items-center justify-center min-h-screen pt-24 px-2 sm:px-0">
         <Card className="bg-white rounded-xl shadow-lg p-8 border-4 border-black flex flex-col items-center gap-4 w-full max-w-4xl">
           <MainCard

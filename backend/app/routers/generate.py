@@ -34,23 +34,19 @@ async def test():
     
     return o4_service.call_o4_api(system_prompt, data)
 
-def get_github_data(username: str, repo: str):
+def get_github_data(username: str, repo: str, githubAccessToken: str):
     github_service = GitHubService()
-
-
-    default_branch = github_service.get_default_branch(username, repo)
+    default_branch = github_service.get_default_branch(username, repo, githubAccessToken)
     if not default_branch:
         default_branch = "main"
-    
-    file_tree = github_service.get_github_file_paths_as_list(username, repo)
-    readme = github_service.get_github_readme(username, repo)
-
+    file_tree = github_service.get_github_file_paths_as_list(username, repo, githubAccessToken)
+    readme = github_service.get_github_readme(username, repo, githubAccessToken)
     return {"default_branch": default_branch, "file_tree": file_tree, "readme": readme}
 
 class ApiRequest(BaseModel):
     username: str
     repo: str
-    github_access_token: str
+    githubAccessToken: str
     instructions: str = ""
 
 
@@ -58,7 +54,7 @@ class ApiRequest(BaseModel):
 async def get_generation_cost(request: Request, body: ApiRequest):
     try:
         # Get file tree and README content
-        github_data = get_github_data(body.username, body.repo, body.github_access_token)
+        github_data = get_github_data(body.username, body.repo, body.githubAccessToken)
         file_tree = github_data["file_tree"]
         readme = github_data["readme"]
 
@@ -115,7 +111,7 @@ async def generate_stream(request: Request, body: ApiRequest):
             try:
                 # get github data
                 github_data = get_github_data(
-                    body.username, body.repo
+                    body.username, body.repo, body.githubAccessToken
                 )
                 default_branch = github_data["default_branch"]
                 file_tree = github_data["file_tree"]

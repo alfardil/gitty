@@ -45,7 +45,7 @@ export default function DiagramInput({ username, repo }: DiagramInputProps) {
 
     const sanitizedUsername = encodeURIComponent(username);
     const sanitizedRepo = encodeURIComponent(repo);
-    router.push(`/${sanitizedUsername}/${sanitizedRepo}`);
+    router.push(`/diagram/${sanitizedUsername}/${sanitizedRepo}`);
     toast.success("Navigated to repository!");
   };
 
