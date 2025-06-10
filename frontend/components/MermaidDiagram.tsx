@@ -1,18 +1,17 @@
 "use client";
 
-import {
+import React, {
   useEffect,
   useRef,
   useState,
-  useImperativeHandle,
   forwardRef,
+  useImperativeHandle,
 } from "react";
 import mermaid from "mermaid";
-import React from "react";
+import { Spinner } from "./ui/spinner";
 
 interface MermaidChartProps {
   chart: string;
-  onRegenerate?: () => void;
 }
 
 export interface MermaidChartHandle {
@@ -20,9 +19,10 @@ export interface MermaidChartHandle {
 }
 
 const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
-  ({ chart, onRegenerate }, ref) => {
+  ({ chart }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [error, setError] = useState<string | null>(null);
+    const [svg, setSvg] = useState<string | null>(null);
 
     useImperativeHandle(ref, () => ({
       getSvgElement: () => {
@@ -33,22 +33,25 @@ const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
 
     useEffect(() => {
       setError(null);
-      if (!containerRef.current) return;
-      // Clear previous diagram
-      containerRef.current.innerHTML = "";
-      const renderMermaid = async () => {
-        try {
-          const { svg } = await mermaid.render("mermaidChart", chart);
-          if (containerRef.current) {
-            containerRef.current.innerHTML = svg;
-          }
-        } catch (e: any) {
+      setSvg(null);
+      if (!containerRef.current || !chart) return;
+      mermaid
+        .render("mermaidChart", chart)
+        .then(({ svg }) => {
+          setSvg(svg);
+        })
+        .catch((e) => {
           setError(e?.message || "Invalid Mermaid diagram syntax.");
-        }
-      };
-      renderMermaid();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+        });
     }, [chart]);
+
+    if (!chart) {
+      return (
+        <div className="flex items-center justify-center w-full h-40">
+          <Spinner size="large" show={true} />
+        </div>
+      );
+    }
 
     if (error) {
       return (
@@ -57,19 +60,15 @@ const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
           <pre className="mt-2 bg-gray-100 p-2 rounded whitespace-pre-wrap overflow-x-auto">
             {chart}
           </pre>
-          {onRegenerate && (
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              onClick={onRegenerate}
-            >
-              Regenerate Diagram
-            </button>
-          )}
         </div>
       );
     }
 
-    return <div ref={containerRef} className="w-full max-w-full p-4" />;
+    return (
+      <div ref={containerRef} className="w-full max-w-full p-4">
+        {svg && <div dangerouslySetInnerHTML={{ __html: svg }} />}
+      </div>
+    );
   }
 );
 

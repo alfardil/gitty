@@ -81,6 +81,13 @@ export async function GET(request: NextRequest) {
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
+    // Also set a non-HttpOnly cookie for frontend access
+    cookieStore.set("github_access_token", tokenData.access_token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
 
     cookieStore.set("github_user", JSON.stringify(userData), {
       httpOnly: true,
