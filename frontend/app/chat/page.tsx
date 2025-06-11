@@ -1,9 +1,9 @@
 "use client";
 
 import Header from "@/components/Header";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/neo/card";
+import { Button } from "@/components/ui/neo/button";
+import { Input } from "@/components/ui/neo/input";
 import { useState } from "react";
 import { Plus, Send } from "lucide-react";
 import {
@@ -13,7 +13,7 @@ import {
   SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/neo/sidebar";
 
 const mockConversations = [
   {

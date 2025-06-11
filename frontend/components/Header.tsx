@@ -5,7 +5,7 @@ import Image from "next/image";
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { useState, useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/neo/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "./ui/dropdown-menu";
+} from "@/components/ui/neo/dropdown-menu";
 
 export default function Header() {
   const isMobile = useIsMobile();

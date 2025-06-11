@@ -8,7 +8,7 @@ import React, {
   useImperativeHandle,
 } from "react";
 import mermaid from "mermaid";
-import { Spinner } from "./ui/spinner";
+import { Spinner } from "@/components/ui/neo/spinner";
 
 interface MermaidChartProps {
   chart: string;

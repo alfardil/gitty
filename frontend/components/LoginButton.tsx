@@ -1,10 +1,10 @@
 "use client";
 
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/neo/button";
 import { Github, LogOut } from "lucide-react";
 import Image from "next/image";
-import { Spinner } from "./ui/spinner";
+import { Spinner } from "@/components/ui/neo/spinner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export function GitHubLoginButton() {
