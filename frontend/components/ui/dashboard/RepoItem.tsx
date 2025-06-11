@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/neo/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Github } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function RepoItem({
@@ -39,14 +39,23 @@ export function RepoItem({
         <div className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <span
+                  className="cursor-pointer hover:underline"
+                  onClick={() =>
+                    router.push(`/${repo.owner.login}/${repo.name}`)
+                  }
+                >
+                  {repo.name}
+                </span>
                 <a
                   href={repo.html_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-gray-700 hover:text-black"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  {repo.name}
+                  <Github className="inline-block w-5 h-5" />
                 </a>
               </h3>
               <p className="text-sm text-gray-500">

@@ -1,8 +1,10 @@
+import { sql } from "drizzle-orm";
 import {
   pgTable,
   varchar,
   timestamp,
   uuid as uuidType,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
@@ -25,3 +27,24 @@ export const sessionsTable = pgTable("sessions", {
   expiresAt: timestamp().notNull(),
   deletedAt: timestamp(),
 });
+
+export const diagramCache = pgTable(
+  "diagram_cache",
+  {
+    username: varchar("username", { length: 256 }).notNull(),
+    repo: varchar("repo", { length: 256 }).notNull(),
+    diagram: varchar("diagram", { length: 10000 }).notNull(),
+    explanation: varchar("explanation", { length: 10000 })
+      .notNull()
+      .default("No explanation provided"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date()
+    ),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.username, table.repo] }),
+  })
+);

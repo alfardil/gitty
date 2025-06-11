@@ -8,24 +8,42 @@ import MermaidChart, {
 } from "../../../../components/MermaidDiagram";
 import { useDiagram } from "../../../../lib/hooks/useDiagram";
 import { Spinner } from "@/components/ui/neo/spinner";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/neo/button";
 import { CopyIcon, Redo2 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
+import { getCachedDiagram, getCachedExplanation } from "@/app/_actions/cache";
 
 export default function Repo() {
   const params = useParams<{ username: string; repo: string }>();
-  const {
-    diagram,
-    loading,
-    error,
-    cost,
-    state,
-    handleRegenerate,
-    // handleExportImage,
-  } = useDiagram(params.username.toLowerCase(), params.repo.toLowerCase());
+  const { diagram, loading, error, cost, state, handleRegenerate } = useDiagram(
+    params.username.toLowerCase(),
+    params.repo.toLowerCase()
+  );
   const mermaidRef = React.useRef<MermaidChartHandle>(null);
+  const [isCached, setIsCached] = useState(false);
+  const [cachedExplanation, setCachedExplanation] = useState<string | null>(
+    null
+  );
+
+  useEffect(() => {
+    const checkCache = async () => {
+      const cached = await getCachedDiagram(
+        params.username.toLowerCase(),
+        params.repo.toLowerCase()
+      );
+      if (cached) {
+        setIsCached(true);
+        const explanation = await getCachedExplanation(
+          params.username.toLowerCase(),
+          params.repo.toLowerCase()
+        );
+        setCachedExplanation(explanation);
+      }
+    };
+    void checkCache();
+  }, [params.username, params.repo]);
 
   // Copy SVG as text
   const handleCopySVG = async () => {
@@ -81,36 +99,47 @@ export default function Repo() {
               {params.repo}
             </a>
             <p className="text-sm text-gray-600">
-              {cost ? `Cost: ${cost}` : "Cost: Calculating..."}
+              {isCached
+                ? "Diagram was cached! No cost!"
+                : cost
+                ? `Cost: ${cost}`
+                : "Cost: Calculating..."}
             </p>
           </div>
 
           <div className="w-full bg-gray-50 border border-gray-300 rounded p-4 my-4 text-left overflow-x-auto">
             <div className="mb-2 font-semibold">Diagram Generation State</div>
             <div className="mb-1">
-              <span className="font-medium">Status:</span> {state.status}
+              <span className="font-medium">Status:</span>{" "}
+              {isCached ? "cached" : state.status}
             </div>
             <div className="mb-1">
               <span className="font-medium">Explanation:</span>
               <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                {state.explanation || "(none)"}
+                {isCached
+                  ? cachedExplanation || "(none)"
+                  : state.explanation || "(none)"}
               </pre>
             </div>
-            <div className="mb-1">
-              <span className="font-medium">Mapping:</span>
-              <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                {state.mapping || "(none)"}
-              </pre>
-            </div>
-            <div>
-              <span className="font-medium">Diagram:</span>
-              <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                {state.diagram || "(none)"}
-              </pre>
-            </div>
+            {!isCached && (
+              <>
+                <div className="mb-1">
+                  <span className="font-medium">Mapping:</span>
+                  <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                    {state.mapping || "(none)"}
+                  </pre>
+                </div>
+                <div>
+                  <span className="font-medium">Diagram:</span>
+                  <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
+                    {state.diagram || "(none)"}
+                  </pre>
+                </div>
+              </>
+            )}
           </div>
 
-          {loading && (
+          {loading && !isCached && (
             <div className="w-full text-center py-4">
               <Spinner>
                 <p className="mt-2 text-gray-600">Generating diagram...</p>
