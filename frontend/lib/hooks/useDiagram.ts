@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCost } from "../fetchBackend";
 import { toast } from "sonner";
+import {
+  cacheDiagramAndExplanation,
+  getCachedDiagram,
+  getLastGeneratedDate,
+} from "@/app/_actions/cache";
 
 interface StreamState {
   status:
@@ -46,6 +51,7 @@ export function useDiagram(username: string, repo: string) {
   const [cost, setCost] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [lastGenerated, setLastGenerated] = useState<Date | undefined>();
 
   const generateDiagram = useCallback(
     async (instructions: string = "") => {
@@ -184,6 +190,8 @@ export function useDiagram(username: string, repo: string) {
                           mapping: data.mapping ?? prev.mapping,
                           diagram: data.diagram ?? prev.diagram,
                         }));
+                        const date = await getLastGeneratedDate(username, repo);
+                        setLastGenerated(date ?? undefined);
                         break;
                       case "error":
                         setState({
@@ -219,7 +227,16 @@ export function useDiagram(username: string, repo: string) {
 
   useEffect(() => {
     if (state.status === "complete" && state.diagram) {
+      void cacheDiagramAndExplanation(
+        username,
+        repo,
+        state.diagram,
+        state.explanation || ""
+      );
       setDiagram(state.diagram);
+      void getLastGeneratedDate(username, repo).then((date) =>
+        setLastGenerated(date ?? undefined)
+      );
     } else if (state.status === "error") {
       setLoading(false);
     }
@@ -231,7 +248,17 @@ export function useDiagram(username: string, repo: string) {
     setCost("");
 
     try {
+      // Check cache first - always allow access to cached diagrams
+      const cached = await getCachedDiagram(username, repo);
       const githubAccessToken = getGithubAccessTokenFromCookie();
+
+      if (cached) {
+        setDiagram(cached);
+        const date = await getLastGeneratedDate(username, repo);
+        setLastGenerated(date ?? undefined);
+        return;
+      }
+
       const costEstimate = await getCost(
         username,
         repo,
@@ -365,6 +392,7 @@ export function useDiagram(username: string, repo: string) {
   return {
     diagram,
     error,
+    lastGenerated,
     loading,
     cost,
     state,
