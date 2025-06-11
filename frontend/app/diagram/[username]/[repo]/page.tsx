@@ -1,16 +1,16 @@
 "use client";
 
 import MainCard from "../../../../components/MainCard";
-import { Card } from "../../../../components/ui/card";
+import { Card } from "@/components/ui/neo/card";
 import { useParams } from "next/navigation";
 import MermaidChart, {
   MermaidChartHandle,
 } from "../../../../components/MermaidDiagram";
 import { useDiagram } from "../../../../lib/hooks/useDiagram";
-import { Spinner } from "../../../../components/ui/spinner";
+import { Spinner } from "@/components/ui/neo/spinner";
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { CopyIcon } from "lucide-react";
+import { Button } from "@/components/ui/neo/button";
+import { CopyIcon, Redo2 } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 
@@ -131,6 +131,7 @@ export default function Repo() {
                   Copy as SVG
                 </Button>
                 <Button onClick={() => handleRegenerate("")}>
+                  <Redo2 className="w-4 h-4" />
                   Regenerate Diagram
                 </Button>
               </div>

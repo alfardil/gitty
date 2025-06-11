@@ -1,15 +1,144 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Spinner } from "@/components/ui/spinner";
 import Header from "@/components/Header";
 import { GitHubLoginButton } from "@/components/LoginButton";
+import { useEffect, useState } from "react";
+import { fetchRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
+import { TopNav } from "@/components/ui/dashboard/TopNav";
+import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
+import { RepoList } from "@/components/ui/dashboard/RepoList";
+import { OrgList } from "@/components/ui/dashboard/OrgList";
+import { Spinner } from "@/components/ui/neo/spinner";
 
 export default function Dashboard() {
-  const router = useRouter();
   const { user, loading } = useAuth();
+  const [repos, setRepos] = useState<any[]>([]);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
+  const [showRepos, setShowRepos] = useState(false);
+  const [showOrgs, setShowOrgs] = useState(false);
+  const [orgs, setOrgs] = useState<any[]>([]);
+  const [orgsLoading, setOrgsLoading] = useState(false);
+  const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
+  const [orgRepos, setOrgRepos] = useState<{ [org: string]: any[] }>({});
+  const [orgReposLoading, setOrgReposLoading] = useState<{
+    [org: string]: boolean;
+  }>({});
+  const [repoPage, setRepoPage] = useState(1);
+  const [orgRepoPages, setOrgRepoPages] = useState<{ [org: string]: number }>(
+    {}
+  );
+  const perPage = 10;
+
+  useEffect(() => {
+    async function loadRepos() {
+      if (user && showRepos) {
+        setReposLoading(true);
+        try {
+          const githubAccessToken = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("github_access_token="))
+            ?.split("=")[1];
+          if (githubAccessToken) {
+            const reposData = await fetchRepos(
+              githubAccessToken,
+              perPage,
+              repoPage
+            );
+            setRepos(reposData);
+          }
+        } catch (error) {
+          console.error("Error fetching repos:", error);
+        } finally {
+          setReposLoading(false);
+        }
+      }
+    }
+    loadRepos();
+  }, [user, showRepos, repoPage]);
+
+  useEffect(() => {
+    async function loadOrgs() {
+      if (user && showOrgs) {
+        setOrgsLoading(true);
+        try {
+          const githubAccessToken = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("github_access_token="))
+            ?.split("=")[1];
+          if (githubAccessToken) {
+            const orgsData = await fetchUserOrgs(githubAccessToken);
+            setOrgs(orgsData);
+          }
+        } catch (error) {
+          console.error("Error fetching orgs:", error);
+        } finally {
+          setOrgsLoading(false);
+        }
+      }
+    }
+    loadOrgs();
+  }, [user, showOrgs]);
+
+  async function handleExpandOrg(orgLogin: string) {
+    setExpandedOrg(expandedOrg === orgLogin ? null : orgLogin);
+    if (expandedOrg !== orgLogin) {
+      setOrgReposLoading((prev) => ({ ...prev, [orgLogin]: true }));
+      try {
+        const githubAccessToken = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("github_access_token="))
+          ?.split("=")[1];
+        if (githubAccessToken) {
+          const page = orgRepoPages[orgLogin] || 1;
+          const repos = await fetchOrgRepos(
+            githubAccessToken,
+            orgLogin,
+            perPage,
+            page
+          );
+          setOrgRepos((prev) => ({ ...prev, [orgLogin]: repos }));
+        }
+      } catch (error) {
+        console.error("Error fetching org repos:", error);
+      } finally {
+        setOrgReposLoading((prev) => ({ ...prev, [orgLogin]: false }));
+      }
+    }
+  }
+
+  function handleShowRepos() {
+    setShowRepos((prev) => !prev);
+    setShowOrgs(false);
+    setExpandedOrg(null);
+  }
+  function handleShowOrgs() {
+    setShowOrgs((prev) => !prev);
+    setShowRepos(false);
+    setExpandedRepo(null);
+  }
+
+  function handleExpandRepo(id: string) {
+    setExpandedRepo(expandedRepo === id ? null : id);
+  }
+
+  function handlePrevRepoPage() {
+    setRepoPage((p) => Math.max(1, p - 1));
+  }
+  function handleNextRepoPage() {
+    setRepoPage((p) => p + 1);
+  }
+
+  function handlePrevOrgRepoPage(org: string) {
+    setOrgRepoPages((prev) => ({
+      ...prev,
+      [org]: Math.max(1, (prev[org] || 1) - 1),
+    }));
+  }
+  function handleNextOrgRepoPage(org: string) {
+    setOrgRepoPages((prev) => ({ ...prev, [org]: (prev[org] || 1) + 1 }));
+  }
 
   if (loading) {
     return (
@@ -29,21 +158,43 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-primary mb-10">
       <Header />
-      <div className="flex flex-col items-center justify-center min-h-screen pt-32 gap-4">
-        <Button
-          className="bg-blue-500 hover:bg-blue-600 text-white cursor-pointer font-bold py-2 px-4 rounded shadow"
-          onClick={() => router.push("/diagram")}
-        >
-          Go to System Design Diagram
-        </Button>
-        <Button
-          className="bg-green-500 hover:bg-green-600 text-white cursor-pointer font-bold py-2 px-4 rounded shadow"
-          onClick={() => router.push("/chat")}
-        >
-          Go to Chat
-        </Button>
+      <div className="container mx-auto px-4 pt-32 max-w-3xl">
+        <TopNav />
+        <SectionToggle
+          showRepos={showRepos}
+          showOrgs={showOrgs}
+          onShowRepos={handleShowRepos}
+          onShowOrgs={handleShowOrgs}
+        />
+        {showRepos && (
+          <RepoList
+            repos={repos}
+            loading={reposLoading}
+            expandedRepo={expandedRepo}
+            onExpandRepo={handleExpandRepo}
+            username={user.login}
+            page={repoPage}
+            onPrevPage={handlePrevRepoPage}
+            onNextPage={handleNextRepoPage}
+            perPage={perPage}
+          />
+        )}
+        {showOrgs && (
+          <OrgList
+            orgs={orgs}
+            loading={orgsLoading}
+            expandedOrg={expandedOrg}
+            onExpandOrg={handleExpandOrg}
+            orgRepos={orgRepos}
+            orgReposLoading={orgReposLoading}
+            orgRepoPages={orgRepoPages}
+            onPrevOrgRepoPage={handlePrevOrgRepoPage}
+            onNextOrgRepoPage={handleNextOrgRepoPage}
+            perPage={perPage}
+          />
+        )}
       </div>
     </div>
   );

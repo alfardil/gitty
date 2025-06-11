@@ -2,8 +2,8 @@
 import { SendIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/neo/button";
+import { Input } from "@/components/ui/neo/input";
 import { toast } from "sonner";
 
 type DiagramInputProps = {

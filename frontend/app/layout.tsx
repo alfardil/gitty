@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Sen } from "next/font/google";
 
 import "./globals.css";
-import { Toaster } from "../components/ui/sonner";
+import { Toaster } from "../components/ui/neo/sonner";
 import React from "react";
 
 const sen = Sen({
