@@ -10,6 +10,7 @@ import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
 import { RepoList } from "@/components/ui/dashboard/RepoList";
 import { OrgList } from "@/components/ui/dashboard/OrgList";
 import { Spinner } from "@/components/ui/neo/spinner";
+import { fetchFile } from "@/lib/fetchFile";
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -30,6 +31,7 @@ export default function Dashboard() {
     {}
   );
   const perPage = 10;
+  const [testFileContent, setTestFileContent] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadRepos() {
@@ -47,6 +49,24 @@ export default function Dashboard() {
               repoPage
             );
             setRepos(reposData);
+            if (reposData && reposData.length > 0) {
+              const firstRepo = reposData[0];
+              try {
+                const fileContent = await fetchFile({
+                  accessToken: githubAccessToken,
+                  owner: firstRepo.owner.login,
+                  repo: firstRepo.name,
+                  branch: firstRepo.default_branch || "main",
+                  filePath: "README.md",
+                });
+
+                setTestFileContent(fileContent);
+              } catch (err) {
+                setTestFileContent(
+                  "Error fetching file: " + (err as Error).message
+                );
+              }
+            }
           }
         } catch (error) {
           console.error("Error fetching repos:", error);
@@ -168,6 +188,12 @@ export default function Dashboard() {
           onShowRepos={handleShowRepos}
           onShowOrgs={handleShowOrgs}
         />
+        {testFileContent && (
+          <div className="mb-6 p-4 bg-white border rounded text-xs text-gray-700 whitespace-pre-wrap">
+            <div className="font-bold mb-2">First repo README.md:</div>
+            {testFileContent}
+          </div>
+        )}
         {showRepos && (
           <RepoList
             repos={repos}

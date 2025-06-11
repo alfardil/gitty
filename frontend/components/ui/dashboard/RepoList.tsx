@@ -48,6 +48,7 @@ export function RepoList({
               variant="noShadow"
               disabled={page === 1}
               onClick={onPrevPage}
+              className="bg-blue-300"
             >
               Previous
             </Button>
@@ -56,6 +57,7 @@ export function RepoList({
               variant="noShadow"
               disabled={repos.length < perPage}
               onClick={onNextPage}
+              className="bg-blue-300"
             >
               Next
             </Button>
