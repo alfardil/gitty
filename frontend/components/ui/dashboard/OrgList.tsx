@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/neo/button";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { ChevronDown } from "lucide-react";
 import { RepoItem } from "./RepoItem";
+import { useState } from "react";
 
 type OrgListProps = {
   orgs: any[];
@@ -28,6 +29,18 @@ export function OrgList({
   onNextOrgRepoPage,
   perPage,
 }: OrgListProps) {
+  // Track expanded repo per org
+  const [expandedRepoByOrg, setExpandedRepoByOrg] = useState<{
+    [org: string]: string | null;
+  }>({});
+
+  const handleExpandRepo = (org: string, repoId: string) => {
+    setExpandedRepoByOrg((prev) => ({
+      ...prev,
+      [org]: prev[org] === repoId ? null : repoId,
+    }));
+  };
+
   return (
     <div className="space-y-4 mb-8">
       {loading ? (
@@ -76,12 +89,15 @@ export function OrgList({
                             <RepoItem
                               key={repo.id}
                               repo={repo}
-                              expanded={false}
-                              onExpand={() => {}}
+                              expanded={
+                                expandedRepoByOrg[org.login] === repo.id
+                              }
+                              onExpand={() =>
+                                handleExpandRepo(org.login, repo.id)
+                              }
                               username={org.login}
                             />
                           ))}
-
                           <div className="flex justify-center gap-2 mt-2">
                             <Button
                               variant="noShadow"
@@ -96,7 +112,10 @@ export function OrgList({
                             </span>
                             <Button
                               variant="noShadow"
-                              disabled={orgRepos[org.login].length < perPage}
+                              disabled={
+                                !orgRepos[org.login] ||
+                                orgRepos[org.login].length < perPage
+                              }
                               onClick={() => onNextOrgRepoPage(org.login)}
                               className="bg-blue-300"
                             >

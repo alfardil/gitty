@@ -1,4 +1,4 @@
-export async function fetchRepos(
+export async function fetchUserRepos(
   githubAccessToken: string,
   per_page: number = 20,
   page: number = 1

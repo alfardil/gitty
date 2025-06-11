@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import Header from "@/components/Header";
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { useEffect, useState } from "react";
-import { fetchRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
+import { fetchUserRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
 import { TopNav } from "@/components/ui/dashboard/TopNav";
 import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
 import { RepoList } from "@/components/ui/dashboard/RepoList";
@@ -30,7 +30,7 @@ export default function Dashboard() {
   const [orgRepoPages, setOrgRepoPages] = useState<{ [org: string]: number }>(
     {}
   );
-  const perPage = 10;
+  const perPage = 20;
   const [testFileContent, setTestFileContent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function Dashboard() {
             .find((row) => row.startsWith("github_access_token="))
             ?.split("=")[1];
           if (githubAccessToken) {
-            const reposData = await fetchRepos(
+            const reposData = await fetchUserRepos(
               githubAccessToken,
               perPage,
               repoPage
@@ -103,30 +103,49 @@ export default function Dashboard() {
 
   async function handleExpandOrg(orgLogin: string) {
     setExpandedOrg(expandedOrg === orgLogin ? null : orgLogin);
-    if (expandedOrg !== orgLogin) {
-      setOrgReposLoading((prev) => ({ ...prev, [orgLogin]: true }));
-      try {
-        const githubAccessToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("github_access_token="))
-          ?.split("=")[1];
-        if (githubAccessToken) {
-          const page = orgRepoPages[orgLogin] || 1;
-          const repos = await fetchOrgRepos(
-            githubAccessToken,
-            orgLogin,
-            perPage,
-            page
-          );
-          setOrgRepos((prev) => ({ ...prev, [orgLogin]: repos }));
+  }
+
+  useEffect(() => {
+    async function fetchOrgReposForExpandedOrg() {
+      if (expandedOrg) {
+        setOrgReposLoading((prev) => ({ ...prev, [expandedOrg]: true }));
+        try {
+          const githubAccessToken = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("github_access_token="))
+            ?.split("=")[1];
+          if (githubAccessToken) {
+            let page = orgRepoPages[expandedOrg] || 1;
+            let repos = await fetchOrgRepos(
+              githubAccessToken,
+              expandedOrg,
+              perPage,
+              page
+            );
+            // If empty and not on first page, go back until non-empty or page 1
+            while (repos.length === 0 && page > 1) {
+              page -= 1;
+              repos = await fetchOrgRepos(
+                githubAccessToken,
+                expandedOrg,
+                perPage,
+                page
+              );
+            }
+            setOrgRepoPages((prev) => ({ ...prev, [expandedOrg]: page }));
+            setOrgRepos((prev) => ({ ...prev, [expandedOrg]: repos }));
+          }
+        } catch (error) {
+          console.error("Error fetching org repos:", error);
+        } finally {
+          setOrgReposLoading((prev) => ({ ...prev, [expandedOrg]: false }));
         }
-      } catch (error) {
-        console.error("Error fetching org repos:", error);
-      } finally {
-        setOrgReposLoading((prev) => ({ ...prev, [orgLogin]: false }));
       }
     }
-  }
+    if (expandedOrg) {
+      fetchOrgReposForExpandedOrg();
+    }
+  }, [expandedOrg, expandedOrg ? orgRepoPages[expandedOrg] : undefined]);
 
   function handleShowRepos() {
     setShowRepos((prev) => !prev);
@@ -188,12 +207,12 @@ export default function Dashboard() {
           onShowRepos={handleShowRepos}
           onShowOrgs={handleShowOrgs}
         />
-        {testFileContent && (
+        {/* {testFileContent && (
           <div className="mb-6 p-4 bg-white border rounded text-xs text-gray-700 whitespace-pre-wrap">
             <div className="font-bold mb-2">First repo README.md:</div>
             {testFileContent}
           </div>
-        )}
+        )} */}
         {showRepos && (
           <RepoList
             repos={repos}
