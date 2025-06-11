@@ -81,12 +81,13 @@ export function OrgList({
                               username={org.login}
                             />
                           ))}
-                          {/* Org Repo Pagination Controls */}
+
                           <div className="flex justify-center gap-2 mt-2">
                             <Button
                               variant="noShadow"
                               disabled={(orgRepoPages[org.login] || 1) === 1}
                               onClick={() => onPrevOrgRepoPage(org.login)}
+                              className="bg-blue-300"
                             >
                               Previous
                             </Button>
@@ -97,6 +98,7 @@ export function OrgList({
                               variant="noShadow"
                               disabled={orgRepos[org.login].length < perPage}
                               onClick={() => onNextOrgRepoPage(org.login)}
+                              className="bg-blue-300"
                             >
                               Next
                             </Button>

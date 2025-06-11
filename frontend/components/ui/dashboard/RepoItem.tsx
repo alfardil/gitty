@@ -18,7 +18,7 @@ export function RepoItem({
     <div>
       <Button
         variant="noShadow"
-        className="w-full justify-between cursor-default bg-blue-200"
+        className="w-full justify-between cursor-default bg-blue-300"
         onClick={onExpand}
       >
         <div className="flex flex-col items-start">

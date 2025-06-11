@@ -1,8 +1,10 @@
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 
 export function useAuth() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const fetchUser = useCallback(async () => {
     setLoading(true);
@@ -26,10 +28,22 @@ export function useAuth() {
   }, [fetchUser]);
 
   const logout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    setUser(null);
-    setLoading(false);
-    window.location.reload();
+    try {
+      setLoading(true);
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+
+      if (!res.ok) {
+        throw new Error("Logout failed");
+      }
+
+      setUser(null);
+
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return { user, loading, logout };
