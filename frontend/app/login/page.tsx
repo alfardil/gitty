@@ -3,9 +3,18 @@
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
 
   if (loading) {
     return (
@@ -13,10 +22,6 @@ export default function LoginPage() {
         <Spinner size="large" show={true} />
       </div>
     );
-  }
-
-  if (user) {
-    window.location.href = "/dashboard";
   }
 
   return (

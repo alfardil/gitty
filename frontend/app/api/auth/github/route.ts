@@ -17,7 +17,7 @@ export async function GET() {
     client_id: process.env.GITHUB_CLIENT_ID!,
     redirect_uri: process.env.GITHUB_CALLBACK_URL!,
     state,
-    scope: "read:user user:email repo",
+    scope: "read:user user:email repo read:org",
   });
 
   const githubAuthUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
