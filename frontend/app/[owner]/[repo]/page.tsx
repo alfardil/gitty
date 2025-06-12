@@ -6,6 +6,7 @@ export default async function RepoPage({
 }: {
   params: { owner: string; repo: string };
 }) {
+  // for some reason nextjs wants me to await this idk why
   const { owner, repo } = await params;
   const { fileTree } = await getRepoPageData(owner, repo);
   return <RepoClientPage owner={owner} repo={repo} fileTree={fileTree} />;

@@ -23,5 +23,14 @@ def format_user_message(data: dict[str, str]) -> str:
             parts.append(f"<instructions>\n{value}\n</instructions>")
         elif key == "diagram":
             parts.append(f"<diagram>\n{value}\n</diagram>")
+        elif key == "user_question":
+            parts.append(f"<user_question>\n{value}\n</user_question>")
+        elif key == "function_name":
+            parts.append(f"<function_name>\n{value}\n</function_name>")
+        elif key == "file_content":
+            parts.append(f"<file_content>\n{value}\n</file_content>")
+        else:
+            # For any other keys, use a generic format
+            parts.append(f"<{key}>\n{value}\n</{key}>")
 
     return "\n\n".join(parts)

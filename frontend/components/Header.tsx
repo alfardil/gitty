@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { GitHubLoginButton } from "@/components/LoginButton";
-import { useState, useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/neo/button";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -69,7 +68,7 @@ export default function Header() {
           </DropdownMenuContent>
         </DropdownMenu>
         {!isMobile && (
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2">
             <Image src="/favicon.svg" alt="Logo" width={40} height={40} />
             <span className="font-bold text-xl">Gitty</span>
           </Link>

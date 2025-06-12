@@ -11,12 +11,6 @@ export function TopNav() {
       >
         System Design Diagram
       </Button>
-      <Button
-        className="bg-green-500 hover:bg-green-600 text-black font-bold py-2 px-4 rounded shadow"
-        onClick={() => router.push("/chat")}
-      >
-        Chat
-      </Button>
     </div>
   );
 }
