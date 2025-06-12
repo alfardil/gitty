@@ -1,6 +1,6 @@
 "use client";
 
-import MainCard from "../../../../components/MainCard";
+import MainCard from "@/components/ui/diagram/MainCard";
 import { Card } from "@/components/ui/neo/card";
 import { useParams } from "next/navigation";
 import MermaidChart, {

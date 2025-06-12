@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card } from "@/components/ui/neo/card";
-import MainCard from "../../components/MainCard";
+import MainCard from "@/components/ui/diagram/MainCard";
 import Header from "@/components/Header";
 
 export default function Home() {

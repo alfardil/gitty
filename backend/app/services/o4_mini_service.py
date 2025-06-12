@@ -37,8 +37,6 @@ class OpenAIo4Service:
         client = self.default_client
 
         try:
-            print(f"Making API call to o4-mini")
-            
             completion = client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -48,8 +46,6 @@ class OpenAIo4Service:
                 max_completion_tokens=12000,
                 reasoning_effort=self.reasoning_effort
             )
-
-            print("API call completed successfully")
 
             if completion.choices[0].message.content is None:
                 raise ValueError("No content returned from OpenAI o4-mini")
