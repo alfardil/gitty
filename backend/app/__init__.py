@@ -1,0 +1,3 @@
+"""
+Gitty API package
+""" 
