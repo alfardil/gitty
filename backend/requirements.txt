@@ -2,3 +2,5 @@ fastapi
 uvicorn
 dotenv
 openai
+aiohttp
+tiktoken
