@@ -215,12 +215,13 @@ async def generate_stream(request: Request, body: ApiRequest):
                 )
 
                 # Send final result
-                yield f"data: {json.dumps({
+                final_data = {
                     'status': 'complete',
                     'diagram': processed_diagram,
                     'explanation': explanation,
                     'mapping': component_mapping_text
-                })}\n\n"
+                }
+                yield f"data: {json.dumps(final_data)}\n\n"
 
 
 

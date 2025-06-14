@@ -1,13 +1,13 @@
-import { getRepoPageData } from "@/lib/server/fetchRepoData";
+import { getRepoPageData } from "./actions";
 import RepoClientPage from "@/components/RepoClientPage";
 
 export default async function RepoPage({
   params,
 }: {
-  params: { owner: string; repo: string };
+  params: Promise<{ owner: string; repo: string }>;
 }) {
-  // for some reason nextjs wants me to await this idk why
   const { owner, repo } = await params;
   const { fileTree } = await getRepoPageData(owner, repo);
+
   return <RepoClientPage owner={owner} repo={repo} fileTree={fileTree} />;
 }

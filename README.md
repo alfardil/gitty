@@ -13,14 +13,9 @@ OR
 OR if you're really cooked
 
 ```bash
-brew install pyenv-virtualenv && \
-pyenv virtualenv 3.12.3 gitty-3.12 && \
-cd gitty && \
-pyenv local gitty-3.12 && \
-pip install -r backend/requirements.txt && \
-npm install -g pnpm && \
-(cd backend && uvicorn main:app --reload) & \
-(cd frontend && pnpm install && pnpm run dev)
+find . -type d -name "*.venv"
+
+source ${result}/bin/activate
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
