@@ -11,8 +11,8 @@ Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
 ## 🌐 Production URLs
 
 - Frontend: [https://gitty.alfardil.com/](https://gitty.alfardil.com/)
-- API Documentation: [https://gitty.fly.dev/docs](https://gitty.fly.dev/docs)
-- API Base URL: [https://gitty.fly.dev](https://gitty.fly.dev)
+- API Documentation: [https://gitty-api.fly.dev/docs](https://gitty.fly.dev/docs)
+- API Base URL: [https://gitty-api.fly.dev](https://gitty.fly.dev)
 
 **Deployment Details:**
 
