@@ -6,7 +6,7 @@ app = FastAPI()
 app.include_router(generate.router)
 app.include_router(chat.router)
 
-origins = ["http://localhost:3000", "https://gitty.alfardil.com/"]
+origins = ["http://localhost:3000", "https://gitty.alfardil.com"]
 
 # CORS
 app.add_middleware(
