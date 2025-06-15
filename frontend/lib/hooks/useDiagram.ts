@@ -61,7 +61,7 @@ export function useDiagram(username: string, repo: string) {
       });
 
       // change the base URL later
-      const baseUrl = "http://localhost:8000";
+      const baseUrl = "https://gitty-api.fly.dev";
       const url = `${baseUrl}/generate/stream`;
 
       try {
