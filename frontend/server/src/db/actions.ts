@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { usersTable, sessionsTable } from "./schema";
 import { eq } from "drizzle-orm";
 
-const db = drizzle(process.env.DATABASE_URL!);
+const db = drizzle(process.env.PROD_DATABASE_URL!);
 
 export async function upsertUser({
   githubId,
