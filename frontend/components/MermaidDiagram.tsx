@@ -72,4 +72,6 @@ const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
   }
 );
 
+MermaidChart.displayName = "MermaidChart";
+
 export default MermaidChart;
