@@ -15,7 +15,7 @@ export async function GET() {
 
   const params = new URLSearchParams({
     client_id: process.env.GITHUB_CLIENT_ID!,
-    redirect_uri: process.env.GITHUB_CALLBACK_URL!,
+    redirect_uri: process.env.PROD_GITHUB_CALLBACK_URL!,
     state,
     scope: "read:user user:email repo read:org",
   });
