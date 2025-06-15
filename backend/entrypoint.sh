@@ -1,4 +1,5 @@
 #!/bin/bash
+chmod +x "$0"
 
 echo "Current ENVIRONMENT: $ENVIRONMENT"
 

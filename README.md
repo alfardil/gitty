@@ -1,28 +1,19 @@
-# How to run the development server:
+# Gitty
 
-```bash
-make dev
-```
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![DrizzleORM](https://img.shields.io/badge/DrizzleORM-000000?style=for-the-badge&logo=drizzle&logoColor=white)](https://orm.drizzle.team/)
+[![Fly.io](https://img.shields.io/badge/Fly.io-000000?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
 
-OR
+Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
 
-```bash
-(cd backend && pip install -r requirements.txt && uvicorn main:app --reload) & (pnpm i && pnpm run dev)
-```
+## 🌐 Production URLs
 
-OR if you're really cooked
+- Frontend: [https://example.com](https://example.com) (Coming Soon)
+- API Documentation: [https://gitty.fly.dev/docs](https://gitty.fly.dev/docs)
+- API Base URL: [https://gitty.fly.dev](https://gitty.fly.dev)
 
-```bash
-find . -type d -name "*.venv"
-
-source ${result}/bin/activate
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-Documentation is availible at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
-
-## Features
+## 🚀 Features
 
 - **Comprehensive GitHub Repository Contextualization**
   - Analyze and contextualize the entire GitHub repository for LLM-powered insights.
@@ -41,3 +32,51 @@ Documentation is availible at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000
   - Easy project setup with a Makefile for streamlined development.
 - **Planned Features**
   - Visual Studio Code extension for seamless in-editor assistance (coming soon).
+
+## 🛠️ Development Setup
+
+### Prerequisites
+
+- Python 3.8+
+- Node.js 18+
+- pnpm
+- Make (optional)
+
+### Running the Development Server
+
+#### Option 1: Using Make (Recommended)
+
+```bash
+make dev
+```
+
+#### Option 2: Manual Setup
+
+```bash
+# Start backend
+cd backend && pip install -r requirements.txt && uvicorn main:app --reload
+
+# Start frontend (in a new terminal)
+pnpm i && pnpm run dev
+```
+
+#### Option 3: Using Virtual Environment
+
+```bash
+# Find and activate virtual environment
+find . -type d -name "*.venv"
+source ${result}/bin/activate
+```
+
+### Development URLs
+
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- API Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 👥 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
