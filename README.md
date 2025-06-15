@@ -4,6 +4,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![DrizzleORM](https://img.shields.io/badge/DrizzleORM-000000?style=for-the-badge&logo=drizzle&logoColor=white)](https://orm.drizzle.team/)
 [![Fly.io](https://img.shields.io/badge/Fly.io-000000?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
+[![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=white)](https://neon.tech/)
 
 Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
 
@@ -12,6 +13,12 @@ Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
 - Frontend: [https://example.com](https://example.com) (Coming Soon)
 - API Documentation: [https://gitty.fly.dev/docs](https://gitty.fly.dev/docs)
 - API Base URL: [https://gitty.fly.dev](https://gitty.fly.dev)
+
+**Deployment Details:**
+
+- **Production Database:** Hosted on [Neon](https://neon.tech/)
+- **Frontend:** Built with Next.js
+- **Backend:** Deployed on [Fly.io](https://fly.io/)
 
 ## 🚀 Features
 
