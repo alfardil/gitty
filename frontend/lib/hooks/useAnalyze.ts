@@ -26,7 +26,7 @@ export function useAnalyze() {
     setFunctionName(null);
 
     try {
-      const response = await fetch("http://localhost:8000/chat/analyze", {
+      const response = await fetch("https://gitty-api.fly.dev/chat/analyze", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

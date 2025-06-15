@@ -28,7 +28,7 @@ export async function getCost(
   instructions: string
 ): Promise<CostApiResponse> {
   try {
-    const baseUrl = "http://localhost:8000";
+    const baseUrl = "https://gitty-api.fly.dev";
     const url = new URL(`${baseUrl}/generate/cost`);
 
     const response = await fetch(url, {
