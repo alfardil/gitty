@@ -221,7 +221,9 @@ async def generate_stream(request: Request, body: ApiRequest):
                     'explanation': explanation,
                     'mapping': component_mapping_text
                 }
-                yield f"data: {json.dumps(final_data)}\n\n"
+
+                safe_json = json.dumps(final_data, ensure_ascii=False)
+                yield f"data: {safe_json}\n\n"
 
 
 
