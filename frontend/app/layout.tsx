@@ -4,6 +4,7 @@ import { Sen } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "../components/ui/neo/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import React from "react";
 
 const sen = Sen({
@@ -32,6 +33,7 @@ export default function RootLayout({
         {children}
         <Toaster />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
