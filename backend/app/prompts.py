@@ -124,14 +124,6 @@ To create the Mermaid.js diagram:
    d. The layout is logical and easy to understand
    e. It is visually appealing
 
-Tips to keep the diagram visually appealing:
-   -  Prefer vertical or block-style layouts over long horizontal chains.
-	-	Use subgraphs and grouping to organize related components.
-	-	Keep node spacing tight but readable.
-	-	Prioritize clarity and flow: aim for intuitive, top-to-bottom or left-to-right connections.
-	-	Use labels, groupings, and direction hints (like TB or LR) to enhance visual structure.
-	-	Avoid duplicating connections or creating unnecessary cross-links that clutter the view.
-
 Guidelines for diagram components and relationships:
 - Use appropriate shapes for different types of components (e.g., rectangles for services, cylinders for databases, etc.)
 - Use clear and concise labels for each component
@@ -140,7 +132,13 @@ Guidelines for diagram components and relationships:
 - Include any important notes or annotations mentioned in the explanation
 - Just follow the explanation. It will have everything you need.
 
-IMPORTANT!!: Please orient and draw the diagram as vertically as possible. You must avoid long horizontal lists of nodes and sections!
+IMPORTANT!!: 
+- Please orient and draw the diagram as vertically as possible. You must avoid long horizontal lists of nodes and sections!
+- Use vertical layout as the default (TD direction in Mermaid) to ensure the diagram flows from top to bottom. Avoid horizontally long diagrams that are hard to read or scroll.
+- Group related components into subgraphs using subgraph blocks (e.g., Frontend, Backend, Infrastructure).
+- Label edges with actions or data flow like calls API, routes to, or builds image.
+- Color or style nodes differently (if supported), or use node naming conventions (e.g., Frontend: prefix) to visually group logic.
+- Do NOT generate overly horizontal diagrams (LR) unless absolutely necessary. Keep the visual height longer than the width.
 
 You must include click events for components of the diagram that have been specified in the provided <component_mapping>:
 - Do not try to include the full url. This will be processed by another program afterwards. All you need to do is include the path.
@@ -194,6 +192,123 @@ flowchart TD
     %% Styles
     classDef frontend %%...
     %% and a lot more...
+```
+
+If many nodes serve a shared function (e.g. auth helpers, utility files), group them under a single collective node:
+
+Here is a great example of a diagram:
+```mermaid
+flowchart TB
+    %% Docker Compose Container Boundary
+    subgraph "Docker Compose" 
+        direction TB
+        %% Client Container
+        subgraph "Client Container" 
+            direction TB
+            subgraph "Front End (React + Vite)" 
+                direction TB
+                Browser["Browser"]:::frontend
+                Main["Entry Point: main.tsx"]:::frontend
+                DevServer["Vite Dev Server / Production Build"]:::frontend
+                UI["UI Components"]:::frontend
+                Context["GameContext"]:::frontend
+                APIClient["gameApi (REST Client)"]:::frontend
+                JudgeSvc["JudgeService (OpenAI)"]:::frontend
+                Configs["Configs & Constants"]:::frontend
+            end
+        end
+
+        %% Server Container
+        subgraph "Server Container" 
+            direction TB
+            subgraph "API Server (Express)" 
+                direction TB
+                ServerEntry["server.ts"]:::backend
+                Routers["Routers"]:::backend
+                DBLayer["DB Layer (db.ts)"]:::backend
+                Model["Lobby Model"]:::backend
+            end
+        end
+    end
+
+    %% Database and External
+    Database[(Database)]:::database
+    OpenAI[(OpenAI API)]:::external
+
+    %% Connections
+    Browser -->|"loads main.tsx"| Main
+    Main -->|"initializes"| DevServer
+    DevServer -->|"serves UI"| Browser
+
+    Browser -->|"user actions"| UI
+    UI -->|"uses context"| Context
+    Context -->|"calls REST methods"| APIClient
+    Context -->|"invokes JudgeService"| JudgeSvc
+    APIClient -->|"HTTP REST"| ServerEntry
+    JudgeSvc -->|"HTTP REST"| OpenAI
+    OpenAI -->|"responses"| JudgeSvc
+    ServerEntry -->|"routes requests"| Routers
+    Routers -->|"queries"| DBLayer
+    DBLayer -->|"models"| Model
+    Routers -->|"saves/reads"| Model
+    ServerEntry -->|"talks to DB"| Database
+    Routers -->|"talks to DB"| Database
+
+    %% Click Events Client
+    click Main "src/main.tsx"
+    click DevServer "vite.config.ts"
+    click Browser "index.html"
+    click UI "src/components"
+    click Context "src/context/GameContext.tsx"
+    click APIClient "src/api/gameApi.ts"
+    click JudgeSvc "src/services/JudgeService.ts"
+    click Configs "src/config/constants.ts"
+    %% Specific components
+    click UI "src/components/Lobby.tsx"
+    click UI "src/components/GamePage.tsx"
+    click UI "src/components/WaitingRoom.tsx"
+    click UI "src/components/CreateRoom.tsx"
+    click UI "src/components/JoinRoom.tsx"
+    click UI "src/components/ChooseRoom.tsx"
+    click UI "src/components/RoomPage.tsx"
+    click UI "src/components/Results.tsx"
+    click UI "src/components/SplashScreen.tsx"
+    click Configs "src/config/openaiConfig.tsx"
+    click Configs "src/config/debateQuestions.ts"
+    click Configs "src/config/constants.ts"
+    click Configs "src/global.d.ts"
+    click Configs "src/vite-env.d.ts"
+    click Configs "src/App.css"
+    click Configs "src/index.css"
+    click Configs "tailwind.config.js"
+    click Browser "public/"
+
+    %% Click Events Server
+    click ServerEntry "server/server.ts"
+    click Routers "server/api/index.ts"
+    click Routers "server/api/gameRouter.ts"
+    click Routers "server/api/roomsRouter.ts"
+    click DBLayer "server/lib/db.ts"
+    click Model "server/models/Lobby.ts"
+    click ServerEntry "server/server.Dockerfile"
+    click ServerEntry "server/package.json"
+
+    %% Click Other Dev Files
+    click DockerCompose "docker-compose.yml"
+    click DockerCompose "Procfile"
+    click DockerCompose "package.json"
+    click DockerCompose "package-lock.json"
+    click DockerCompose "tsconfig.json"
+    click DockerCompose "tsconfig.app.json"
+    click DockerCompose "tsconfig.node.json"
+    click DockerCompose "eslint.config.js"
+
+    %% Styles and Classes
+    classDef frontend fill:#D0E8FF,stroke:#1F78B4,color:#000
+    classDef backend fill:#D8F5D3,stroke:#33A02C,color:#000
+    classDef database fill:#A7FFF2,stroke:#00A08A,color:#000
+    classDef external fill:#FFE8B3,stroke:#FF7F00,color:#000
+
 ```
 
 EXTREMELY Important notes on syntax!!! (PAY ATTENTION TO THIS):

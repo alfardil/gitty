@@ -150,7 +150,7 @@ class GitHubService:
         response = requests.get(api_url, headers=_get_headers(githubAccessToken))
 
         if response.status_code == 404:
-            raise ValueError("No README found for the specified repository.")
+            raise ValueError("No README found for the specified repository. (Required)")
         elif response.status_code != 200:
             raise Exception(
                 f"Failed to fetch README: {

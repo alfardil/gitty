@@ -1,10 +1,8 @@
 "use server";
 
-import { drizzle } from "drizzle-orm/node-postgres";
 import { usersTable, sessionsTable } from "./schema";
 import { eq } from "drizzle-orm";
-
-const db = drizzle(process.env.PROD_DATABASE_URL!);
+import { db } from ".";
 
 export async function upsertUser({
   githubId,

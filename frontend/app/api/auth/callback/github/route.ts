@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   const state = searchParams.get("state");
   const cookieStore = await cookies();
   const storedState = cookieStore.get("github_oauth_state")?.value;
+  const isProd = process.env.NODE_ENV === "production";
 
   if (!state || !storedState || state !== storedState) {
     return NextResponse.redirect(new URL("/auth/error", request.url));
@@ -28,8 +29,12 @@ export async function GET(request: NextRequest) {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          client_id: process.env.GITHUB_CLIENT_ID,
-          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          client_id: isProd
+            ? process.env.PROD_GITHUB_CLIENT_ID
+            : process.env.DEV_GITHUB_CLIENT_ID,
+          client_secret: isProd
+            ? process.env.PROD_GITHUB_CLIENT_SECRET
+            : process.env.DEV_GITHUB_CLIENT_SECRET,
           code,
         }),
       }
@@ -76,7 +81,7 @@ export async function GET(request: NextRequest) {
       // Store the session ID in a cookie
       cookieStore.set("session_id", String(sessionResult.session.id), {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProd,
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 7, // 1 week
       });
@@ -85,21 +90,21 @@ export async function GET(request: NextRequest) {
     // Store the access token and user data in cookies
     cookieStore.set("github_access_token", tokenData.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
     // Also set a non-HttpOnly cookie for frontend access
     cookieStore.set("github_access_token", tokenData.access_token, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
 
     cookieStore.set("github_user", JSON.stringify(userData), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProd,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });

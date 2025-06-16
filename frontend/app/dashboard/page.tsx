@@ -49,24 +49,6 @@ export default function Dashboard() {
               repoPage
             );
             setRepos(reposData);
-            if (reposData && reposData.length > 0) {
-              const firstRepo = reposData[0];
-              try {
-                const fileContent = await fetchFile({
-                  accessToken: githubAccessToken,
-                  owner: firstRepo.owner.login,
-                  repo: firstRepo.name,
-                  branch: firstRepo.default_branch || "main",
-                  filePath: "README.md",
-                });
-
-                setTestFileContent(fileContent);
-              } catch (err) {
-                setTestFileContent(
-                  "Error fetching file: " + (err as Error).message
-                );
-              }
-            }
           }
         } catch (error) {
           console.error("Error fetching repos:", error);
