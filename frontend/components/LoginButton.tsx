@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/neo/button";
 import { Github, LogOut } from "lucide-react";
 import Image from "next/image";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/lib/hooks/useMobile";
 
 export function GitHubLoginButton() {
   const { user, loading, logout } = useAuth();
