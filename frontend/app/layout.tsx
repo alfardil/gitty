@@ -3,6 +3,7 @@ import { Sen } from "next/font/google";
 
 import "./globals.css";
 import { Toaster } from "../components/ui/neo/sonner";
+import { Analytics } from "@vercel/analytics/next";
 import React from "react";
 
 const sen = Sen({
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster />
+        <Analytics />
       </body>
     </html>
   );

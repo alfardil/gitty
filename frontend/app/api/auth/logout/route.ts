@@ -9,11 +9,12 @@ export async function POST() {
   cookieStore.delete("github_user");
   cookieStore.delete("github_access_token");
   cookieStore.delete("github_oauth_state");
-  cookieStore.delete("session_id");
 
   if (sessionId) {
     await deleteSession({ id: sessionId });
   }
+
+  cookieStore.delete("session_id");
 
   return NextResponse.json({ success: true });
 }
