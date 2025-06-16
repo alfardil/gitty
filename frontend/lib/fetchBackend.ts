@@ -27,8 +27,11 @@ export async function getCost(
   githubAccessToken: string,
   instructions: string
 ): Promise<CostApiResponse> {
+  const isProd = process.env.NODE_ENV === "production";
   try {
-    const baseUrl = "https://gitty-api.fly.dev";
+    const baseUrl = isProd
+      ? "https://gitty-api.fly.dev"
+      : "http://localhost:8000";
     const url = new URL(`${baseUrl}/generate/cost`);
 
     const response = await fetch(url, {
@@ -63,9 +66,11 @@ export async function generateAndCacheDiagram(
   githubAccessToken: string,
   instructions: string
 ): Promise<GenerateApiResponse> {
+  const isProd = process.env.NODE_ENV === "production";
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://api.gitdiagram.com";
+    const baseUrl = isProd
+      ? "https://gitty-api.fly.dev"
+      : "http://localhost:8000";
     const url = new URL(`${baseUrl}/generate`);
 
     const response = await fetch(url, {
@@ -110,6 +115,7 @@ export async function modifyAndCacheDiagram(
   repo: string,
   instructions: string
 ): Promise<ModifyApiResponse> {
+  const isProd = process.env.NODE_ENV === "production";
   try {
     // First get the current diagram from cache
     const currentDiagram = await getCachedDiagram(username, repo);
@@ -119,8 +125,9 @@ export async function modifyAndCacheDiagram(
       return { error: "No existing diagram or explanation found to modify" };
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://api.gitdiagram.com";
+    const baseUrl = isProd
+      ? "https://gitty-api.fly.dev"
+      : "http://localhost:8000";
     const url = new URL(`${baseUrl}/modify`);
 
     const response = await fetch(url, {

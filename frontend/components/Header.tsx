@@ -5,7 +5,7 @@ import Image from "next/image";
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/neo/button";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/lib/hooks/useMobile";
 import {
   DropdownMenu,
   DropdownMenuTrigger,

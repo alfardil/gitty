@@ -90,6 +90,7 @@ export function useDiagram(username: string, repo: string) {
         let explanation = "";
         let mapping = "";
         let diagram = "";
+        let buffer = "";
 
         const processStream = async () => {
           try {
@@ -102,9 +103,10 @@ export function useDiagram(username: string, repo: string) {
 
               for (const line of lines) {
                 if (line.startsWith("data:")) {
+                  buffer += line.slice(6);
                   try {
-                    const data = JSON.parse(line.slice(6)) as StreamResponse;
-
+                    const data = JSON.parse(buffer) as StreamResponse;
+                    buffer = ""; // Reset buffer on successful parse
                     if (data.error) {
                       setState({
                         status: "error",
@@ -113,7 +115,6 @@ export function useDiagram(username: string, repo: string) {
                       setLoading(false);
                       return;
                     }
-
                     switch (data.status) {
                       case "started":
                         setState((prev) => ({
@@ -201,7 +202,9 @@ export function useDiagram(username: string, repo: string) {
                         break;
                     }
                   } catch (error) {
-                    console.error("Error processing stream:", error);
+                    // If JSON.parse fails, wait for more data (do not reset buffer)
+                    // Optionally, log the error for debugging
+                    // console.log("Waiting for more data, current buffer:", buffer);
                   }
                 }
               }
