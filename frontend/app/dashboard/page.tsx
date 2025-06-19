@@ -1,8 +1,6 @@
 "use client";
 
 import { useAuth } from "@/lib/hooks/useAuth";
-import Header from "@/components/Header";
-import { GitHubLoginButton } from "@/components/LoginButton";
 import { useEffect, useState } from "react";
 import { fetchUserRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
 import { TopNav } from "@/components/ui/dashboard/TopNav";
@@ -10,10 +8,29 @@ import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
 import { RepoList } from "@/components/ui/dashboard/RepoList";
 import { OrgList } from "@/components/ui/dashboard/OrgList";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { fetchFile } from "@/lib/fetchFile";
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+  useSidebar,
+} from "@/components/ui/ace/sidebar";
+import { LogOut, Folder, Users, LayoutDashboard } from "lucide-react";
+
+function LogoutButton({ onLogout }: { onLogout: () => void }) {
+  const { open } = useSidebar();
+  return (
+    <button
+      className="flex items-center gap-2 text-white hover:text-[#18CCFC] font-semibold"
+      onClick={onLogout}
+    >
+      <LogOut color="#18CCFC" />
+      {open && <span>Logout</span>}
+    </button>
+  );
+}
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [repos, setRepos] = useState<any[]>([]);
   const [reposLoading, setReposLoading] = useState(true);
   const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
@@ -31,7 +48,6 @@ export default function Dashboard() {
     {}
   );
   const perPage = 20;
-  const [testFileContent, setTestFileContent] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadRepos() {
@@ -104,7 +120,6 @@ export default function Dashboard() {
               perPage,
               page
             );
-            // If empty and not on first page, go back until non-empty or page 1
             while (repos.length === 0 && page > 1) {
               page -= 1;
               repos = await fetchOrgRepos(
@@ -163,7 +178,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-black">
         <Spinner />
       </div>
     );
@@ -171,30 +186,71 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
+      <div className="flex flex-col items-center justify-center h-screen bg-black text-white">
         <div className="text-2xl font-bold">Please login to continue</div>
-        <GitHubLoginButton />
+        <button
+          className="mt-4 px-6 py-2 bg-[#18CCFC] text-black rounded font-semibold"
+          onClick={logout}
+        >
+          Login with GitHub
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-primary mb-10">
-      <Header />
-      <div className="container mx-auto px-4 pt-32 max-w-3xl">
+    <div className="min-h-screen flex bg-[#191919] text-white">
+      <Sidebar>
+        <SidebarBody className="border-r border-[#18CCFC] h-screen bg-[#191919] flex flex-col justify-between">
+          <div className="flex flex-col gap-2 mt-8">
+            <SidebarLink
+              link={{
+                label: "Dashboard",
+                href: "/dashboard",
+                icon: <LayoutDashboard color="#18CCFC" />,
+              }}
+              className="hover:text-[#18CCFC]"
+            />
+            <SidebarLink
+              link={{
+                label: "Repos",
+                href: "#repos",
+                icon: <Folder color="#18CCFC" />,
+              }}
+              className={`hover:text-[#18CCFC] ${
+                showRepos ? "text-[#18CCFC]" : ""
+              }`}
+            />
+            <SidebarLink
+              link={{
+                label: "Orgs",
+                href: "#orgs",
+                icon: <Users color="#18CCFC" />,
+              }}
+              className={`hover:text-[#18CCFC] ${
+                showOrgs ? "text-[#18CCFC]" : ""
+              }`}
+            />
+          </div>
+          <div className="mb-8">
+            <LogoutButton onLogout={logout} />
+          </div>
+        </SidebarBody>
+      </Sidebar>
+      <main className="flex-1 p-12">
         <TopNav />
         <SectionToggle
           showRepos={showRepos}
           showOrgs={showOrgs}
-          onShowRepos={handleShowRepos}
-          onShowOrgs={handleShowOrgs}
+          onShowRepos={() => {
+            handleShowRepos();
+          }}
+          onShowOrgs={() => {
+            setShowOrgs(true);
+            setShowRepos(false);
+            setExpandedRepo(null);
+          }}
         />
-        {/* {testFileContent && (
-          <div className="mb-6 p-4 bg-white border rounded text-xs text-gray-700 whitespace-pre-wrap">
-            <div className="font-bold mb-2">First repo README.md:</div>
-            {testFileContent}
-          </div>
-        )} */}
         {showRepos && (
           <RepoList
             repos={repos}
@@ -222,7 +278,7 @@ export default function Dashboard() {
             perPage={perPage}
           />
         )}
-      </div>
+      </main>
     </div>
   );
 }
