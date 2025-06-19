@@ -57,3 +57,37 @@ export async function fetchOrgRepos(
   }
   return await response.json();
 }
+
+export async function fetchOrgContributorsNumber(
+  githubAccessToken: string,
+  org: string
+): Promise<number> {
+  // Use the existing fetchOrgRepos function to get all repos (first 100)
+  const reposData = await fetchOrgRepos(githubAccessToken, org, 100, 1);
+  const repoNames = reposData.map((repo: any) => repo.name);
+
+  // Helper to fetch contributors for a repo
+  async function fetchContributors(repo: string): Promise<string[]> {
+    const res = await fetch(
+      `https://api.github.com/repos/${org}/${repo}/contributors?per_page=100`,
+      {
+        headers: { Authorization: `Bearer ${githubAccessToken}` },
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.map((contributor: any) => contributor.login);
+  }
+
+  // Main logic
+  const allContributors: string[] = [];
+
+  for (const repo of repoNames) {
+    const contributors = await fetchContributors(repo);
+    allContributors.push(...contributors);
+  }
+
+  // Get unique contributors
+  const uniqueContributors = new Set(allContributors);
+  return uniqueContributors.size;
+}

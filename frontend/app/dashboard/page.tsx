@@ -3,7 +3,7 @@
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { fetchUserRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
-import { TopNav } from "@/components/ui/dashboard/TopNav";
+import { SystemDesign } from "@/components/ui/dashboard/TopNav";
 import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
 import { RepoList } from "@/components/ui/dashboard/RepoList";
 import { OrgList } from "@/components/ui/dashboard/OrgList";
@@ -20,12 +20,26 @@ function LogoutButton({ onLogout }: { onLogout: () => void }) {
   const { open } = useSidebar();
   return (
     <button
-      className="flex items-center gap-2 text-white hover:text-[#18CCFC] font-semibold"
+      className="flex items-center gap-2 text-white hover:text-[#18CCFC] hover:cursor-pointer font-semibold"
       onClick={onLogout}
     >
       <LogOut color="#18CCFC" />
       {open && <span>Logout</span>}
     </button>
+  );
+}
+
+function SidebarProfile({ user }: { user: any }) {
+  const { open } = useSidebar();
+  return (
+    <div className="mb-8 flex items-center gap-2">
+      <img
+        src={user.avatar_url}
+        alt="User Avatar"
+        className="w-6 h-6 rounded-full"
+      />
+      {open && <div className="text-white">{user.name}</div>}
+    </div>
   );
 }
 
@@ -199,7 +213,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#191919] text-white">
+    <div className="min-h-screen flex bg-white text-black">
       <Sidebar>
         <SidebarBody className="border-r border-[#18CCFC] h-screen bg-[#191919] flex flex-col justify-between">
           <div className="flex flex-col gap-2 mt-8">
@@ -231,14 +245,15 @@ export default function Dashboard() {
                 showOrgs ? "text-[#18CCFC]" : ""
               }`}
             />
+            <div className="mt-8">
+              <LogoutButton onLogout={logout} />
+            </div>
           </div>
-          <div className="mb-8">
-            <LogoutButton onLogout={logout} />
-          </div>
+          <SidebarProfile user={user} />
         </SidebarBody>
       </Sidebar>
       <main className="flex-1 p-12">
-        <TopNav />
+        <SystemDesign />
         <SectionToggle
           showRepos={showRepos}
           showOrgs={showOrgs}
@@ -246,9 +261,7 @@ export default function Dashboard() {
             handleShowRepos();
           }}
           onShowOrgs={() => {
-            setShowOrgs(true);
-            setShowRepos(false);
-            setExpandedRepo(null);
+            handleShowOrgs();
           }}
         />
         {showRepos && (
@@ -278,6 +291,7 @@ export default function Dashboard() {
             perPage={perPage}
           />
         )}
+        <h1>hi</h1>
       </main>
     </div>
   );
