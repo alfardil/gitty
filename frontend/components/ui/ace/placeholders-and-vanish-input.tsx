@@ -70,8 +70,10 @@ export function PlaceholdersAndVanishInput({
     const newData: any[] = [];
 
     for (let t = 0; t < 800; t++) {
+      // eslint-disable-next-line prefer-const
       let i = 4 * t * 800;
       for (let n = 0; n < 800; n++) {
+        // eslint-disable-next-line prefer-const
         let e = i + 4 * n;
         if (
           pixelData[e] !== 0 &&
@@ -168,7 +170,7 @@ export function PlaceholdersAndVanishInput({
       animate(maxX);
     }
   };
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     vanishAndSubmit();
@@ -190,6 +192,7 @@ export function PlaceholdersAndVanishInput({
         ref={canvasRef}
       />
       <input
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         onChange={(e) => {
           if (!animating) {
             setValue(e.target.value);
