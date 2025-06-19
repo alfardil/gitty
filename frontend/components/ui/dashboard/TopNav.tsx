@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/neo/button";
 import { useRouter } from "next/navigation";
 
-export function TopNav() {
+export function SystemDesign() {
   const router = useRouter();
   return (
     <div className="flex gap-4 mb-8 justify-center">
