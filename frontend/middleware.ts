@@ -24,9 +24,8 @@ export const config = {
     // - api routes
     // - auth routes
     // - login page
-    // - dashboard page
     // - static files
     // - root
-    "/((?!api|auth|login|dashboard|_next|favicon.ico|$).*)",
+    "/((?!api|auth|login|_next|favicon.ico|$).*)",
   ],
 };
