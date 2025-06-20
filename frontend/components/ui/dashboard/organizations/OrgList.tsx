@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/neo/button";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { ChevronDown } from "lucide-react";
-import { RepoItem } from "./RepoItem";
 import { useState } from "react";
+import { RepoList } from "../repositories/RepoList";
+import { RepoItem } from "../repositories/RepoItem";
 
 type OrgListProps = {
   orgs: any[];
@@ -76,60 +77,41 @@ export function OrgList({
                 />
               </Button>
               {expandedOrg === org.login && (
-                <div className="p-4 space-y-4">
-                  {orgReposLoading[org.login] ? (
+                <div className="pl-4 pt-4">
+                  {orgReposLoading[org.login] && (
                     <div className="flex justify-center">
                       <Spinner />
                     </div>
-                  ) : (
-                    <>
-                      {orgRepos[org.login] && orgRepos[org.login].length > 0 ? (
-                        <>
-                          {orgRepos[org.login].map((repo) => (
-                            <RepoItem
-                              key={repo.id}
-                              repo={repo}
-                              expanded={
-                                expandedRepoByOrg[org.login] === repo.id
-                              }
-                              onExpand={() =>
-                                handleExpandRepo(org.login, repo.id)
-                              }
-                              username={org.login}
-                            />
-                          ))}
-                          <div className="flex justify-center gap-2 mt-2">
-                            <Button
-                              variant="noShadow"
-                              disabled={(orgRepoPages[org.login] || 1) === 1}
-                              onClick={() => onPrevOrgRepoPage(org.login)}
-                              className="bg-blue-300"
-                            >
-                              Previous
-                            </Button>
-                            <span className="px-2 py-1">
-                              Page {orgRepoPages[org.login] || 1}
-                            </span>
-                            <Button
-                              variant="noShadow"
-                              disabled={
-                                !orgRepos[org.login] ||
-                                orgRepos[org.login].length < perPage
-                              }
-                              onClick={() => onNextOrgRepoPage(org.login)}
-                              className="bg-blue-300"
-                            >
-                              Next
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-center text-gray-500">
-                          No repositories found for this organization.
-                        </div>
-                      )}
-                    </>
                   )}
+                  {!orgReposLoading[org.login] &&
+                    (orgRepos[org.login] || []).map((repo: any) => (
+                      <RepoItem
+                        key={repo.id}
+                        repo={repo}
+                        username={org.login}
+                        expanded={expandedRepoByOrg[org.login] === repo.id}
+                        onExpand={() => handleExpandRepo(org.login, repo.id)}
+                      />
+                    ))}
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={() => onPrevOrgRepoPage(org.login)}
+                      disabled={(orgRepoPages[org.login] || 1) === 1}
+                      className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-1 text-sm">
+                      Page {orgRepoPages[org.login] || 1}
+                    </span>
+                    <button
+                      onClick={() => onNextOrgRepoPage(org.login)}
+                      disabled={(orgRepos[org.login] || []).length < perPage}
+                      className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                    >
+                      Next
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

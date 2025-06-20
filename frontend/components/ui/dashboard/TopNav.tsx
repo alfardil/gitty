@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/neo/button";
 import { useRouter } from "next/navigation";
 
-export function SystemDesign() {
+export function SystemDiagramButton() {
   const router = useRouter();
   return (
     <div className="flex gap-4 mb-8 justify-center">
