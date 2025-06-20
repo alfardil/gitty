@@ -91,3 +91,64 @@ export async function fetchOrgContributorsNumber(
   const uniqueContributors = new Set(allContributors);
   return uniqueContributors.size;
 }
+
+export async function fetchRecentCommits(
+  githubAccessToken: string,
+  user: { login: string; name?: string | null }
+) {
+  if (!user || !user.login) {
+    return [];
+  }
+
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const response = await fetch(
+    `https://api.github.com/users/${user.login}/events/public`,
+    {
+      headers: {
+        Authorization: `Bearer ${githubAccessToken}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    // Not critical, so just log and return empty
+    console.error(
+      `GitHub API error fetching events: ${response.status} ${response.statusText}`
+    );
+    return [];
+  }
+
+  const events = await response.json();
+  const recentCommits: any[] = [];
+  const addedShas = new Set<string>();
+
+  for (const event of events) {
+    const eventDate = new Date(event.created_at);
+    if (eventDate < sevenDaysAgo) {
+      continue; // Skip events older than 7 days
+    }
+
+    if (event.type === "PushEvent" && event.payload.commits) {
+      for (const commit of event.payload.commits) {
+        // Check if the commit author matches the user
+        const isAuthoredByUser =
+          commit.author.name === user.login ||
+          (user.name && commit.author.name === user.name);
+
+        if (isAuthoredByUser && !addedShas.has(commit.sha)) {
+          recentCommits.push({
+            sha: commit.sha,
+            message: commit.message,
+            repo: event.repo.name,
+            date: event.created_at,
+          });
+          addedShas.add(commit.sha);
+        }
+      }
+    }
+  }
+
+  return recentCommits;
+}
