@@ -1,4 +1,5 @@
 import { RepoItem } from "./RepoItem";
+import { ChevronDown } from "lucide-react";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { Button } from "@/components/ui/neo/button";
 

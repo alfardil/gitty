@@ -2,21 +2,22 @@
 
 import { useAuth } from "@/lib/hooks/useAuth";
 import { GitHubLoginButton } from "@/components/LoginButton";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   fetchUserRepos,
   fetchUserOrgs,
   fetchOrgRepos,
   fetchRecentCommits,
 } from "@/lib/fetchRepos";
-import { SystemDesign as TopNav } from "@/components/ui/dashboard/TopNav";
-import { RepoList } from "@/components/ui/dashboard/RepoList";
-import { OrgList } from "@/components/ui/dashboard/OrgList";
+
 import { Spinner } from "@/components/ui/neo/spinner";
-import { Menu, ChevronDown, Plus } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
-import { CommitActivityChart } from "@/components/ui/dashboard/CommitActivityChart";
+import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
+import { RepositoriesView } from "@/components/ui/dashboard/repositories/RepositoriesView";
+import { OrganizationsView } from "@/components/ui/dashboard/organizations/OrganizationsView";
+import { GitInsightsView } from "@/components/ui/dashboard/gitInsights/GitInsightsView";
 
 export default function Dashboard() {
   const { user, loading, logout } = useAuth();
@@ -27,8 +28,6 @@ export default function Dashboard() {
   const [orgs, setOrgs] = useState<any[]>([]);
   const [orgsLoading, setOrgsLoading] = useState(false);
   const [recentCommits, setRecentCommits] = useState<any[]>([]);
-  const [commitsExpanded, setCommitsExpanded] = useState(false);
-  const [commitPage, setCommitPage] = useState(1);
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
   const [orgRepos, setOrgRepos] = useState<{ [org: string]: any[] }>({});
   const [orgReposLoading, setOrgReposLoading] = useState<{
@@ -38,50 +37,9 @@ export default function Dashboard() {
   const [orgRepoPages, setOrgRepoPages] = useState<{ [org: string]: number }>(
     {}
   );
-  const perPage = 20;
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
-
-  const commitsPerPage = 10;
-  const displayedCommits = commitsExpanded
-    ? recentCommits.slice(
-        (commitPage - 1) * commitsPerPage,
-        commitPage * commitsPerPage
-      )
-    : recentCommits.slice(0, 3);
-
-  const totalCommitPages = Math.ceil(recentCommits.length / commitsPerPage);
-
-  const commitActivityData = useMemo(() => {
-    const last7Days = Array.from({ length: 7 })
-      .map((_, i) => {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        return d;
-      })
-      .reverse();
-
-    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-    const chartData = last7Days.map((day) => {
-      const dayString = day.toISOString().split("T")[0];
-      return {
-        name: dayNames[day.getDay()],
-        date: dayString,
-        commits: 0,
-      };
-    });
-
-    recentCommits.forEach((commit) => {
-      const commitDate = new Date(commit.date).toISOString().split("T")[0];
-      const dayData = chartData.find((d) => d.date === commitDate);
-      if (dayData) {
-        dayData.commits += 1;
-      }
-    });
-
-    return chartData;
-  }, [recentCommits]);
+  const perPage = 10;
 
   useEffect(() => {
     async function loadRepos() {
@@ -257,13 +215,11 @@ export default function Dashboard() {
         logout={logout}
       />
 
-      {/* Main Content */}
       <div
         className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        {/* Top Bar */}
         <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center gap-3 w-full">
             <button
@@ -278,188 +234,43 @@ export default function Dashboard() {
             </h1>
           </div>
         </header>
-        {/* Main Content Area */}
+
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8">
           {showSection === "insights" && (
-            <section>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {/* Stat cards */}
-                <div className="bg-white rounded-lg border border-gray-200 p-5 flex flex-col justify-between">
-                  <div className="text-md font-semibold text-gray-600 mb-2">
-                    Total Repos
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {repos.length}
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg border border-gray-200 p-5 flex flex-col justify-between">
-                  <div className="text-md font-semibold text-gray-600 mb-2">
-                    Total Orgs
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {orgs.length}
-                  </div>
-                </div>
-                <div className="bg-white rounded-lg border border-gray-200 p-5 flex flex-col justify-between">
-                  <div className="text-md font-semibold text-gray-600 mb-2">
-                    Recent Commits
-                  </div>
-                  <div className="text-3xl font-bold text-gray-900">
-                    {recentCommits.length}
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Commits List */}
-              <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Latest Commits
-                </h3>
-                <div className="space-y-4">
-                  {recentCommits.length > 0 ? (
-                    displayedCommits.map((commit) => (
-                      <div
-                        key={commit.sha}
-                        className="flex items-center gap-4 p-3 rounded-lg"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p
-                            className="text-sm font-medium text-gray-800 truncate"
-                            title={commit.message}
-                          >
-                            {commit.message}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            to{" "}
-                            <span className="font-semibold">{commit.repo}</span>
-                          </p>
-                        </div>
-                        <div className="text-sm text-gray-500 whitespace-nowrap">
-                          {new Date(commit.date).toLocaleDateString()}
-                        </div>
-                        <a
-                          href={`https://github.com/${commit.repo}/commit/${commit.sha}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:underline"
-                        >
-                          View
-                        </a>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-500">
-                      No recent public commits found.
-                    </p>
-                  )}
-                </div>
-
-                {/* Controls for commits */}
-                <div className="mt-6 flex justify-between items-center">
-                  <div>
-                    {!commitsExpanded && recentCommits.length > 3 && (
-                      <button
-                        onClick={() => setCommitsExpanded(true)}
-                        className="text-sm font-semibold text-blue-600 hover:underline hover:cursor-pointer"
-                      >
-                        See more
-                      </button>
-                    )}
-                    {commitsExpanded && (
-                      <button
-                        onClick={() => {
-                          setCommitsExpanded(false);
-                          setCommitPage(1);
-                        }}
-                        className="text-sm font-semibold text-blue-600 hover:underline"
-                      >
-                        See less
-                      </button>
-                    )}
-                  </div>
-
-                  {commitsExpanded && recentCommits.length > commitsPerPage && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setCommitPage((p) => Math.max(1, p - 1))}
-                        disabled={commitPage === 1}
-                        className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
-                      >
-                        Previous
-                      </button>
-                      <span className="text-sm text-gray-600">
-                        Page {commitPage} of {totalCommitPages}
-                      </span>
-                      <button
-                        onClick={() =>
-                          setCommitPage((p) =>
-                            Math.min(totalCommitPages, p + 1)
-                          )
-                        }
-                        disabled={commitPage === totalCommitPages}
-                        className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg border border-gray-200 p-6 min-h-[300px] flex flex-col mb-8">
-                <div className="font-semibold text-gray-900 mb-2">
-                  Commit Activity (Last 7 Days)
-                </div>
-                <div className="flex-1 -ml-6">
-                  <CommitActivityChart data={commitActivityData} />
-                </div>
-              </div>
-            </section>
+            <InsightsView
+              repos={repos}
+              orgs={orgs}
+              recentCommits={recentCommits}
+            />
           )}
           {showSection === "repos" && (
-            <section>
-              <TopNav />
-              <RepoList
-                repos={repos}
-                loading={reposLoading}
-                expandedRepo={expandedRepo}
-                onExpandRepo={handleExpandRepo}
-                username={user.login}
-                page={repoPage}
-                onPrevPage={handlePrevRepoPage}
-                onNextPage={handleNextRepoPage}
-                perPage={perPage}
-              />
-            </section>
+            <RepositoriesView
+              repos={repos}
+              reposLoading={reposLoading}
+              expandedRepo={expandedRepo}
+              handleExpandRepo={handleExpandRepo}
+              userLogin={user.login}
+              repoPage={repoPage}
+              handlePrevRepoPage={handlePrevRepoPage}
+              handleNextRepoPage={handleNextRepoPage}
+              perPage={perPage}
+            />
           )}
           {showSection === "orgs" && (
-            <section>
-              <OrgList
-                orgs={orgs}
-                loading={orgsLoading}
-                expandedOrg={expandedOrg}
-                onExpandOrg={handleExpandOrg}
-                orgRepos={orgRepos}
-                orgReposLoading={orgReposLoading}
-                orgRepoPages={orgRepoPages}
-                onPrevOrgRepoPage={handlePrevOrgRepoPage}
-                onNextOrgRepoPage={handleNextOrgRepoPage}
-                perPage={perPage}
-              />
-            </section>
+            <OrganizationsView
+              orgs={orgs}
+              orgsLoading={orgsLoading}
+              expandedOrg={expandedOrg}
+              handleExpandOrg={handleExpandOrg}
+              orgRepos={orgRepos}
+              orgReposLoading={orgReposLoading}
+              orgRepoPages={orgRepoPages}
+              handlePrevOrgRepoPage={handlePrevOrgRepoPage}
+              handleNextOrgRepoPage={handleNextOrgRepoPage}
+              perPage={perPage}
+            />
           )}
-          {showSection === "commits" && (
-            <section>
-              <div className="bg-white rounded-lg border border-gray-200 p-6 min-h-[300px] flex flex-col mb-8">
-                <div className="font-semibold text-gray-900 mb-2">
-                  Git Insights (Coming Soon)
-                </div>
-                <div className="flex-1 flex items-center justify-center text-gray-400">
-                  [Git Insights Placeholder]
-                </div>
-              </div>
-            </section>
-          )}
+          {showSection === "commits" && <GitInsightsView />}
         </main>
       </div>
     </div>

@@ -48,7 +48,6 @@ export function Sidebar({
                 <div className="font-semibold text-white text-sm">
                   {user.name || user.login}
                 </div>
-                <div className="text-xs text-gray-400">User</div>
               </div>
               <button
                 className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#18CCFC]/20 hover:text-[#18CCFC]"
@@ -136,7 +135,6 @@ export function Sidebar({
                 <div className="font-semibold text-white text-sm">
                   {user.name || user.login}
                 </div>
-                <div className="text-xs text-gray-400">User</div>
               </div>
               <button
                 className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#18CCFC]/20 hover:text-[#18CCFC]"

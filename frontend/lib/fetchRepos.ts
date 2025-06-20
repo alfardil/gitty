@@ -104,7 +104,7 @@ export async function fetchRecentCommits(
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
   const response = await fetch(
-    `https://api.github.com/users/${user.login}/events/public`,
+    `https://api.github.com/users/${user.login}/events`,
     {
       headers: {
         Authorization: `Bearer ${githubAccessToken}`,
@@ -113,7 +113,6 @@ export async function fetchRecentCommits(
   );
 
   if (!response.ok) {
-    // Not critical, so just log and return empty
     console.error(
       `GitHub API error fetching events: ${response.status} ${response.statusText}`
     );
@@ -127,12 +126,11 @@ export async function fetchRecentCommits(
   for (const event of events) {
     const eventDate = new Date(event.created_at);
     if (eventDate < sevenDaysAgo) {
-      continue; // Skip events older than 7 days
+      continue;
     }
 
     if (event.type === "PushEvent" && event.payload.commits) {
       for (const commit of event.payload.commits) {
-        // Check if the commit author matches the user
         const isAuthoredByUser =
           commit.author.name === user.login ||
           (user.name && commit.author.name === user.name);
