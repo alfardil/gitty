@@ -4,52 +4,17 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { fetchUserRepos, fetchUserOrgs, fetchOrgRepos } from "@/lib/fetchRepos";
 import { SystemDesign } from "@/components/ui/dashboard/TopNav";
-import { SectionToggle } from "@/components/ui/dashboard/SectionToggle";
 import { RepoList } from "@/components/ui/dashboard/RepoList";
 import { OrgList } from "@/components/ui/dashboard/OrgList";
+import { CustomSidebar } from "@/components/ui/dashboard/CustomSidebar";
 import { Spinner } from "@/components/ui/neo/spinner";
-import {
-  Sidebar,
-  SidebarBody,
-  SidebarLink,
-  useSidebar,
-} from "@/components/ui/ace/sidebar";
-import { LogOut, Folder, Users, LayoutDashboard } from "lucide-react";
-
-function LogoutButton({ onLogout }: { onLogout: () => void }) {
-  const { open } = useSidebar();
-  return (
-    <button
-      className="flex items-center gap-2 text-white hover:text-[#18CCFC] hover:cursor-pointer font-semibold"
-      onClick={onLogout}
-    >
-      <LogOut color="#18CCFC" />
-      {open && <span>Logout</span>}
-    </button>
-  );
-}
-
-function SidebarProfile({ user }: { user: any }) {
-  const { open } = useSidebar();
-  return (
-    <div className="mb-8 flex items-center gap-2">
-      <img
-        src={user.avatar_url}
-        alt="User Avatar"
-        className="w-6 h-6 rounded-full"
-      />
-      {open && <div className="text-white">{user.name}</div>}
-    </div>
-  );
-}
 
 export default function Dashboard() {
   const { user, loading, logout } = useAuth();
   const [repos, setRepos] = useState<any[]>([]);
   const [reposLoading, setReposLoading] = useState(true);
   const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
-  const [showRepos, setShowRepos] = useState(false);
-  const [showOrgs, setShowOrgs] = useState(false);
+  const [activeTab, setActiveTab] = useState("repos");
   const [orgs, setOrgs] = useState<any[]>([]);
   const [orgsLoading, setOrgsLoading] = useState(false);
   const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
@@ -65,7 +30,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadRepos() {
-      if (user && showRepos) {
+      if (user && activeTab === "repos") {
         setReposLoading(true);
         try {
           const githubAccessToken = document.cookie
@@ -88,11 +53,11 @@ export default function Dashboard() {
       }
     }
     loadRepos();
-  }, [user, showRepos, repoPage]);
+  }, [user, activeTab, repoPage]);
 
   useEffect(() => {
     async function loadOrgs() {
-      if (user && showOrgs) {
+      if (user && activeTab === "orgs") {
         setOrgsLoading(true);
         try {
           const githubAccessToken = document.cookie
@@ -111,7 +76,7 @@ export default function Dashboard() {
       }
     }
     loadOrgs();
-  }, [user, showOrgs]);
+  }, [user, activeTab]);
 
   async function handleExpandOrg(orgLogin: string) {
     setExpandedOrg(expandedOrg === orgLogin ? null : orgLogin);
@@ -158,17 +123,6 @@ export default function Dashboard() {
     }
   }, [expandedOrg, expandedOrg ? orgRepoPages[expandedOrg] : undefined]);
 
-  function handleShowRepos() {
-    setShowRepos((prev) => !prev);
-    setShowOrgs(false);
-    setExpandedOrg(null);
-  }
-  function handleShowOrgs() {
-    setShowOrgs((prev) => !prev);
-    setShowRepos(false);
-    setExpandedRepo(null);
-  }
-
   function handleExpandRepo(id: string) {
     setExpandedRepo(expandedRepo === id ? null : id);
   }
@@ -188,6 +142,12 @@ export default function Dashboard() {
   }
   function handleNextOrgRepoPage(org: string) {
     setOrgRepoPages((prev) => ({ ...prev, [org]: (prev[org] || 1) + 1 }));
+  }
+
+  function handleTabChange(tab: string) {
+    setActiveTab(tab);
+    setExpandedRepo(null);
+    setExpandedOrg(null);
   }
 
   if (loading) {
@@ -213,58 +173,18 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white text-black">
-      <Sidebar>
-        <SidebarBody className="border-r border-[#18CCFC] h-screen bg-[#191919] flex flex-col justify-between">
-          <div className="flex flex-col gap-2 mt-8">
-            <SidebarLink
-              link={{
-                label: "Dashboard",
-                href: "/dashboard",
-                icon: <LayoutDashboard color="#18CCFC" />,
-              }}
-              className="hover:text-[#18CCFC]"
-            />
-            <SidebarLink
-              link={{
-                label: "Repos",
-                href: "#repos",
-                icon: <Folder color="#18CCFC" />,
-              }}
-              className={`hover:text-[#18CCFC] ${
-                showRepos ? "text-[#18CCFC]" : ""
-              }`}
-            />
-            <SidebarLink
-              link={{
-                label: "Orgs",
-                href: "#orgs",
-                icon: <Users color="#18CCFC" />,
-              }}
-              className={`hover:text-[#18CCFC] ${
-                showOrgs ? "text-[#18CCFC]" : ""
-              }`}
-            />
-            <div className="mt-8">
-              <LogoutButton onLogout={logout} />
-            </div>
-          </div>
-          <SidebarProfile user={user} />
-        </SidebarBody>
-      </Sidebar>
-      <main className="flex-1 p-12">
+    <div className="min-h-screen bg-white text-black">
+      <CustomSidebar
+        user={user}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onLogout={logout}
+      />
+
+      <main className="p-12 ml-0 transition-all duration-300">
         <SystemDesign />
-        <SectionToggle
-          showRepos={showRepos}
-          showOrgs={showOrgs}
-          onShowRepos={() => {
-            handleShowRepos();
-          }}
-          onShowOrgs={() => {
-            handleShowOrgs();
-          }}
-        />
-        {showRepos && (
+
+        {activeTab === "repos" && (
           <RepoList
             repos={repos}
             loading={reposLoading}
@@ -277,7 +197,8 @@ export default function Dashboard() {
             perPage={perPage}
           />
         )}
-        {showOrgs && (
+
+        {activeTab === "orgs" && (
           <OrgList
             orgs={orgs}
             loading={orgsLoading}
@@ -291,7 +212,13 @@ export default function Dashboard() {
             perPage={perPage}
           />
         )}
-        <h1>hi</h1>
+
+        {activeTab === "git-insights" && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">Git Insights</h2>
+            <p className="text-gray-600">Git insights feature coming soon...</p>
+          </div>
+        )}
       </main>
     </div>
   );
