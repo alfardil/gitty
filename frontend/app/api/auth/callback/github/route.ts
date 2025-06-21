@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { upsertUser, createSession } from "@/server/src/db/actions";
+import {
+  upsertUser,
+  createSession,
+  isUserAdmin,
+} from "@/server/src/db/actions";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -54,6 +58,18 @@ export async function GET(request: NextRequest) {
     });
 
     const userData = await userResponse.json();
+
+    // Check if user is admin before proceeding
+    const isAdmin = await isUserAdmin(String(userData.id));
+    if (!isAdmin) {
+      // Clear any existing cookies
+      cookieStore.delete("github_user");
+      cookieStore.delete("github_access_token");
+      cookieStore.delete("session_id");
+      cookieStore.delete("github_oauth_state");
+
+      return NextResponse.redirect(new URL("/auth/access-denied", request.url));
+    }
 
     // Upsert user in the database
     const upsertResult = await upsertUser({

@@ -5,6 +5,7 @@ import {
   timestamp,
   uuid as uuidType,
   primaryKey,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
@@ -17,6 +18,7 @@ export const usersTable = pgTable("users", {
   joinedAt: timestamp().defaultNow().notNull(),
   avatarUrl: varchar({ length: 512 }),
   bio: varchar({ length: 512 }),
+  admin: boolean().default(false).notNull(),
 });
 
 export const sessionsTable = pgTable("sessions", {
