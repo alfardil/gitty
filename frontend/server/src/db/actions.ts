@@ -45,10 +45,31 @@ export async function upsertUser({
         githubUsername,
         bio,
         joinedAt,
+        admin: false,
       })
       .returning();
     return { created: true, user: inserted[0] };
   }
+}
+
+export async function isUserAdmin(githubId: string): Promise<boolean> {
+  const user = await db
+    .select({ admin: usersTable.admin })
+    .from(usersTable)
+    .where(eq(usersTable.githubId, githubId))
+    .limit(1);
+
+  return user.length > 0 && user[0].admin === true;
+}
+
+export async function getUserByGithubId(githubId: string) {
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.githubId, githubId))
+    .limit(1);
+
+  return user[0] || null;
 }
 
 export async function createSession({

@@ -3,8 +3,13 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  // Allow only /login and /api/auth/* as public routes
-  if (pathname === "/login" || pathname.startsWith("/api/auth")) {
+  // Allow only /login, /auth/access-denied, /auth/error and /api/auth/* as public routes
+  if (
+    pathname === "/login" ||
+    pathname === "/auth/access-denied" ||
+    pathname === "/auth/error" ||
+    pathname.startsWith("/api/auth")
+  ) {
     return NextResponse.next();
   }
 
