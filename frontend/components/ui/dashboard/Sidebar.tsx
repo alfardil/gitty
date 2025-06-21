@@ -25,7 +25,6 @@ export function Sidebar({
 }) {
   return (
     <>
-      {/* Desktop sidebar (collapsible) */}
       <aside
         className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-[#191919] transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-20"

@@ -17,6 +17,7 @@ import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
 import { RepositoriesView } from "@/components/ui/dashboard/repositories/RepositoriesView";
 import { OrganizationsView } from "@/components/ui/dashboard/organizations/OrganizationsView";
+import { AnalysisView } from "@/components/ui/dashboard/analysis/AnalysisView";
 import { GitInsightsView } from "@/components/ui/dashboard/gitInsights/GitInsightsView";
 
 export default function Dashboard() {
@@ -37,9 +38,9 @@ export default function Dashboard() {
   const [orgRepoPages, setOrgRepoPages] = useState<{ [org: string]: number }>(
     {}
   );
+  const perPage = 20;
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
-  const perPage = 10;
 
   useEffect(() => {
     async function loadRepos() {
@@ -267,6 +268,19 @@ export default function Dashboard() {
               orgRepoPages={orgRepoPages}
               handlePrevOrgRepoPage={handlePrevOrgRepoPage}
               handleNextOrgRepoPage={handleNextOrgRepoPage}
+              perPage={perPage}
+            />
+          )}
+          {showSection === "analysis" && (
+            <AnalysisView
+              repos={repos}
+              reposLoading={reposLoading}
+              expandedRepo={expandedRepo}
+              handleExpandRepo={handleExpandRepo}
+              userLogin={user.login}
+              repoPage={repoPage}
+              handlePrevRepoPage={handlePrevRepoPage}
+              handleNextRepoPage={handleNextRepoPage}
               perPage={perPage}
             />
           )}
