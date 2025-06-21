@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:push:prod": "NODE_ENV=production npx drizzle-kit push"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
