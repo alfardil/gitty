@@ -61,7 +61,7 @@ make dev
 
 ```bash
 # Start backend
-cd backend && pip install -r requirements.txt && uvicorn main:app --reload
+cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload
 
 # Start frontend (in a new terminal)
 pnpm i && pnpm run dev
