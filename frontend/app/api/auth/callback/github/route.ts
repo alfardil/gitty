@@ -85,8 +85,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/auth/access-denied", request.url));
     }
 
-    // Create a session in the database
-    if (upsertResult && upsertResult.user) {
+    // Create a session in the database if they are an admin
+    if (upsertResult && upsertResult.user && isAdmin) {
       const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 1 week
       const sessionResult = await createSession({
         userId: upsertResult.user.id,
