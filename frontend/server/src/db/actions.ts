@@ -88,6 +88,20 @@ export async function createSession({
   return { created: true, session: inserted[0] };
 }
 
+export async function getSessionById({ id }: { id: string }) {
+  const session = await db
+    .select()
+    .from(sessionsTable)
+    .where(eq(sessionsTable.id, id))
+    .limit(1);
+
+  return session[0] || null;
+}
+
 export async function deleteSession({ id }: { id: string }) {
   await db.delete(sessionsTable).where(eq(sessionsTable.id, id));
+}
+
+export async function deleteSessionsByUserId({ userId }: { userId: string }) {
+  await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId));
 }
