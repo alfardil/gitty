@@ -59,18 +59,6 @@ export async function GET(request: NextRequest) {
 
     const userData = await userResponse.json();
 
-    // Check if user is admin before proceeding
-    const isAdmin = await isUserAdmin(String(userData.id));
-    if (!isAdmin) {
-      // Clear any existing cookies
-      cookieStore.delete("github_user");
-      cookieStore.delete("github_access_token");
-      cookieStore.delete("session_id");
-      cookieStore.delete("github_oauth_state");
-
-      return NextResponse.redirect(new URL("/auth/access-denied", request.url));
-    }
-
     // Upsert user in the database
     const upsertResult = await upsertUser({
       githubId: String(userData.id),
@@ -84,6 +72,18 @@ export async function GET(request: NextRequest) {
       bio: userData.bio,
       joinedAt: userData.created_at ? new Date(userData.created_at) : undefined,
     });
+
+    // Check if user is admin before proceeding
+    const isAdmin = await isUserAdmin(String(userData.id));
+    if (!isAdmin) {
+      // Clear any existing cookies
+      cookieStore.delete("github_user");
+      cookieStore.delete("github_access_token");
+      cookieStore.delete("session_id");
+      cookieStore.delete("github_oauth_state");
+
+      return NextResponse.redirect(new URL("/auth/access-denied", request.url));
+    }
 
     // Create a session in the database
     if (upsertResult && upsertResult.user) {

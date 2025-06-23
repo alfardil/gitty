@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={sen.className}>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" href="/gittylogo.png" />
       </head>
       <body>
         {children}

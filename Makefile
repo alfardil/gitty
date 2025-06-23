@@ -1,5 +1,5 @@
 dev:
-	concurrently "cd frontend && pnpm i && pnpm run dev" "cd backend && pip install -r requirements.txt && uvicorn main:app --reload"
+	concurrently "cd frontend && pnpm i && pnpm run dev" "cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload"
 
 self:
 	git remote set-url origin https://github.com/alfardil/gitty.git
@@ -19,3 +19,6 @@ orgPush:
 
 migrate:
 	cd frontend && npx drizzle-kit push
+
+migrate-prod:
+	cd frontend && NODE_ENV=production npx drizzle-kit push
