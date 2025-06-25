@@ -9,41 +9,43 @@ import {
   fetchOrgRepos,
   fetchRecentCommits,
 } from "@/lib/fetchRepos";
-
+import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { Menu } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
-import { RepositoriesView } from "@/components/ui/dashboard/repositories/RepositoriesView";
-import { OrganizationsView } from "@/components/ui/dashboard/organizations/OrganizationsView";
 import { AnalysisView } from "@/components/ui/dashboard/analysis/AnalysisView";
-import { GitInsightsView } from "@/components/ui/dashboard/gitInsights/GitInsightsView";
+
+interface Repository {
+  id: number;
+  name: string;
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  owner: {
+    login: string;
+  };
+}
 
 export default function Dashboard() {
+  const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const [repos, setRepos] = useState<any[]>([]);
+  const [repos, setRepos] = useState<Repository[]>([]);
   const [reposLoading, setReposLoading] = useState(true);
-  const [expandedRepo, setExpandedRepo] = useState<string | null>(null);
   const [showSection, setShowSection] = useState("insights");
   const [orgs, setOrgs] = useState<any[]>([]);
   const [orgsLoading, setOrgsLoading] = useState(false);
+  const [selectedScope, setSelectedScope] = useState<string>("Personal");
+  const [scopeRepos, setScopeRepos] = useState<Repository[]>([]);
   const [recentCommits, setRecentCommits] = useState<any[]>([]);
-  const [expandedOrg, setExpandedOrg] = useState<string | null>(null);
-  const [orgRepos, setOrgRepos] = useState<{ [org: string]: any[] }>({});
-  const [orgReposLoading, setOrgReposLoading] = useState<{
-    [org: string]: boolean;
-  }>({});
-  const [repoPage, setRepoPage] = useState(1);
-  const [orgRepoPages, setOrgRepoPages] = useState<{ [org: string]: number }>(
-    {}
-  );
-  const perPage = 20;
+  const [commitsLoading, setCommitsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
 
+  // Fetch user's repositories
   useEffect(() => {
-    async function loadRepos() {
+    async function loadUserRepos() {
       if (user) {
         setReposLoading(true);
         try {
@@ -52,23 +54,27 @@ export default function Dashboard() {
             .find((row) => row.startsWith("github_access_token="))
             ?.split("=")[1];
           if (githubAccessToken) {
-            const reposData = await fetchUserRepos(
+            const reposData = (await fetchUserRepos(
               githubAccessToken,
-              perPage,
-              repoPage
+              100,
+              1
+            )) as Repository[];
+            const sortedRepos = [...reposData].sort(
+              (a, b) => b.stargazers_count - a.stargazers_count
             );
-            setRepos(reposData);
+            setRepos(sortedRepos);
           }
         } catch (error) {
-          console.error("Error fetching repos:", error);
+          console.error("Error fetching user repos:", error);
         } finally {
           setReposLoading(false);
         }
       }
     }
-    loadRepos();
-  }, [user, repoPage]);
+    loadUserRepos();
+  }, [user]);
 
+  // Fetch user's organizations
   useEffect(() => {
     async function loadOrgs() {
       if (user) {
@@ -92,9 +98,11 @@ export default function Dashboard() {
     loadOrgs();
   }, [user]);
 
+  // Fetch recent commits
   useEffect(() => {
     async function loadRecentCommits() {
-      if (user && user.login) {
+      if (user) {
+        setCommitsLoading(true);
         try {
           const githubAccessToken = document.cookie
             .split("; ")
@@ -109,82 +117,61 @@ export default function Dashboard() {
           }
         } catch (error) {
           console.error("Error fetching recent commits:", error);
+        } finally {
+          setCommitsLoading(false);
         }
       }
     }
     loadRecentCommits();
   }, [user]);
 
-  async function handleExpandOrg(orgLogin: string) {
-    setExpandedOrg(expandedOrg === orgLogin ? null : orgLogin);
-  }
-
+  // Fetch repositories for analysis view based on selected scope
   useEffect(() => {
-    async function fetchOrgReposForExpandedOrg() {
-      if (expandedOrg) {
-        setOrgReposLoading((prev) => ({ ...prev, [expandedOrg]: true }));
+    async function loadScopeRepos() {
+      if (user && selectedScope) {
+        setReposLoading(true);
         try {
           const githubAccessToken = document.cookie
             .split("; ")
             .find((row) => row.startsWith("github_access_token="))
             ?.split("=")[1];
           if (githubAccessToken) {
-            let page = orgRepoPages[expandedOrg] || 1;
-            let repos = await fetchOrgRepos(
-              githubAccessToken,
-              expandedOrg,
-              perPage,
-              page
-            );
-            while (repos.length === 0 && page > 1) {
-              page -= 1;
-              repos = await fetchOrgRepos(
+            if (selectedScope === "Personal") {
+              const reposData = (await fetchUserRepos(
                 githubAccessToken,
-                expandedOrg,
-                perPage,
-                page
+                100,
+                1
+              )) as Repository[];
+              const sortedRepos = [...reposData].sort(
+                (a, b) => b.stargazers_count - a.stargazers_count
               );
+              setScopeRepos(sortedRepos);
+            } else {
+              const reposData = (await fetchOrgRepos(
+                githubAccessToken,
+                selectedScope,
+                100,
+                1
+              )) as Repository[];
+              const sortedRepos = [...reposData].sort(
+                (a, b) => b.stargazers_count - a.stargazers_count
+              );
+              setScopeRepos(sortedRepos);
             }
-            setOrgRepoPages((prev) => ({ ...prev, [expandedOrg]: page }));
-            setOrgRepos((prev) => ({ ...prev, [expandedOrg]: repos }));
           }
         } catch (error) {
-          console.error("Error fetching org repos:", error);
+          console.error("Error fetching repos:", error);
         } finally {
-          setOrgReposLoading((prev) => ({ ...prev, [expandedOrg]: false }));
+          setReposLoading(false);
         }
       }
     }
-    if (expandedOrg) {
-      fetchOrgReposForExpandedOrg();
-    }
-  }, [expandedOrg, expandedOrg ? orgRepoPages[expandedOrg] : undefined]);
+    loadScopeRepos();
+  }, [user, selectedScope]);
 
-  function handleSidebarNav(key: string) {
-    setShowSection(key);
-    setSidebarMobile(false);
-  }
-
-  function handleExpandRepo(id: string) {
-    setExpandedRepo(expandedRepo === id ? null : id);
-  }
-
-  function handlePrevRepoPage() {
-    setRepoPage((p) => Math.max(1, p - 1));
-  }
-  function handleNextRepoPage() {
-    setRepoPage((p) => p + 1);
-  }
-
-  function handlePrevOrgRepoPage(org: string) {
-    setOrgRepoPages((prev) => ({
-      ...prev,
-      [org]: Math.max(1, (prev[org] || 1) - 1),
-    }));
-  }
-  function handleNextOrgRepoPage(org: string) {
-    setOrgRepoPages((prev) => ({ ...prev, [org]: (prev[org] || 1) + 1 }));
-  }
+  const handleRepoClick = (owner: string, repo: string) => {
+    router.push(`/${owner}/${repo}`);
+  };
 
   if (loading) {
     return (
@@ -203,6 +190,8 @@ export default function Dashboard() {
     );
   }
 
+  const isInsightsLoading = reposLoading || orgsLoading || commitsLoading;
+
   return (
     <div className="min-h-screen flex bg-gray-50 text-gray-800">
       <Sidebar
@@ -212,7 +201,7 @@ export default function Dashboard() {
         sidebarMobile={sidebarMobile}
         setSidebarMobile={setSidebarMobile}
         showSection={showSection}
-        handleSidebarNav={handleSidebarNav}
+        handleSidebarNav={setShowSection}
         logout={logout}
       />
 
@@ -233,58 +222,116 @@ export default function Dashboard() {
               {SIDEBAR_SECTIONS.find((s) => s.key === showSection)?.label ||
                 "Dashboard"}
             </h1>
+            {showSection === "analysis" && (
+              <div className="ml-auto relative">
+                <div className="relative inline-block text-left">
+                  <button
+                    className="inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onClick={() => {
+                      const dropdown =
+                        document.getElementById("scope-dropdown");
+                      if (dropdown) {
+                        dropdown.classList.toggle("hidden");
+                      }
+                    }}
+                  >
+                    {selectedScope}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </button>
+                  <div
+                    id="scope-dropdown"
+                    className="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+                  >
+                    <div className="py-1" role="menu">
+                      <button
+                        className={`${
+                          selectedScope === "Personal"
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-700"
+                        } block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
+                        onClick={() => {
+                          setSelectedScope("Personal");
+                          const dropdown =
+                            document.getElementById("scope-dropdown");
+                          if (dropdown) {
+                            dropdown.classList.add("hidden");
+                          }
+                        }}
+                      >
+                        Personal
+                      </button>
+                      {orgs.map((org) => (
+                        <button
+                          key={org.login}
+                          className={`${
+                            selectedScope === org.login
+                              ? "bg-gray-100 text-gray-900"
+                              : "text-gray-700"
+                          } block w-full text-left px-4 py-2 text-sm hover:bg-gray-100`}
+                          onClick={() => {
+                            setSelectedScope(org.login);
+                            const dropdown =
+                              document.getElementById("scope-dropdown");
+                            if (dropdown) {
+                              dropdown.classList.add("hidden");
+                            }
+                          }}
+                        >
+                          {org.login}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </header>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8">
           {showSection === "insights" && (
-            <InsightsView
-              repos={repos}
-              orgs={orgs}
-              recentCommits={recentCommits}
-            />
-          )}
-          {showSection === "repos" && (
-            <RepositoriesView
-              repos={repos}
-              reposLoading={reposLoading}
-              expandedRepo={expandedRepo}
-              handleExpandRepo={handleExpandRepo}
-              userLogin={user.login}
-              repoPage={repoPage}
-              handlePrevRepoPage={handlePrevRepoPage}
-              handleNextRepoPage={handleNextRepoPage}
-              perPage={perPage}
-            />
-          )}
-          {showSection === "orgs" && (
-            <OrganizationsView
-              orgs={orgs}
-              orgsLoading={orgsLoading}
-              expandedOrg={expandedOrg}
-              handleExpandOrg={handleExpandOrg}
-              orgRepos={orgRepos}
-              orgReposLoading={orgReposLoading}
-              orgRepoPages={orgRepoPages}
-              handlePrevOrgRepoPage={handlePrevOrgRepoPage}
-              handleNextOrgRepoPage={handleNextOrgRepoPage}
-              perPage={perPage}
-            />
+            <div>
+              {isInsightsLoading ? (
+                <div className="flex justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <InsightsView
+                  repos={repos}
+                  orgs={orgs}
+                  recentCommits={recentCommits}
+                />
+              )}
+            </div>
           )}
           {showSection === "analysis" && (
-            <AnalysisView
-              repos={repos}
-              reposLoading={reposLoading}
-              expandedRepo={expandedRepo}
-              handleExpandRepo={handleExpandRepo}
-              userLogin={user.login}
-              repoPage={repoPage}
-              handlePrevRepoPage={handlePrevRepoPage}
-              handleNextRepoPage={handleNextRepoPage}
-              perPage={perPage}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reposLoading ? (
+                <div className="col-span-full flex justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                scopeRepos.map((repo) => (
+                  <div
+                    key={repo.id}
+                    className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleRepoClick(repo.owner.login, repo.name)}
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {repo.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {repo.description || "No description available"}
+                    </p>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="mr-4">⭐ {repo.stargazers_count}</span>
+                      <span>{repo.language || "No language specified"}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           )}
-          {showSection === "commits" && <GitInsightsView />}
         </main>
       </div>
     </div>

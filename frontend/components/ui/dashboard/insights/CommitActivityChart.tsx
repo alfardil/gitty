@@ -18,6 +18,29 @@ interface CommitActivityChartProps {
   }[];
 }
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    const date = new Date(data.date);
+    const formattedDate = date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    return (
+      <div className="bg-white p-2 border border-gray-200 rounded shadow-sm">
+        <p className="font-medium text-gray-900">{formattedDate}</p>
+        <p className="text-gray-600">{`${payload[0].value} commit${
+          payload[0].value !== 1 ? "s" : ""
+        }`}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export function CommitActivityChart({ data }: CommitActivityChartProps) {
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -33,13 +56,7 @@ export function CommitActivityChart({ data }: CommitActivityChartProps) {
         <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
         <XAxis dataKey="name" stroke="#6b7280" />
         <YAxis allowDecimals={false} stroke="#6b7280" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "#ffffff",
-            border: "1px solid #e5e7eb",
-          }}
-          labelStyle={{ color: "#1f2937" }}
-        />
+        <Tooltip content={<CustomTooltip />} />
         <Bar dataKey="commits" fill="#18CCFC" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

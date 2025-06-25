@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   motion,
   useAnimationFrame,
@@ -84,23 +84,67 @@ export const MovingBorder = ({
 }) => {
   const pathRef = useRef<SVGRectElement>(null);
   const progress = useMotionValue<number>(0);
+  const [pathLength, setPathLength] = React.useState<number | null>(null);
+  const [dimensions, setDimensions] = React.useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // Update path length and dimensions when the component mounts or resizes
+  useEffect(() => {
+    const updatePathLength = () => {
+      if (pathRef.current) {
+        try {
+          const rect = pathRef.current.getBoundingClientRect();
+          // Only update if the dimensions are valid (greater than minimum size)
+          if (rect.width > 10 && rect.height > 10) {
+            setDimensions({ width: rect.width, height: rect.height });
+            const length = pathRef.current.getTotalLength();
+            setPathLength(length > 0 ? length : null);
+          } else {
+            setPathLength(null);
+          }
+        } catch (e) {
+          console.warn("SVG rect measurement failed:", e);
+          setPathLength(null);
+        }
+      }
+    };
+
+    // Initial measurement
+    updatePathLength();
+
+    // Add resize listener
+    const resizeObserver = new ResizeObserver(updatePathLength);
+    if (pathRef.current) {
+      resizeObserver.observe(pathRef.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useAnimationFrame((time) => {
-    const length = pathRef.current?.getTotalLength();
-    if (length) {
-      const pxPerMillisecond = length / duration;
-      progress.set((time * pxPerMillisecond) % length);
+    if (pathLength && pathLength > 0) {
+      const pxPerMillisecond = pathLength / duration;
+      progress.set((time * pxPerMillisecond) % pathLength);
     }
   });
 
-  const x = useTransform(
-    progress,
-    (val) => pathRef.current?.getPointAtLength(val).x
-  );
-  const y = useTransform(
-    progress,
-    (val) => pathRef.current?.getPointAtLength(val).y
-  );
+  const getPointAtLength = (val: number) => {
+    if (!pathRef.current || !pathLength || pathLength <= 0 || !dimensions) {
+      return { x: 0, y: 0 };
+    }
+    try {
+      return pathRef.current.getPointAtLength(val);
+    } catch (e) {
+      return { x: 0, y: 0 };
+    }
+  };
+
+  const x = useTransform(progress, (val) => getPointAtLength(val).x);
+  const y = useTransform(progress, (val) => getPointAtLength(val).y);
 
   const transform = useMotionTemplate`translateX(${x}px) translateY(${y}px) translateX(-50%) translateY(-50%)`;
 
@@ -112,6 +156,7 @@ export const MovingBorder = ({
         className="absolute h-full w-full"
         width="100%"
         height="100%"
+        style={{ minWidth: "20px", minHeight: "20px" }}
         {...otherProps}
       >
         <rect
@@ -123,17 +168,19 @@ export const MovingBorder = ({
           ref={pathRef}
         />
       </svg>
-      <motion.div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          display: "inline-block",
-          transform,
-        }}
-      >
-        {children}
-      </motion.div>
+      {pathLength && pathLength > 0 && dimensions && (
+        <motion.div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            display: "inline-block",
+            transform,
+          }}
+        >
+          {children}
+        </motion.div>
+      )}
     </>
   );
 };
