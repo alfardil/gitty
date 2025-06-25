@@ -5,6 +5,7 @@ import {
   cacheDiagramAndExplanation,
   getCachedDiagram,
   getLastGeneratedDate,
+  getCachedExplanation,
 } from "@/app/_actions/cache";
 
 interface StreamState {
@@ -61,7 +62,8 @@ export function useDiagram(username: string, repo: string) {
       });
 
       // change the base URL later
-      const baseUrl = "https://gitty-api.fly.dev";
+      const baseUrl =
+        process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://gitty-api.fly.dev";
       const url = `${baseUrl}/generate/stream`;
 
       try {
@@ -90,7 +92,6 @@ export function useDiagram(username: string, repo: string) {
         let explanation = "";
         let mapping = "";
         let diagram = "";
-        let buffer = "";
 
         const processStream = async () => {
           try {
@@ -102,11 +103,10 @@ export function useDiagram(username: string, repo: string) {
               const lines = chunk.split("\n");
 
               for (const line of lines) {
-                if (line.startsWith("data:")) {
-                  buffer += line.slice(6);
+                if (line.startsWith("data: ")) {
                   try {
-                    const data = JSON.parse(buffer) as StreamResponse;
-                    buffer = "";
+                    const data = JSON.parse(line.slice(6)) as StreamResponse;
+
                     if (data.error) {
                       setState({
                         status: "error",
@@ -202,9 +202,7 @@ export function useDiagram(username: string, repo: string) {
                         break;
                     }
                   } catch (error) {
-                    // If JSON.parse fails, wait for more data (do not reset buffer)
-                    // Optionally, log the error for debugging
-                    // console.log("Waiting for more data, current buffer:", buffer);
+                    console.error("Error parsing SSE message:", error);
                   }
                 }
               }
@@ -253,15 +251,22 @@ export function useDiagram(username: string, repo: string) {
     try {
       // Check cache first - always allow access to cached diagrams
       const cached = await getCachedDiagram(username, repo);
-      const githubAccessToken = getGithubAccessTokenFromCookie();
 
       if (cached) {
         setDiagram(cached);
+        const explanation = await getCachedExplanation(username, repo);
+        setState((prev) => ({
+          ...prev,
+          status: "complete",
+          explanation: explanation || "",
+        }));
         const date = await getLastGeneratedDate(username, repo);
         setLastGenerated(date ?? undefined);
+        setLoading(false);
         return;
       }
 
+      const githubAccessToken = getGithubAccessTokenFromCookie();
       const costEstimate = await getCost(
         username,
         repo,
@@ -395,13 +400,13 @@ export function useDiagram(username: string, repo: string) {
   return {
     diagram,
     error,
-    lastGenerated,
     loading,
+    lastGenerated,
     cost,
-    state,
     handleModify,
     handleRegenerate,
     handleCopy,
     handleExportImage,
+    state,
   };
 }

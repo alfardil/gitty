@@ -3,81 +3,29 @@
 import MainCard from "@/components/ui/diagram/MainCard";
 import { Card } from "@/components/ui/neo/card";
 import { useParams } from "next/navigation";
-import MermaidChart, {
-  MermaidChartHandle,
-} from "../../../../components/MermaidDiagram";
+import MermaidChart from "../../../../components/MermaidDiagram";
 import { useDiagram } from "../../../../lib/hooks/useDiagram";
 import { Spinner } from "@/components/ui/neo/spinner";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/neo/button";
-import { CopyIcon, Redo2 } from "lucide-react";
+import { Redo2, Download, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
-import { getCachedDiagram, getCachedExplanation } from "@/app/_actions/cache";
 
 export default function Repo() {
   const params = useParams<{ username: string; repo: string }>();
-  const { diagram, loading, error, cost, state, handleRegenerate } = useDiagram(
-    params.username.toLowerCase(),
-    params.repo.toLowerCase()
-  );
-  const mermaidRef = React.useRef<MermaidChartHandle>(null);
-  const [isCached, setIsCached] = useState(false);
-  const [cachedExplanation, setCachedExplanation] = useState<string | null>(
-    null
-  );
-
-  useEffect(() => {
-    const checkCache = async () => {
-      const cached = await getCachedDiagram(
-        params.username.toLowerCase(),
-        params.repo.toLowerCase()
-      );
-      if (cached) {
-        setIsCached(true);
-        const explanation = await getCachedExplanation(
-          params.username.toLowerCase(),
-          params.repo.toLowerCase()
-        );
-        setCachedExplanation(explanation);
-      }
-    };
-    void checkCache();
-  }, [params.username, params.repo]);
-
-  // Copy SVG as text
-  const handleCopySVG = async () => {
-    const svg = mermaidRef.current?.getSvgElement();
-    if (!svg) {
-      toast.error("No diagram to copy.");
-      return;
-    }
-    try {
-      const serializer = new XMLSerializer();
-      const svgString = serializer.serializeToString(svg);
-      await navigator.clipboard.writeText(svgString);
-      toast.success("SVG copied to clipboard!");
-    } catch (e) {
-      toast.error("Failed to copy SVG.");
-    }
-  };
-
-  {
-    /* 
-    TODO: MAKE THIS WORK!! 
-  // Download as PNG image using handleExportImage
-
-  const handleDownloadPNG = () => {
-    try {
-      handleExportImage();
-      toast.success("PNG downloaded!");
-    } catch (e) {
-      toast.error("Failed to download PNG.");
-    }
-  };
-} 
-*/
-  }
+  const {
+    diagram,
+    loading,
+    error,
+    cost,
+    state,
+    handleRegenerate,
+    handleExportImage,
+    lastGenerated,
+  } = useDiagram(params.username.toLowerCase(), params.repo.toLowerCase());
+  const [zoomingEnabled, setZoomingEnabled] = useState(false);
 
   return (
     <div className="min-h-screen bg-primary">
@@ -99,7 +47,7 @@ export default function Repo() {
               {params.repo}
             </a>
             <p className="text-sm text-gray-600">
-              {isCached
+              {state.status === "complete" && !cost
                 ? "Diagram was cached! No cost!"
                 : cost
                 ? `Cost: ${cost}`
@@ -111,17 +59,15 @@ export default function Repo() {
             <div className="mb-2 font-semibold">Diagram Generation State</div>
             <div className="mb-1">
               <span className="font-medium">Status:</span>{" "}
-              {isCached ? "cached" : state.status}
+              {state.status === "complete" && !cost ? "cached" : state.status}
             </div>
             <div className="mb-1">
               <span className="font-medium">Explanation:</span>
               <pre className="bg-gray-100 rounded p-2 whitespace-pre-wrap max-h-32 overflow-y-auto">
-                {isCached
-                  ? cachedExplanation || "(none)"
-                  : state.explanation || "(none)"}
+                {state.explanation || "(none)"}
               </pre>
             </div>
-            {!isCached && (
+            {state.status !== "complete" && (
               <>
                 <div className="mb-1">
                   <span className="font-medium">Mapping:</span>
@@ -139,7 +85,7 @@ export default function Repo() {
             )}
           </div>
 
-          {loading && !isCached && (
+          {loading && state.status !== "complete" && (
             <div className="w-full text-center py-4">
               <Spinner>
                 <p className="mt-2 text-gray-600">Generating diagram...</p>
@@ -153,15 +99,22 @@ export default function Repo() {
 
           {!loading && !error && diagram && (
             <div className="w-full mt-4">
-              <MermaidChart ref={mermaidRef} chart={diagram} />
+              <MermaidChart chart={diagram} zoomingEnabled={zoomingEnabled} />
               <div className="flex justify-center mt-4 gap-2">
-                <Button onClick={handleCopySVG}>
-                  <CopyIcon className="w-4 h-4" />
-                  Copy as SVG
-                </Button>
                 <Button onClick={() => handleRegenerate("")}>
-                  <Redo2 className="w-4 h-4" />
+                  <Redo2 className="w-4 h-4 mr-2" />
                   Regenerate Diagram
+                </Button>
+                <Button onClick={handleExportImage}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export as PNG
+                </Button>
+                <Button
+                  onClick={() => setZoomingEnabled(!zoomingEnabled)}
+                  variant={zoomingEnabled ? "default" : "neutral"}
+                >
+                  <ZoomIn className="w-4 h-4 mr-2" />
+                  {zoomingEnabled ? "Disable Zoom" : "Enable Zoom"}
                 </Button>
               </div>
             </div>
