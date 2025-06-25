@@ -106,7 +106,7 @@ export function useDiagram(username: string, repo: string) {
                   buffer += line.slice(6);
                   try {
                     const data = JSON.parse(buffer) as StreamResponse;
-                    buffer = ""; // Reset buffer on successful parse
+                    buffer = "";
                     if (data.error) {
                       setState({
                         status: "error",

@@ -3,18 +3,13 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Spinner } from "../neo/spinner";
 
-type FileTreeNode =
-  | { [key: string]: FileTreeNode }
-  | { __file: true; path: string };
-
-interface FileTreeProps {
-  tree: FileTreeNode;
-  onFileClick: (filePath: string) => void;
-  selectedFile: string | null;
-  expanded: { [key: string]: boolean };
-  setExpanded: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
-  parentPath?: string;
+interface FileNode {
+  name: string;
+  path: string;
+  type: "file" | "folder";
+  children?: FileNode[];
 }
 
 function getLanguageFromExtension(path: string): string {
@@ -49,113 +44,148 @@ export function FileTree({
   selectedFile,
   expanded,
   setExpanded,
-  parentPath = "",
-}: FileTreeProps) {
+}: {
+  tree: FileNode[];
+  onFileClick: (path: string) => void;
+  selectedFile: string | null;
+  expanded: { [key: string]: boolean };
+  setExpanded: (expanded: { [key: string]: boolean }) => void;
+}) {
+  const renderNode = (node: FileNode, depth: number = 0) => {
+    const isFolder = node.type === "folder";
+    const isExpanded = expanded[node.path];
+    const isSelected = selectedFile === node.path;
+
+    return (
+      <div key={node.path}>
+        <div
+          className={`
+            group flex items-center gap-2 py-1.5 cursor-pointer
+            hover:bg-blue-50/80 transition-colors relative
+            ${isSelected ? "bg-blue-100" : ""}
+          `}
+          style={{ paddingLeft: `${depth * 16 + 12}px` }}
+          onClick={() => {
+            if (isFolder) {
+              setExpanded({ ...expanded, [node.path]: !isExpanded });
+            } else {
+              onFileClick(node.path);
+            }
+          }}
+        >
+          {isFolder && (
+            <ChevronRight
+              className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0
+                ${isExpanded ? "rotate-90" : ""}
+              `}
+            />
+          )}
+          <span className={`truncate z-10 ${isFolder ? "font-medium" : ""}`}>
+            {node.name}
+          </span>
+
+          {/* Full-width hover effect */}
+          <div className="absolute inset-0 pointer-events-none bg-blue-50/80 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
+        {isFolder && isExpanded && node.children && (
+          <div>
+            {node.children.map((child) => renderNode(child, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <ul className="text-sm">
-      {Object.entries(tree).map(([name, value]) => {
-        const isFile = (value as any).__file;
-        const fullPath = parentPath ? `${parentPath}/${name}` : name;
-        if (isFile) {
-          return (
-            <li
-              key={fullPath}
-              className={`py-1 pl-4 border-b last:border-b-0 border-gray-200 cursor-pointer hover:bg-blue-100 ${
-                selectedFile === (value as any).path
-                  ? "font-bold text-blue-700"
-                  : ""
-              }`}
-              onClick={() => onFileClick((value as any).path)}
-            >
-              {name}
-            </li>
-          );
-        } else {
-          const isOpen = expanded[fullPath];
-          return (
-            <li
-              key={fullPath}
-              className="py-1 border-b last:border-b-0 border-gray-200"
-            >
-              <div
-                className="flex items-center gap-1 cursor-pointer hover:bg-blue-50 pl-1"
-                onClick={() =>
-                  setExpanded((prev) => ({ ...prev, [fullPath]: !isOpen }))
-                }
-              >
-                {isOpen ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
-                <span className="font-semibold">{name}</span>
-              </div>
-              {isOpen && (
-                <div className="pl-4">
-                  <FileTree
-                    tree={value as FileTreeNode}
-                    onFileClick={onFileClick}
-                    selectedFile={selectedFile}
-                    expanded={expanded}
-                    setExpanded={setExpanded}
-                    parentPath={fullPath}
-                  />
-                </div>
-              )}
-            </li>
-          );
-        }
-      })}
-    </ul>
+    <div className="select-none py-2">
+      {tree.map((node) => renderNode(node))}
+    </div>
   );
 }
 
 // Helper to build a nested tree from the flat file list
-export function buildFileTree(files: { path: string }[]) {
-  const root: any = {};
+export function buildFileTree(files: { path: string }[]): FileNode[] {
+  const root: { [key: string]: any } = {};
+
+  // First build the nested object structure
   files.forEach((file) => {
     const parts = file.path.split("/");
     let node = root;
     parts.forEach((part, idx) => {
       if (idx === parts.length - 1) {
-        node[part] = { __file: true, path: file.path };
+        node[part] = { type: "file", name: part, path: file.path };
       } else {
-        node[part] = node[part] || {};
-        node = node[part];
+        node[part] = node[part] || {
+          type: "folder",
+          name: part,
+          path: parts.slice(0, idx + 1).join("/"),
+          children: {},
+        };
+        node = node[part].children;
       }
     });
   });
-  return root;
-}
 
-interface FileContentProps {
-  selectedFile: string | null;
-  fileContent: string | null;
-  loading: boolean;
+  // Convert the nested object into an array structure
+  function convertToArray(obj: { [key: string]: any }): FileNode[] {
+    return Object.entries(obj)
+      .map(([name, node]) => {
+        if (node.type === "file") {
+          return {
+            name: node.name,
+            path: node.path,
+            type: "file" as const,
+          };
+        } else {
+          return {
+            name: node.name,
+            path: node.path,
+            type: "folder" as const,
+            children: convertToArray(node.children),
+          };
+        }
+      })
+      .sort((a, b) => {
+        // Folders come before files
+        if (a.type === "folder" && b.type === "file") return -1;
+        if (a.type === "file" && b.type === "folder") return 1;
+        // Sort alphabetically within the same type
+        return a.name.localeCompare(b.name);
+      });
+  }
+
+  return convertToArray(root);
 }
 
 export function FileContent({
   selectedFile,
   fileContent,
   loading,
-}: FileContentProps) {
+}: {
+  selectedFile: string | null;
+  fileContent: string | null;
+  loading: boolean;
+}) {
   if (!selectedFile) return null;
 
   return (
-    <div className="mt-6">
-      <div className="font-semibold mb-2 break-all">{selectedFile}</div>
-      {loading ? (
-        <div className="text-gray-400">Loading...</div>
-      ) : fileContent ? (
-        <SyntaxHighlighter
-          language={getLanguageFromExtension(selectedFile)}
-          style={vscDarkPlus}
-          customStyle={{ borderRadius: 8, fontSize: 13, padding: 16 }}
-          showLineNumbers
-        >
-          {fileContent}
-        </SyntaxHighlighter>
-      ) : null}
+    <div className="space-y-4">
+      {/* File Path Display */}
+      <div className="px-6 py-3 text-sm text-gray-500 border-b border-gray-200">
+        {selectedFile}
+      </div>
+
+      <div className="px-6">
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <Spinner />
+          </div>
+        ) : (
+          <pre className="text-sm overflow-x-auto">
+            <code>{fileContent}</code>
+          </pre>
+        )}
+      </div>
     </div>
   );
 }

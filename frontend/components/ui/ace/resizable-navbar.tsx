@@ -85,7 +85,12 @@ export const Navbar = ({ children, className }: NavbarProps) => {
   );
 };
 
-export const NavBody = ({ children, className, visible }: NavBodyProps) => {
+export const NavBody = ({
+  children,
+  className,
+  visible,
+  ...rest
+}: NavBodyProps) => {
   return (
     <motion.div
       animate={{
@@ -108,6 +113,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         "relative z-[60] mx-auto hidden w-full max-w-7xl flex-row items-center justify-between self-start rounded-full bg-black/80 px-4 py-2 lg:flex dark:bg-black/80",
         className
       )}
+      {...rest}
     >
       {children}
     </motion.div>
@@ -148,7 +154,12 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
   );
 };
 
-export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
+export const MobileNav = ({
+  children,
+  className,
+  visible,
+  ...rest
+}: MobileNavProps) => {
   return (
     <motion.div
       animate={{
@@ -171,6 +182,7 @@ export const MobileNav = ({ children, className, visible }: MobileNavProps) => {
         "relative z-50 mx-auto flex w-full max-w-[calc(100vw-2rem)] flex-col items-center justify-between bg-black/80 px-0 py-2 lg:hidden dark:bg-black/80",
         className
       )}
+      {...rest}
     >
       {children}
     </motion.div>
