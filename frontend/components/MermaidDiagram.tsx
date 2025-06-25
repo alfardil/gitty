@@ -1,77 +1,99 @@
 "use client";
 
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import { useEffect, useRef } from "react";
 import mermaid from "mermaid";
-import { Spinner } from "@/components/ui/neo/spinner";
+// Remove the direct import
+// import svgPanZoom from "svg-pan-zoom";
 
 interface MermaidChartProps {
   chart: string;
+  zoomingEnabled?: boolean;
 }
 
-export interface MermaidChartHandle {
-  getSvgElement: () => SVGSVGElement | null;
-}
+const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
-const MermaidChart = forwardRef<MermaidChartHandle, MermaidChartProps>(
-  ({ chart }, ref) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [svg, setSvg] = useState<string | null>(null);
-
-    useImperativeHandle(ref, () => ({
-      getSvgElement: () => {
-        if (!containerRef.current) return null;
-        return containerRef.current.querySelector("svg");
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "neutral",
+      htmlLabels: true,
+      flowchart: {
+        htmlLabels: true,
+        curve: "basis",
+        nodeSpacing: 50,
+        rankSpacing: 50,
+        padding: 15,
       },
-    }));
+      themeCSS: `
+        .clickable {
+          transition: transform 0.2s ease;
+        }
+        .clickable:hover {
+          transform: scale(1.05);
+          cursor: pointer;
+        }
+        .clickable:hover > * {
+          filter: brightness(0.85);
+        }
+      `,
+    });
 
-    useEffect(() => {
-      setError(null);
-      setSvg(null);
-      if (!containerRef.current || !chart) return;
-      mermaid
-        .render("mermaidChart", chart)
-        .then(({ svg }) => {
-          setSvg(svg);
-        })
-        .catch((e) => {
-          setError(e?.message || "Invalid Mermaid diagram syntax.");
-        });
-    }, [chart]);
+    const initializePanZoom = async () => {
+      const svgElement = containerRef.current?.querySelector("svg");
+      if (svgElement && zoomingEnabled) {
+        // Remove any max-width constraints
+        svgElement.style.maxWidth = "none";
+        svgElement.style.width = "100%";
+        svgElement.style.height = "100%";
 
-    if (!chart) {
-      return (
-        <div className="flex items-center justify-center w-full h-40">
-          <Spinner size="large" show={true} />
-        </div>
-      );
-    }
+        if (zoomingEnabled) {
+          try {
+            // Dynamically import svg-pan-zoom only when needed in the browser
+            const svgPanZoom = (await import("svg-pan-zoom")).default;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+            svgPanZoom(svgElement, {
+              zoomEnabled: true,
+              controlIconsEnabled: true,
+              fit: true,
+              center: true,
+              minZoom: 0.1,
+              maxZoom: 10,
+              zoomScaleSensitivity: 0.3,
+            });
+          } catch (error) {
+            console.error("Failed to load svg-pan-zoom:", error);
+          }
+        }
+      }
+    };
 
-    if (error) {
-      return (
-        <div className="text-red-600 bg-red-50 p-4 rounded">
-          <strong>Diagram Error:</strong> {error}
-          <pre className="mt-2 bg-gray-100 p-2 rounded whitespace-pre-wrap overflow-x-auto">
-            {chart}
-          </pre>
-        </div>
-      );
-    }
+    mermaid.contentLoaded();
+    // Wait for the SVG to be rendered
+    setTimeout(() => {
+      void initializePanZoom();
+    }, 100);
 
-    return (
-      <div ref={containerRef} className="w-full max-w-full p-4">
-        {svg && <div dangerouslySetInnerHTML={{ __html: svg }} />}
+    return () => {
+      // Cleanup not needed with dynamic import approach
+    };
+  }, [chart, zoomingEnabled]); // Added zoomingEnabled to dependencies
+
+  return (
+    <div
+      ref={containerRef}
+      className={`w-full max-w-full p-4 ${zoomingEnabled ? "h-[600px]" : ""}`}
+    >
+      <div
+        key={`${chart}-${zoomingEnabled}`}
+        className={`mermaid h-full ${
+          zoomingEnabled ? "rounded-lg border-2 border-black" : ""
+        }`}
+      >
+        {chart}
       </div>
-    );
-  }
-);
-
-MermaidChart.displayName = "MermaidChart";
+    </div>
+  );
+};
 
 export default MermaidChart;
