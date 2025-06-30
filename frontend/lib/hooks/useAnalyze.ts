@@ -25,8 +25,12 @@ export function useAnalyze() {
     setAnalysis("");
     setFunctionName(null);
 
+    const baseUrl =
+      process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://gitty-api.fly.dev";
+    const url = `${baseUrl}/chat/analyze`;
+
     try {
-      const response = await fetch("https://gitty-api.fly.dev/chat/analyze", {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,7 +76,6 @@ export function useAnalyze() {
                 setAnalysis((prev) => prev + data.chunk);
                 break;
               case "complete":
-                setAnalysis((prev) => prev + data.analysis);
                 break;
               case "error":
                 throw new Error(data.error);
