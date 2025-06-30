@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { Menu, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown, Lock, Search, Unlock } from "lucide-react";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
@@ -14,6 +14,18 @@ import { useRecentCommits } from "@/lib/hooks/useRecentCommits";
 import { useScopeRepos } from "@/lib/hooks/useScopeRepos";
 import { useState } from "react";
 
+interface Repository {
+  id: number;
+  name: string;
+  description: string | null;
+  stargazers_count: number;
+  language: string | null;
+  owner: {
+    login: string;
+  };
+  private: boolean;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
@@ -21,6 +33,8 @@ export default function Dashboard() {
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
 
   const { repos, loading: reposLoading } = useUserRepos(user);
   const { orgs, loading: orgsLoading } = useUserOrgs(user) as {
@@ -32,7 +46,7 @@ export default function Dashboard() {
     user,
     selectedScope
   ) as {
-    scopeRepos: any[];
+    scopeRepos: Repository[];
     loading: boolean;
   };
 
@@ -111,7 +125,7 @@ export default function Dashboard() {
                   >
                     <div className="py-1" role="menu">
                       <button
-                        className={`${
+                        className={`$${
                           selectedScope === "Personal"
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-700"
@@ -130,7 +144,7 @@ export default function Dashboard() {
                       {orgs.map((org) => (
                         <button
                           key={org.login}
-                          className={`${
+                          className={`$${
                             selectedScope === org.login
                               ? "bg-gray-100 text-gray-900"
                               : "text-gray-700"
@@ -172,32 +186,84 @@ export default function Dashboard() {
             </div>
           )}
           {showSection === "analysis" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reposLoading ? (
-                <div className="col-span-full flex justify-center">
-                  <Spinner />
+            <>
+              {/* Large centered header with animated search bar below */}
+              <div className="flex flex-col items-center mb-10">
+                <h2 className="text-4xl md:text-5xl font-extrabold text-center text-gray-900 mb-4">
+                  Select a Repo to Analyze
+                </h2>
+                <button
+                  className="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50 hover:bg-indigo-100 transition mb-2 shadow-sm"
+                  onClick={() => setShowSearch((prev) => !prev)}
+                  aria-label="Show search"
+                  style={{ outline: "none" }}
+                >
+                  <Search
+                    className={`w-7 h-7 text-indigo-400 transition-transform duration-300 ${
+                      showSearch ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`flex justify-center items-center transition-all duration-500 ease-in-out overflow-hidden ${
+                    showSearch
+                      ? "max-w-xl w-full h-14 opacity-100 mt-2"
+                      : "max-w-0 w-0 h-0 opacity-0 mt-0"
+                  }`}
+                  style={{
+                    transitionProperty:
+                      "max-width, width, height, opacity, margin-top",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Search repositories..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 transition bg-white text-lg"
+                    autoFocus={showSearch}
+                    style={{ minWidth: showSearch ? 200 : 0 }}
+                  />
                 </div>
-              ) : (
-                scopeRepos.map((repo) => (
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {(search
+                  ? scopeRepos.filter((repo) =>
+                      repo.name.toLowerCase().includes(search.toLowerCase())
+                    )
+                  : scopeRepos
+                ).map((repo) => (
                   <div
                     key={repo.id}
-                    className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow p-6 flex flex-col gap-4 cursor-pointer group"
                     onClick={() => handleRepoClick(repo.owner.login, repo.name)}
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {repo.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mb-4">
+                    {/* Title and Lock/Unlock Icon Row */}
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
+                        {repo.name}
+                      </h3>
+                      <div className="w-9 h-9 flex items-center justify-center rounded-full bg-indigo-50 group-hover:bg-indigo-100 transition">
+                        {repo.private ? (
+                          <Lock className="w-5 h-5 text-indigo-400" />
+                        ) : (
+                          <Unlock className="w-5 h-5 text-indigo-400" />
+                        )}
+                      </div>
+                    </div>
+                    {/* Description */}
+                    <p className="text-sm text-gray-500 flex-1">
                       {repo.description || "No description available"}
                     </p>
-                    <div className="flex items-center text-sm text-gray-600">
+                    {/* Metadata */}
+                    <div className="flex items-center text-xs text-gray-400 mt-2">
                       <span className="mr-4">⭐ {repo.stargazers_count}</span>
                       <span>{repo.language || "No language specified"}</span>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                ))}
+              </div>
+            </>
           )}
         </main>
       </div>
