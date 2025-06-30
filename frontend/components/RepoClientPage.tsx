@@ -11,8 +11,6 @@ import { Sidebar } from "./ui/dashboard/Sidebar";
 import { useRouter } from "next/navigation";
 import { Spinner } from "./ui/neo/spinner";
 import { GitHubLoginButton } from "./LoginButton";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const FloatingAIAssistant = ({
   owner,
