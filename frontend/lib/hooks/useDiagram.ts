@@ -61,7 +61,6 @@ export function useDiagram(username: string, repo: string) {
         message: "Generating diagram...",
       });
 
-      // change the base URL later
       const baseUrl =
         process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://gitty-api.fly.dev";
       const url = `${baseUrl}/generate/stream`;
