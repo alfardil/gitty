@@ -2,172 +2,39 @@
 
 import { useAuth } from "@/lib/hooks/useAuth";
 import { GitHubLoginButton } from "@/components/LoginButton";
-import { useEffect, useState } from "react";
-import {
-  fetchUserRepos,
-  fetchUserOrgs,
-  fetchOrgRepos,
-  fetchRecentCommits,
-} from "@/lib/fetchRepos";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { Menu, ChevronDown } from "lucide-react";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
-import { AnalysisView } from "@/components/ui/dashboard/analysis/AnalysisView";
-
-interface Repository {
-  id: number;
-  name: string;
-  description: string | null;
-  stargazers_count: number;
-  language: string | null;
-  owner: {
-    login: string;
-  };
-}
+import { useUserRepos } from "@/lib/hooks/useUserRepos";
+import { useUserOrgs } from "@/lib/hooks/useUserOrgs";
+import { useRecentCommits } from "@/lib/hooks/useRecentCommits";
+import { useScopeRepos } from "@/lib/hooks/useScopeRepos";
+import { useState } from "react";
 
 export default function Dashboard() {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const [repos, setRepos] = useState<Repository[]>([]);
-  const [reposLoading, setReposLoading] = useState(true);
   const [showSection, setShowSection] = useState("insights");
-  const [orgs, setOrgs] = useState<any[]>([]);
-  const [orgsLoading, setOrgsLoading] = useState(false);
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
-  const [scopeRepos, setScopeRepos] = useState<Repository[]>([]);
-  const [recentCommits, setRecentCommits] = useState<any[]>([]);
-  const [commitsLoading, setCommitsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
 
-  // Fetch user's repositories
-  useEffect(() => {
-    async function loadUserRepos() {
-      if (user) {
-        setReposLoading(true);
-        try {
-          const githubAccessToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("github_access_token="))
-            ?.split("=")[1];
-          if (githubAccessToken) {
-            const reposData = (await fetchUserRepos(
-              githubAccessToken,
-              100,
-              1
-            )) as Repository[];
-            const sortedRepos = [...reposData].sort(
-              (a, b) => b.stargazers_count - a.stargazers_count
-            );
-            setRepos(sortedRepos);
-          }
-        } catch (error) {
-          console.error("Error fetching user repos:", error);
-        } finally {
-          setReposLoading(false);
-        }
-      }
-    }
-    loadUserRepos();
-  }, [user]);
-
-  // Fetch user's organizations
-  useEffect(() => {
-    async function loadOrgs() {
-      if (user) {
-        setOrgsLoading(true);
-        try {
-          const githubAccessToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("github_access_token="))
-            ?.split("=")[1];
-          if (githubAccessToken) {
-            const orgsData = await fetchUserOrgs(githubAccessToken);
-            setOrgs(orgsData);
-          }
-        } catch (error) {
-          console.error("Error fetching orgs:", error);
-        } finally {
-          setOrgsLoading(false);
-        }
-      }
-    }
-    loadOrgs();
-  }, [user]);
-
-  // Fetch recent commits
-  useEffect(() => {
-    async function loadRecentCommits() {
-      if (user) {
-        setCommitsLoading(true);
-        try {
-          const githubAccessToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("github_access_token="))
-            ?.split("=")[1];
-          if (githubAccessToken) {
-            const commitsData = await fetchRecentCommits(
-              githubAccessToken,
-              user
-            );
-            setRecentCommits(commitsData);
-          }
-        } catch (error) {
-          console.error("Error fetching recent commits:", error);
-        } finally {
-          setCommitsLoading(false);
-        }
-      }
-    }
-    loadRecentCommits();
-  }, [user]);
-
-  // Fetch repositories for analysis view based on selected scope
-  useEffect(() => {
-    async function loadScopeRepos() {
-      if (user && selectedScope) {
-        setReposLoading(true);
-        try {
-          const githubAccessToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("github_access_token="))
-            ?.split("=")[1];
-          if (githubAccessToken) {
-            if (selectedScope === "Personal") {
-              const reposData = (await fetchUserRepos(
-                githubAccessToken,
-                100,
-                1
-              )) as Repository[];
-              const sortedRepos = [...reposData].sort(
-                (a, b) => b.stargazers_count - a.stargazers_count
-              );
-              setScopeRepos(sortedRepos);
-            } else {
-              const reposData = (await fetchOrgRepos(
-                githubAccessToken,
-                selectedScope,
-                100,
-                1
-              )) as Repository[];
-              const sortedRepos = [...reposData].sort(
-                (a, b) => b.stargazers_count - a.stargazers_count
-              );
-              setScopeRepos(sortedRepos);
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching repos:", error);
-        } finally {
-          setReposLoading(false);
-        }
-      }
-    }
-    loadScopeRepos();
-  }, [user, selectedScope]);
+  const { repos, loading: reposLoading } = useUserRepos(user);
+  const { orgs, loading: orgsLoading } = useUserOrgs(user) as {
+    orgs: any[];
+    loading: boolean;
+  };
+  const { recentCommits, loading: commitsLoading } = useRecentCommits(user);
+  const { scopeRepos, loading: scopeReposLoading } = useScopeRepos(
+    user,
+    selectedScope
+  ) as {
+    scopeRepos: any[];
+    loading: boolean;
+  };
 
   const handleRepoClick = (owner: string, repo: string) => {
     router.push(`/${owner}/${repo}`);

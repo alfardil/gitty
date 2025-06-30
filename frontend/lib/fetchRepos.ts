@@ -150,3 +150,10 @@ export async function fetchRecentCommits(
 
   return recentCommits;
 }
+
+// Utility to get GitHub access token from cookies (client-side)
+export function getGithubAccessTokenFromCookie(): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(/(?:^|; )github_access_token=([^;]*)/);
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
