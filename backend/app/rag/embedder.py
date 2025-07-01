@@ -5,7 +5,7 @@ from langchain_chroma import Chroma
 
 def embed_repo(file_contents: list[dict], persist_directory: str = "./backend/rag/db"):
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    embedding_model = OpenAIEmbeddings()
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
     all_docs = []
 
@@ -18,7 +18,7 @@ def embed_repo(file_contents: list[dict], persist_directory: str = "./backend/ra
     vectorstore = Chroma.from_documents(
         documents=all_docs,
         embedding=embedding_model,
-        persist_directory=persist_directory,
+        persist_directory=None,
     )
 
     return f"Embedded {len(all_docs)} chunks."

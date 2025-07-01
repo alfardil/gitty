@@ -22,7 +22,7 @@ def get_relevant_chunks(
         List[Document]: A list of documents with `.page_content` and `.metadata` fields,
                         representing the most semantically similar chunks.
     """
-    embedding_model = OpenAIEmbeddings()
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
     vectorstore = Chroma(embedding_function=embedding_model, persist_directory=None)
 
     results = vectorstore.similarity_search(query, k=k)
