@@ -6,3 +6,5 @@ aiohttp
 tiktoken
 uvloop
 httptools
+langchain
+chromadb

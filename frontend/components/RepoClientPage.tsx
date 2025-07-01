@@ -15,11 +15,11 @@ import { GitHubLoginButton } from "./LoginButton";
 const FloatingAIAssistant = ({
   owner,
   repo,
-  fileContent,
+  selectedFilePath,
 }: {
   owner: string;
   repo: string;
-  fileContent: string | null;
+  selectedFilePath: string;
 }) => {
   const [isMinimized, setIsMinimized] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -107,7 +107,7 @@ const FloatingAIAssistant = ({
             <AIChatSection
               username={owner}
               repo={repo}
-              fileContent={fileContent}
+              selectedFilePath={selectedFilePath}
             />
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function RepoClientPage({
           <FloatingAIAssistant
             owner={owner}
             repo={repo}
-            fileContent={fileContent}
+            selectedFilePath={selectedFile || ""}
           />
 
           {showScrollTop && (

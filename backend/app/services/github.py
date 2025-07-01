@@ -7,6 +7,7 @@ def _get_headers(githubAccessToken):
         headers["Authorization"] = f"Bearer {githubAccessToken}"
     return headers
 
+
 class GitHubService:
     def __init__(self):
         self.access_token = None
@@ -91,8 +92,9 @@ class GitHubService:
         # Try to get the default branch first
         branch = self.get_default_branch(username, repo, githubAccessToken)
         if branch:
-            api_url = f"https://api.github.com/repos/{
-                username}/{repo}/git/trees/{branch}?recursive=1"
+            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{
+                branch
+            }?recursive=1"
             response = requests.get(api_url, headers=_get_headers(githubAccessToken))
 
             if response.status_code == 200:
@@ -108,8 +110,9 @@ class GitHubService:
 
         # If default branch didn't work or wasn't found, try common branch names
         for branch in ["main", "master"]:
-            api_url = f"https://api.github.com/repos/{
-                username}/{repo}/git/trees/{branch}?recursive=1"
+            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{
+                branch
+            }?recursive=1"
             response = requests.get(api_url, headers=_get_headers(githubAccessToken))
 
             if response.status_code == 200:
@@ -126,7 +129,7 @@ class GitHubService:
         raise ValueError(
             "Could not fetch repository file tree. Repository might not exist, be empty or private."
         )
-    
+
     def get_github_readme(self, username, repo, githubAccessToken):
         """
         Fetches the README contents of an open-source GitHub repository.
@@ -153,8 +156,7 @@ class GitHubService:
             raise ValueError("No README found for the specified repository. (Required)")
         elif response.status_code != 200:
             raise Exception(
-                f"Failed to fetch README: {
-                            response.status_code}, {response.json()}"
+                f"Failed to fetch README: {response.status_code}, {response.json()}"
             )
 
         data = response.json()
