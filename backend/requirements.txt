@@ -7,4 +7,5 @@ tiktoken
 uvloop
 httptools
 langchain
-chromadb
+langchain-openai
+langchain-chroma
