@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 import json
 import asyncio
+import re
 from app.services.code_analyzer import CodeAnalyzer
 from app.rag.embedder import embed_repo
 from app.rag.retriever import get_relevant_chunks
@@ -97,16 +98,16 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                     ),
                     None,
                 )
-                # 2. Usages of the query in all file contents
-                import re
 
+                # 2. Usages of the query in all file contents
                 usage_chunks = []
                 for f in rag_request.files:
                     if re.search(
                         re.escape(rag_request.question), f["content"], re.IGNORECASE
                     ):
                         usage_chunks.append(f["content"])
-                # 3. Vector search results
+
+                # vector search
                 context_parts = []
                 if selected_file_content:
                     context_parts.append(selected_file_content)
@@ -119,7 +120,8 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                 context = "\n\n".join(context_parts)
                 yield f"data: {json.dumps({'status': 'retrieved', 'message': 'Relevant chunks and usages retrieved.'})}\n\n"
                 await asyncio.sleep(0.1)
-                # Call LLM (o4-mini) with context and question
+
+                # call the llm
                 system_prompt = "You are an expert code assistant. Use the provided context to answer the user's question."
                 data = {
                     "context": context,
