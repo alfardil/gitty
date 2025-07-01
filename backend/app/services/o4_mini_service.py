@@ -17,9 +17,9 @@ class OpenAIo4Service:
         self.reasoning_effort = "low"
 
     def call_o4_api(
-            self,
-            system_prompt: str,
-            data: dict,
+        self,
+        system_prompt: str,
+        data: dict,
     ) -> str:
         """
         Makes an API call to OpenAI o4-mini and returns the response.
@@ -44,7 +44,7 @@ class OpenAIo4Service:
                     {"role": "user", "content": user_message},
                 ],
                 max_completion_tokens=12000,
-                reasoning_effort=self.reasoning_effort
+                reasoning_effort=self.reasoning_effort,
             )
 
             if completion.choices[0].message.content is None:
@@ -52,19 +52,15 @@ class OpenAIo4Service:
 
             return completion.choices[0].message.content
 
-
-
-
         except Exception as e:
             print(f"Error in o4-mini API call {str(e)}")
             raise
-        
+
     async def call_o4_api_stream(
         self,
         system_prompt: str,
         data: dict,
     ) -> AsyncGenerator[str, None]:
-        
         user_message = format_user_message(data)
         api_key = self.api_key
 
@@ -81,8 +77,7 @@ class OpenAIo4Service:
             ],
             "max_completion_tokens": 12000,
             "stream": True,
-            "reasoning_effort": self.reasoning_effort
-            
+            "reasoning_effort": self.reasoning_effort,
         }
 
         try:
@@ -90,7 +85,6 @@ class OpenAIo4Service:
                 async with session.post(
                     self.base_url, headers=headers, json=payload
                 ) as response:
-
                     if response.status != 200:
                         error_text = await response.text()
                         print(f"Error response: {error_text}")
@@ -144,4 +138,3 @@ class OpenAIo4Service:
         """
         num_tokens = len(self.encoding.encode(prompt))
         return num_tokens
-

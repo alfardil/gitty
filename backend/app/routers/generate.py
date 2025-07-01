@@ -13,7 +13,7 @@ from app.prompts import (
     SYSTEM_FIRST_PROMPT,
     SYSTEM_SECOND_PROMPT,
     SYSTEM_THIRD_PROMPT,
-    ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT
+    ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT,
 )
 
 load_dotenv()
@@ -22,26 +22,31 @@ router = APIRouter(prefix="/generate", tags=["OpenAI"])
 
 o4_service = OpenAIo4Service()
 
+
 @router.get("")
 async def test():
     system_prompt: str = """
     You are a friendly chatbot. For now, simply return the data you recieve.
     """
 
-    data: dict = {
-        "file_tree": "Hello World"
-        }
-    
+    data: dict = {"file_tree": "Hello World"}
+
     return o4_service.call_o4_api(system_prompt, data)
+
 
 def get_github_data(username: str, repo: str, githubAccessToken: str):
     github_service = GitHubService()
-    default_branch = github_service.get_default_branch(username, repo, githubAccessToken)
+    default_branch = github_service.get_default_branch(
+        username, repo, githubAccessToken
+    )
     if not default_branch:
         default_branch = "main"
-    file_tree = github_service.get_github_file_paths_as_list(username, repo, githubAccessToken)
+    file_tree = github_service.get_github_file_paths_as_list(
+        username, repo, githubAccessToken
+    )
     readme = github_service.get_github_readme(username, repo, githubAccessToken)
     return {"default_branch": default_branch, "file_tree": file_tree, "readme": readme}
+
 
 class ApiRequest(BaseModel):
     username: str
@@ -101,12 +106,13 @@ def process_click_events(diagram: str, username: str, repo: str, branch: str) ->
     click_pattern = r'click ([^\s"]+)\s+"([^"]+)"'
     return re.sub(click_pattern, replace_path, diagram)
 
+
 @router.post("/stream")
 async def generate_stream(request: Request, body: ApiRequest):
     try:
         if len(body.instructions) > 1000:
             return {"error": "Instructions exceed maximum length of 1000 characters"}
-        
+
         async def event_generator():
             try:
                 # get github data
@@ -130,7 +136,6 @@ async def generate_stream(request: Request, body: ApiRequest):
                 elif token_count > 195000:
                     yield f"data: {json.dumps({'error': f'Repoisitory is too large (>195k tokens) for analysis. Current size: {token_count}.'})}\n\n"
                     return
-                
 
                 first_system_prompt = SYSTEM_FIRST_PROMPT
                 third_system_prompt = SYSTEM_THIRD_PROMPT
@@ -216,16 +221,14 @@ async def generate_stream(request: Request, body: ApiRequest):
 
                 # Send final result
                 final_data = {
-                    'status': 'complete',
-                    'diagram': processed_diagram,
-                    'explanation': explanation,
-                    'mapping': component_mapping_text
+                    "status": "complete",
+                    "diagram": processed_diagram,
+                    "explanation": explanation,
+                    "mapping": component_mapping_text,
                 }
 
                 safe_json = json.dumps(final_data, ensure_ascii=False)
                 yield f"data: {safe_json}\n\n"
-
-
 
             except Exception as e:
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
@@ -234,13 +237,11 @@ async def generate_stream(request: Request, body: ApiRequest):
             event_generator(),
             media_type="text/event-stream",
             headers={
-                "X-Accel-Buffering": "no", 
+                "X-Accel-Buffering": "no",
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
             },
         )
-    
+
     except Exception as e:
         return {"error": str(e)}
-
-
