@@ -23,9 +23,7 @@ def get_relevant_chunks(
                         representing the most semantically similar chunks.
     """
     embedding_model = OpenAIEmbeddings()
-    vectorstore = Chroma(
-        embedding_function=embedding_model, persist_directory=persist_directory
-    )
+    vectorstore = Chroma(embedding_function=embedding_model, persist_directory=None)
 
     results = vectorstore.similarity_search(query, k=k)
     return results  # List[Document] with .page_content and .metadata
