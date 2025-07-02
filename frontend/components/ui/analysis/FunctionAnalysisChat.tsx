@@ -111,7 +111,10 @@ const FunctionAnalysisChat = forwardRef<
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 mt-8">
+      <form
+        onSubmit={handleSubmit}
+        className="p-4 border-t border-white/10 mt-8"
+      >
         <div className="flex gap-2">
           <Input
             type="text"
