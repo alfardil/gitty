@@ -128,7 +128,7 @@ export default function RepoClientPage({
 
   const [zoomingEnabled, setZoomingEnabled] = useState(false);
 
-  const [explorerHeight, setExplorerHeight] = useState(400); // px
+  const [explorerHeight, setExplorerHeight] = useState(600); // px
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -254,7 +254,10 @@ export default function RepoClientPage({
           <div className="flex gap-6">
             {/* Left Side: IDE-like File Explorer + Code Viewer */}
             <div className="w-full">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-300px)]">
+              <div
+                className="bg-[#F3F3F0] mb-8 mt-8 flex flex-col relative select-none rounded-2xl"
+                style={{ height: explorerHeight, minHeight: 120, maxHeight: 800 }}
+              >
                 {/* IDE Content */}
                 <div className="flex h-full">
                   {/* File Tree */}
