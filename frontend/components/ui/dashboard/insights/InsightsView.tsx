@@ -73,43 +73,43 @@ export function InsightsView({
 
   return (
     <section>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="flex justify-center gap-6 mb-8">
         {/* Stat cards - modern, colorful, with icons */}
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-blue-400 relative hover:shadow-lg transition group">
+        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-blue-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
           {/* Icon */}
           <div className="absolute top-4 right-4">
             <FolderGit2 className="w-7 h-7 text-blue-400" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-gray-900">
+          <div className="text-4xl font-extrabold text-white">
             {repos.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-500 font-medium">Total Repos</div>
+          <div className="text-base text-gray-400 font-medium">Total Repos</div>
         </div>
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-purple-400 relative hover:shadow-lg transition group">
+        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-purple-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
           {/* Icon */}
           <div className="absolute top-4 right-4">
             <Users className="w-7 h-7 text-purple-400" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-gray-900">
+          <div className="text-4xl font-extrabold text-white">
             {orgs.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-500 font-medium">Total Orgs</div>
+          <div className="text-base text-gray-400 font-medium">Total Orgs</div>
         </div>
-        <div className="bg-white rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-pink-400 relative hover:shadow-lg transition group">
+        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-pink-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
           {/* Icon */}
           <div className="absolute top-4 right-4">
             <GitCommit className="w-7 h-7 text-pink-400" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-gray-900">
+          <div className="text-4xl font-extrabold text-white">
             {recentCommits.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-500 font-medium">
+          <div className="text-base text-gray-400 font-medium">
             Recent Commits
           </div>
         </div>
@@ -118,8 +118,8 @@ export function InsightsView({
       {/* Commits and Activity side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Latest Commits List */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 flex flex-col mb-0">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-[#23272f] rounded-lg border border-blue-400/20 p-6 flex flex-col mb-0">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Latest Commits
           </h3>
           <div className="space-y-4">
@@ -131,30 +131,30 @@ export function InsightsView({
                 >
                   <div className="flex-1 min-w-0">
                     <p
-                      className="text-sm font-medium text-gray-800 truncate"
+                      className="text-sm font-medium text-gray-200 truncate"
                       title={commit.message}
                     >
                       {commit.message}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-400">
                       to <span className="font-semibold">{commit.repo}</span>
                     </p>
                   </div>
-                  <div className="text-sm text-gray-500 whitespace-nowrap">
+                  <div className="text-sm text-gray-400 whitespace-nowrap">
                     {new Date(commit.date).toLocaleDateString()}
                   </div>
                   <a
                     href={`https://github.com/${commit.repo}/commit/${commit.sha}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-blue-400 hover:underline"
                   >
                     View
                   </a>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500">No recent public commits found.</p>
+              <p className="text-gray-400">No recent public commits found.</p>
             )}
           </div>
 
@@ -187,11 +187,11 @@ export function InsightsView({
                 <button
                   onClick={() => setCommitPage((p) => Math.max(1, p - 1))}
                   disabled={commitPage === 1}
-                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-blue-400/10 border-blue-400/20 text-gray-200"
                 >
                   Previous
                 </button>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-400">
                   Page {commitPage} of {totalCommitPages}
                 </span>
                 <button
@@ -199,7 +199,7 @@ export function InsightsView({
                     setCommitPage((p) => Math.min(totalCommitPages, p + 1))
                   }
                   disabled={commitPage === totalCommitPages}
-                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-blue-400/10 border-blue-400/20 text-gray-200"
                 >
                   Next
                 </button>
@@ -209,8 +209,8 @@ export function InsightsView({
         </div>
 
         {/* Commit Activity Chart - consider updating to a modern, sleek line graph */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6 min-h-[300px] flex flex-col mb-0">
-          <div className="font-semibold text-gray-900 mb-2">
+        <div className="bg-[#23272f] rounded-lg border border-blue-400/20 p-6 min-h-[300px] flex flex-col mb-0">
+          <div className="font-semibold text-white mb-2">
             Commit Activity (Last 7 Days)
           </div>
           <div className="flex-1 -ml-6">
