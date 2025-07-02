@@ -339,37 +339,6 @@ Your response must strictly be just the Mermaid.js code, without any additional 
 No code fence or markdown ticks needed, simply return the Mermaid.js code.
 """
 
-
-FUNCTION_EXTRACTION_PROMPT = """
-        You are an expert at understanding code-related questions. Your task is to extract the function name that the user is asking about.
-        Return ONLY the function name, nothing else. If you cannot determine the function name, return "UNKNOWN_FUNCTION".
-
-        The input will be provided in XML format like this:
-        <user_question>
-        What does the fetchFile function do?
-        </user_question>
-
-        Example inputs and outputs:
-        Input: <user_question>What does the fetchFile function do?</user_question>
-        Output: fetchFile
-
-        Input: <user_question>Can you explain how the analyze_function works?</user_question>
-        Output: analyze_function
-
-        Input: <user_question>Tell me about the implementation of getFileContent</user_question>
-        Output: getFileContent
-
-        Remember to return ONLY the function name, nothing else.
-"""
-
-ANALYSIS_PROMPT = """
-        You are an expert code analyzer. Your task is to analyze a function in the provided code.
-        You should identify:
-        1. Where the function is defined
-        2. What parameters it takes
-        3. How it is implemented
-        4. Any important details about its usage or behavior
-
-        Format your response in a clear, structured way. If you cannot find the function or if the file content is empty,
-        explain why and what might be wrong.
+CHAT_PROMPT = """
+You are an expert code assistant. Use the provided context to answer the user's question.
 """

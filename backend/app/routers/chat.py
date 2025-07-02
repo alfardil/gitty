@@ -1,14 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-from typing import Optional
 import json
 import asyncio
 import re
-from app.services.code_analyzer import CodeAnalyzer
+from typing import Optional
+from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from app.rag.embedder import embed_repo
 from app.rag.retriever import get_relevant_chunks
 from app.services.o4_mini_service import OpenAIo4Service
+from app.prompts import CHAT_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -29,51 +29,7 @@ class RAGChatRequest(BaseModel):
     selected_file_path: str
 
 
-def get_code_analyzer():
-    return CodeAnalyzer()
-
-
 o4_service = OpenAIo4Service()
-
-
-@router.post("/analyze")
-async def analyze_function(
-    request: Request,
-    chat_message: ChatMessage,
-    code_analyzer: CodeAnalyzer = Depends(get_code_analyzer),
-):
-    try:
-
-        async def event_generator():
-            try:
-                # start analysis
-                yield f"data: {json.dumps({'status': 'analyzing', 'message': 'Starting function analysis...'})}\n\n"
-                await asyncio.sleep(0.1)
-
-                # stream analysis
-
-                async for chunk in code_analyzer.analyze_function_stream(
-                    file_content=chat_message.file_content
-                ):
-                    yield f"data: {json.dumps({'status': 'analysis_chunk', 'chunk': chunk})}\n\n"
-
-                yield f"data: {json.dumps({'status': 'complete'})}\n\n"
-
-            except Exception as e:
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
-
-        return StreamingResponse(
-            event_generator(),
-            media_type="text/event-stream",
-            headers={
-                "X-Accel-Buffering": "no",
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-            },
-        )
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.post("/rag")
@@ -122,7 +78,7 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                 await asyncio.sleep(0.1)
 
                 # call the llm
-                system_prompt = "You are an expert code assistant. Use the provided context to answer the user's question."
+                system_prompt = CHAT_PROMPT
                 data = {
                     "context": context,
                     "question": rag_request.question,
@@ -144,5 +100,6 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                 "Connection": "keep-alive",
             },
         )
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e).split("\n")) from e

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request
 from dotenv import load_dotenv
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
 from app.services.o4_mini_service import OpenAIo4Service
 from pydantic import BaseModel
 import json
