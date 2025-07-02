@@ -32,6 +32,34 @@ class RAGChatRequest(BaseModel):
 o4_service = OpenAIo4Service()
 
 
+def estimate_tokens(text: str) -> int:
+    """Rough estimate of tokens (4 chars per token)"""
+    return len(text) // 4
+
+
+def truncate_context(context_parts: list[str], max_tokens: int = 8000) -> str:
+    """Truncate context to stay within token limits"""
+    total_tokens = 0
+    selected_parts = []
+
+    for part in context_parts:
+        part_tokens = estimate_tokens(part)
+        if total_tokens + part_tokens <= max_tokens:
+            selected_parts.append(part)
+            total_tokens += part_tokens
+        else:
+            # If this part would exceed the limit, truncate it
+            remaining_tokens = max_tokens - total_tokens
+            if remaining_tokens > 100:  # Only add if we have meaningful space
+                truncated_part = part[
+                    : remaining_tokens * 4
+                ]  # Rough conversion back to chars
+                selected_parts.append(truncated_part + "\n\n[Content truncated...]")
+            break
+
+    return "\n\n".join(selected_parts)
+
+
 @router.post("/rag")
 async def rag_chat(request: Request, rag_request: RAGChatRequest):
     try:
@@ -45,7 +73,8 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                 await asyncio.sleep(0.1)
                 yield f"data: {json.dumps({'status': 'retrieving', 'message': 'Retrieving relevant chunks...'})}\n\n"
                 relevant_chunks = get_relevant_chunks(rag_request.question)
-                # 1. Selected file content
+
+                # 1. Selected file content (highest priority)
                 selected_file_content = next(
                     (
                         f["content"]
@@ -55,26 +84,40 @@ async def rag_chat(request: Request, rag_request: RAGChatRequest):
                     None,
                 )
 
-                # 2. Usages of the query in all file contents
+                # 2. Vector search results (second priority)
+                vector_chunks = [chunk.page_content for chunk in relevant_chunks]
+
+                # 3. Direct text matches (lowest priority, only if not too many)
                 usage_chunks = []
                 for f in rag_request.files:
                     if re.search(
                         re.escape(rag_request.question), f["content"], re.IGNORECASE
                     ):
                         usage_chunks.append(f["content"])
+                        if len(usage_chunks) >= 2:  # Limit to 2 direct matches
+                            break
 
-                # vector search
+                # Build context with priority order
                 context_parts = []
                 if selected_file_content:
-                    context_parts.append(selected_file_content)
-                for chunk in usage_chunks:
-                    if chunk not in context_parts:
-                        context_parts.append(chunk)
-                for chunk in relevant_chunks:
-                    if chunk.page_content not in context_parts:
-                        context_parts.append(chunk.page_content)
-                context = "\n\n".join(context_parts)
-                yield f"data: {json.dumps({'status': 'retrieved', 'message': 'Relevant chunks and usages retrieved.'})}\n\n"
+                    context_parts.append(
+                        f"SELECTED FILE ({rag_request.selected_file_path}):\n{selected_file_content}"
+                    )
+
+                if vector_chunks:
+                    context_parts.append(
+                        "RELEVANT CODE CHUNKS:\n" + "\n---\n".join(vector_chunks)
+                    )
+
+                if usage_chunks:
+                    context_parts.append(
+                        "DIRECT MATCHES:\n" + "\n---\n".join(usage_chunks)
+                    )
+
+                # Truncate context to stay within token limits
+                context = truncate_context(context_parts)
+
+                yield f"data: {json.dumps({'status': 'retrieved', 'message': f'Retrieved {len(context_parts)} context sections ({estimate_tokens(context)} tokens)'})}\n\n"
                 await asyncio.sleep(0.1)
 
                 # call the llm
