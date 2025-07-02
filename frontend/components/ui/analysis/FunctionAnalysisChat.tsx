@@ -6,6 +6,8 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { Button } from "../neo/button";
 import { Input } from "../neo/input";
 import { CodeBlock } from "./CodeBlock";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface FunctionAnalysisChatProps {
   owner: string;
@@ -76,27 +78,28 @@ const FunctionAnalysisChat = forwardRef<
 
         {response && (
           <div className="prose prose-invert max-w-none">
-            {response.split("```").map((part: string, index: number) => {
-              if (index % 2 === 0) {
-                // Regular text
-                return (
-                  <p key={index} className="text-white/90">
-                    {part}
-                  </p>
-                );
-              } else {
-                // Code block
-                const [lang, ...codeParts] = part.split("\n");
-                const code = codeParts.join("\n").trim();
-                return (
-                  <CodeBlock
-                    key={index}
-                    code={code}
-                    language={lang.trim() || "typescript"}
-                  />
-                );
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={
+                {
+                  code({ node, inline, className, children, ...props }: any) {
+                    const match = /language-(\w+)/.exec(className || "");
+                    return !inline && match ? (
+                      <CodeBlock
+                        code={String(children).replace(/\n$/, "")}
+                        language={match[1]}
+                      />
+                    ) : (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
+                    );
+                  },
+                } as any
               }
-            })}
+            >
+              {response}
+            </ReactMarkdown>
           </div>
         )}
 
