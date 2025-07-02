@@ -7,6 +7,7 @@ import {
   getLastGeneratedDate,
   getCachedExplanation,
 } from "@/app/_actions/cache";
+import { getGithubAccessTokenFromCookie } from "../fetchRepos";
 
 interface StreamState {
   status:
@@ -38,12 +39,6 @@ interface StreamResponse {
   mapping?: string;
   diagram?: string;
   error?: string;
-}
-
-function getGithubAccessTokenFromCookie(): string | undefined {
-  if (typeof document === "undefined") return undefined;
-  const match = document.cookie.match(/(?:^|; )github_access_token=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : undefined;
 }
 
 export function useDiagram(username: string, repo: string) {
@@ -111,6 +106,7 @@ export function useDiagram(username: string, repo: string) {
                         status: "error",
                         error: data.error,
                       });
+                      setError(data.error);
                       setLoading(false);
                       return;
                     }

@@ -7,10 +7,10 @@ import { useEffect, useRef, useState } from "react";
 import { GitHubLoginButton } from "./LoginButton";
 import { Sidebar } from "./ui/dashboard/Sidebar";
 import { Spinner } from "./ui/neo/spinner";
-import { AIChatSection } from "./ui/repoclient/AIChatSection";
-import { DiagramSection } from "./ui/repoclient/DiagramSection";
-import { FileContent } from "./ui/repoclient/FileContent";
-import { FileTree, buildFileTree } from "./ui/repoclient/FileTree";
+import { AIChatSection } from "./ui/analysis/AIChatSection";
+import { DiagramSection } from "./ui/analysis/DiagramSection";
+import { FileContent } from "./ui/analysis/FileContent";
+import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
 
 const FloatingAIAssistant = ({
   owner,
@@ -58,13 +58,18 @@ const FloatingAIAssistant = ({
             </span>
           </span>
           {/* Centered text */}
-          <h2 className="mx-auto text-base font-medium text-white/90">AI Assistant</h2>
+          <h2 className="mx-auto text-base font-medium text-white/90">
+            AI Assistant
+          </h2>
           {/* Chevron, absolutely positioned right */}
           <span className="absolute right-5 top-1/2 -translate-y-1/2">
             <button
               className="text-white/70 hover:text-white/90 transition-colors p-1 hover:bg-zinc-900/50 rounded"
               tabIndex={-1}
-              onClick={e => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMinimized(!isMinimized);
+              }}
             >
               {isMinimized ? (
                 <ChevronDown className="w-4 h-4" />
