@@ -1,16 +1,16 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
 import { fetchFile } from "@/lib/fetchFile";
-import { ChevronUp, ChevronDown, Menu } from "lucide-react";
-import { DiagramSection } from "./ui/repoclient/DiagramSection";
-import { AIChatSection } from "./ui/repoclient/AIChatSection";
-import { FileTree, buildFileTree } from "./ui/repoclient/FileTree";
-import { FileContent } from "./ui/repoclient/FileContent";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Sidebar } from "./ui/dashboard/Sidebar";
+import { ChevronDown, ChevronUp, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Spinner } from "./ui/neo/spinner";
+import { useEffect, useRef, useState } from "react";
 import { GitHubLoginButton } from "./LoginButton";
+import { Sidebar } from "./ui/dashboard/Sidebar";
+import { Spinner } from "./ui/neo/spinner";
+import { AIChatSection } from "./ui/repoclient/AIChatSection";
+import { DiagramSection } from "./ui/repoclient/DiagramSection";
+import { FileContent } from "./ui/repoclient/FileContent";
+import { FileTree, buildFileTree } from "./ui/repoclient/FileTree";
 
 const FloatingAIAssistant = ({
   owner,
@@ -22,44 +22,16 @@ const FloatingAIAssistant = ({
   selectedFilePath: string;
 }) => {
   const [isMinimized, setIsMinimized] = useState(true);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!(e.target as HTMLElement).closest(".handle")) return;
-
-    const startX = e.pageX - position.x;
-    const startY = e.pageY - position.y;
-    setIsDragging(true);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({
-        x: e.pageX - startX,
-        y: e.pageY - startY,
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-  };
 
   return (
     <div
-      className={`fixed z-50 ${isDragging ? "cursor-grabbing" : ""}`}
+      className="fixed z-50"
       style={{
         width: "400px",
         right: "1.5rem",
         bottom: "1.5rem",
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        transition: isDragging ? "none" : "transform 0.3s ease-in-out",
+        transition: "bottom 0.3s cubic-bezier(0.4,0,0.2,1)",
       }}
-      onMouseDown={handleMouseDown}
     >
       <div
         className={`
@@ -68,38 +40,45 @@ const FloatingAIAssistant = ({
           hover:shadow-indigo-500/10 hover:border-white/20
         `}
         style={{
-          maxHeight: isMinimized ? "48px" : "calc(100vh - 400px)",
-          transform: isMinimized
-            ? "translateY(calc(100% - 48px))"
-            : "translateY(0)",
+          height: isMinimized ? "48px" : "90vh",
+          width: "100%",
         }}
       >
-        <div className="handle border-b border-white/10 bg-black p-3 flex items-center justify-between cursor-move select-none">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-pulse" />
-              <div className="absolute inset-0 w-2.5 h-2.5 bg-indigo-500 rounded-full animate-ping" />
-            </div>
-            <h2 className="text-sm font-medium text-white/90">AI Assistant</h2>
-          </div>
-          <button
-            className="text-white/70 hover:text-white/90 transition-colors p-1 hover:bg-zinc-900/50 rounded"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMinimized(!isMinimized);
-            }}
-          >
-            {isMinimized ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronUp className="w-4 h-4" />
-            )}
-          </button>
+        {/* Bar (clickable area) */}
+        <div
+          className="handle border-b border-white/10 bg-black p-3 relative flex items-center select-none cursor-pointer"
+          onClick={() => setIsMinimized((v) => !v)}
+          style={{ userSelect: "none" }}
+        >
+          {/* Indicator dot, absolutely positioned left */}
+          <span className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center">
+            <span className="relative w-4 h-4 flex items-center justify-center">
+              <span className="absolute inset-0 w-4 h-4 bg-indigo-500 rounded-full animate-ping opacity-70" />
+              <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-pulse z-10" />
+            </span>
+          </span>
+          {/* Centered text */}
+          <h2 className="mx-auto text-base font-medium text-white/90">AI Assistant</h2>
+          {/* Chevron, absolutely positioned right */}
+          <span className="absolute right-5 top-1/2 -translate-y-1/2">
+            <button
+              className="text-white/70 hover:text-white/90 transition-colors p-1 hover:bg-zinc-900/50 rounded"
+              tabIndex={-1}
+              onClick={e => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
+            >
+              {isMinimized ? (
+                <ChevronDown className="w-4 h-4" />
+              ) : (
+                <ChevronUp className="w-4 h-4" />
+              )}
+            </button>
+          </span>
         </div>
+        {/* Modal content */}
         <div
           className="overflow-y-auto transition-all duration-300 bg-black"
           style={{
-            height: isMinimized ? "0" : "calc(100vh - 500px)",
+            height: isMinimized ? 0 : "calc(70vh - 48px)",
             opacity: isMinimized ? 0 : 1,
           }}
         >
@@ -329,16 +308,6 @@ export default function RepoClientPage({
             repo={repo}
             selectedFilePath={selectedFile || ""}
           />
-
-          {showScrollTop && (
-            <button
-              className="fixed top-8 right-8 z-50 bg-blue-500 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg flex items-center justify-center transition-all"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              aria-label="Scroll to top"
-            >
-              <ChevronUp className="w-6 h-6" />
-            </button>
-          )}
         </main>
       </div>
     </div>

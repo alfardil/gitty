@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, forwardRef, useImperativeHandle } from "react";
-import { Bot } from "lucide-react";
 import { useAnalyze } from "@/lib/hooks/useAnalyze";
-import { CodeBlock } from "./CodeBlock";
-import { Input } from "../neo/input";
+import { Bot } from "lucide-react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { Button } from "../neo/button";
+import { Input } from "../neo/input";
+import { CodeBlock } from "./CodeBlock";
 
 interface FunctionAnalysisChatProps {
   owner: string;
@@ -58,7 +58,7 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {!response && !error && !loading && (
-          <div className="flex flex-col items-center justify-center h-full space-y-6 text-center">
+          <div className="flex flex-col items-center justify-center h-full space-y-6 text-center mb-16">
             <div className="p-6 rounded-full bg-zinc-900/50 border border-white/10">
               <Bot className="w-10 h-10 text-indigo-500" />
             </div>
@@ -111,7 +111,7 @@ const FunctionAnalysisChat = forwardRef<
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-white/10">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 mt-8">
         <div className="flex gap-2">
           <Input
             type="text"
