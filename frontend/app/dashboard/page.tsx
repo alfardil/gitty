@@ -270,30 +270,51 @@ export default function Dashboard() {
               </div>
             </>
           )}
-          {showSection === "settings" && <SettingsView handleSidebarNav={setShowSection} />}
+          {showSection === "settings" && (
+            <SettingsView handleSidebarNav={setShowSection} />
+          )}
           {showSection === "billing" && (
             <div className="max-w-4xl mx-auto mt-8">
-              <h2 className="text-2xl font-bold mb-8 text-gray-900">All Plans</h2>
+              <h2 className="text-2xl font-bold mb-8 text-gray-900">
+                All Plans
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Member (Free) Plan */}
                 <div className="bg-white border-2 border-blue-400 rounded-2xl shadow p-6 flex flex-col items-center relative h-full pb-6">
-                  <div className="absolute -top-3 -right-3 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full shadow z-10 border-2 border-white">Your plan</div>
-                  <h3 className="text-xl font-bold text-blue-700 mb-2">Member</h3>
-                  <div className="text-4xl font-extrabold text-gray-900 mb-2">$0</div>
-                  <div className="text-gray-500 mb-4">For individuals getting started</div>
+                  <div className="absolute -top-3 -right-3 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full shadow z-10 border-2 border-white">
+                    Your plan
+                  </div>
+                  <h3 className="text-xl font-bold text-blue-700 mb-2">
+                    Member
+                  </h3>
+                  <div className="text-4xl font-extrabold text-gray-900 mb-2">
+                    $0
+                  </div>
+                  <div className="text-gray-500 mb-4">
+                    For individuals getting started
+                  </div>
                   <ul className="text-gray-700 text-sm mb-6 space-y-1 w-full">
                     <li>✓ Access to basic features</li>
                     <li>✓ Community support</li>
                     <li>✓ 1 user</li>
                   </ul>
                   <div className="flex-1" />
-                  <button className="w-full py-3 rounded-lg bg-blue-100 text-blue-700 font-bold cursor-default text-lg mt-2" disabled>Current Plan</button>
+                  <button
+                    className="w-full py-3 rounded-lg bg-blue-100 text-blue-700 font-bold cursor-default text-lg mt-2"
+                    disabled
+                  >
+                    Current Plan
+                  </button>
                 </div>
                 {/* Pro Plan */}
                 <div className="bg-white border-2 border-blue-400 rounded-2xl shadow p-6 flex flex-col items-center h-full pb-6">
                   <h3 className="text-xl font-bold text-blue-700 mb-2">Pro</h3>
-                  <div className="text-4xl font-extrabold text-gray-900 mb-2">$20<span className="text-lg font-normal">/mo</span></div>
-                  <div className="text-gray-500 mb-4">For power users and small teams</div>
+                  <div className="text-4xl font-extrabold text-gray-900 mb-2">
+                    $20<span className="text-lg font-normal">/mo</span>
+                  </div>
+                  <div className="text-gray-500 mb-4">
+                    For power users and small teams
+                  </div>
                   <ul className="text-gray-700 text-sm mb-6 space-y-1 w-full">
                     <li>✓ Everything in Member</li>
                     <li>✓ Priority support</li>
@@ -301,13 +322,21 @@ export default function Dashboard() {
                     <li>✓ Advanced analytics</li>
                   </ul>
                   <div className="flex-1" />
-                  <button className="w-full py-3 rounded-lg bg-blue-700 text-white font-bold hover:bg-blue-800 transition text-lg mt-2">Upgrade</button>
+                  <button className="w-full py-3 rounded-lg bg-blue-700 text-white font-bold hover:bg-blue-800 transition text-lg mt-2">
+                    Upgrade
+                  </button>
                 </div>
                 {/* Enterprise Plan */}
                 <div className="bg-white border-2 border-blue-400 rounded-2xl shadow p-6 flex flex-col items-center h-full pb-6">
-                  <h3 className="text-xl font-bold text-blue-700 mb-2">Enterprise</h3>
-                  <div className="text-4xl font-extrabold text-gray-900 mb-2">Let's talk!</div>
-                  <div className="text-gray-500 mb-4">For organizations with advanced needs</div>
+                  <h3 className="text-xl font-bold text-blue-700 mb-2">
+                    Enterprise
+                  </h3>
+                  <div className="text-4xl font-extrabold text-gray-900 mb-2">
+                    Let&apos;s talk!
+                  </div>
+                  <div className="text-gray-500 mb-4">
+                    For organizations with advanced needs
+                  </div>
                   <ul className="text-gray-700 text-sm mb-6 space-y-1 w-full">
                     <li>✓ Everything in Pro</li>
                     <li>✓ Dedicated support</li>
@@ -315,7 +344,9 @@ export default function Dashboard() {
                     <li>✓ Unlimited users</li>
                   </ul>
                   <div className="flex-1" />
-                  <button className="w-full py-3 rounded-lg bg-blue-700 text-white font-bold hover:bg-blue-800 transition text-lg mt-2">Contact Sales</button>
+                  <button className="w-full py-3 rounded-lg bg-blue-700 text-white font-bold hover:bg-blue-800 transition text-lg mt-2">
+                    Contact Sales
+                  </button>
                 </div>
               </div>
             </div>
