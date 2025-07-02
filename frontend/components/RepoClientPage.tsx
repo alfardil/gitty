@@ -10,6 +10,7 @@ import { DiagramSection } from "./ui/analysis/DiagramSection";
 import { FileContent } from "./ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
 import { Sidebar } from "./ui/dashboard/Sidebar";
+import { Switch } from "./ui/diagram/switch";
 import { Spinner } from "./ui/neo/spinner";
 
 const RightSideAIAssistant = ({
@@ -52,18 +53,16 @@ const RightSideAIAssistant = ({
           boxShadow: "0 4px 32px 0 rgba(0,0,0,0.25)",
         }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent">
-          <div className="flex-1 flex items-center justify-center relative">
-            <h2 className="text-lg font-semibold text-white text-center w-full">AI Assistant</h2>
-            <button
-              className="absolute right-0 text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
-              style={{ top: 0 }}
-              onClick={() => setIsOpen(false)}
-              aria-label="Close AI Assistant"
-            >
-              ×
-            </button>
-          </div>
+        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent relative">
+          <div className="w-8" />
+          <h2 className="flex-1 text-lg font-semibold text-white text-center">AI Assistant</h2>
+          <button
+            className="text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close AI Assistant"
+          >
+            ×
+          </button>
         </div>
         <div className="overflow-y-auto h-[calc(100vh-64px-32px)] p-4 bg-transparent">
           <AIChatSection
@@ -127,6 +126,10 @@ export default function RepoClientPage({
 
   const [isAIMinimized, setIsAIMinimized] = useState(false);
 
+  const [zoomingEnabled, setZoomingEnabled] = useState(false);
+
+  const [explorerHeight, setExplorerHeight] = useState(400); // px
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handleScroll = () => {
@@ -164,6 +167,14 @@ export default function RepoClientPage({
   };
 
   const tree = buildFileTree(fileTree || []);
+
+  const handleExportImage = () => {
+    // Implementation of handleExportImage
+  };
+
+  const handleRegenerate = (value: string) => {
+    // Implementation of handleRegenerate
+  };
 
   if (userLoading) {
     return (
@@ -212,14 +223,30 @@ export default function RepoClientPage({
             </h1>
           </div>
         </header>
-        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-6">
+        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2">
           {/* System Design Diagram */}
-          <div className="mb-6">
-            <div className="bg-white rounded-2xl shadow-sm p-8 border border-gray-200">
-              <div className="text-2xl font-bold mb-4 text-center">
-                System Design Diagram for {owner}/{repo}
+          <div className="mb-4">
+            <div className="text-4xl font-bold mb-2 mt-8 text-center">System Design Diagram</div>
+            <div className="flex flex-row gap-3 mb-8 justify-center items-center">
+              <button
+                onClick={handleExportImage}
+                className="bg-[#F3F3F0] rounded-lg py-2 px-4 text-gray-900 font-medium hover:bg-[#ECECE8] transition border border-transparent focus:outline-none focus:ring-2 focus:ring-gray-300"
+              >
+                Download
+              </button>
+              <button
+                onClick={() => handleRegenerate("")}
+                className="bg-[#F3F3F0] rounded-lg py-2 px-4 text-gray-900 font-medium hover:bg-[#ECECE8] transition border border-transparent focus:outline-none focus:ring-2 focus:ring-gray-300"
+              >
+                Regenerate
+              </button>
+              <div className="flex items-center gap-2 bg-[#F3F3F0] rounded-lg py-2 px-4">
+                <span className="text-gray-900 font-medium">Zoom</span>
+                <Switch checked={zoomingEnabled} onCheckedChange={setZoomingEnabled} />
               </div>
-              <DiagramSection owner={owner} repo={repo} />
+            </div>
+            <div className="flex items-center justify-center w-full">
+              <DiagramSection owner={owner} repo={repo} zoomingEnabled={zoomingEnabled} />
             </div>
           </div>
 
@@ -234,7 +261,7 @@ export default function RepoClientPage({
                   <div className="w-[280px] border-r border-gray-200 flex flex-col">
                     <div className="bg-gray-100 border-b border-gray-200 p-3 flex items-center">
                       <h2 className="text-sm font-medium text-gray-600">
-                        Explorer
+                        Directory
                       </h2>
                     </div>
                     <div className="overflow-y-auto flex-1 bg-gray-50">
