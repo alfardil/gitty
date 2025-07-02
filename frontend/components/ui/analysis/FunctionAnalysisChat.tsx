@@ -72,14 +72,14 @@ const FunctionAnalysisChat = forwardRef<
 
         {!response && !error && !loading && (
           <div className="flex flex-col items-center space-y-6 text-center mt-24 mb-8">
-            <div className="p-6 rounded-full border border-white/10 bg-transparent">
+            <div className="p-6 rounded-full border-2 border-white bg-transparent">
               <Bot className="w-10 h-10 text-indigo-500" />
             </div>
             <div className="space-y-3">
               <p className="text-white text-xl font-semibold">
-                <span className="text-black">Ask me about this repository</span>
+                <span className="text-white">Ask me about this repository</span>
               </p>
-              <p className="text-zinc-500 text-base max-w-[280px]">
+              <p className="text-white text-base max-w-[280px]">
                 I can help you understand the code structure, function
                 parameters, and more.
               </p>
@@ -88,7 +88,7 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {response && (
-          <div className="prose max-w-none text-black">
+          <div className="prose max-w-none text-white">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={
@@ -115,12 +115,12 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {loading && (
-          <div className="flex items-center gap-3 px-4 py-3 border border-gray-500 rounded-lg animate-pulse bg-transparent">
-            <Bot className="w-5 h-5 text-gray-900" />
-            <span className="text-black font-medium">Analyzing...</span>
+          <div className="flex items-center gap-3 px-4 py-3 border border-white/30 rounded-lg animate-pulse bg-transparent">
+            <Bot className="w-5 h-5 text-white" />
+            <span className="text-white font-medium">Analyzing...</span>
             <div className="flex-1 space-y-2">
-              <div className="h-4 rounded w-3/4 bg-gray-500" />
-              <div className="h-4 rounded w-1/2 bg-gray-500" />
+              <div className="h-4 rounded w-3/4 bg-white/30" />
+              <div className="h-4 rounded w-1/2 bg-white/30" />
             </div>
           </div>
         )}

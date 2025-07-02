@@ -28,14 +28,11 @@ const RightSideAIAssistant = ({
       {/* Toggle Button */}
       {!isOpen && (
         <button
-          className="fixed bottom-8 right-8 z-50 bg-gradient-to-br from-[#18CCFC] via-[#1e90ff] to-[#18CCFC] shadow-lg hover:scale-105 transition-all rounded-full w-16 h-16 flex items-center justify-center border-4 border-[#18CCFC]/30 animate-pulse"
-          style={{ boxShadow: "0 0 32px 8px #18CCFC, 0 0 8px 2px #18CCFC" }}
+          className="fixed bottom-8 right-8 z-50 bg-black/70 backdrop-blur-md hover:scale-105 transition-all rounded-full w-16 h-16 flex items-center justify-center border-2 border-white/20 shadow-lg"
+          style={{ boxShadow: "0 4px 32px 0 rgba(0,0,0,0.25)" }}
           onClick={() => setIsOpen(true)}
         >
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 18h.01" />
-            <path d="M12 14c0-2 4-2 4-6a4 4 0 1 0-8 0" />
-          </svg>
+          <span className="text-2xl font-bold text-white">AI</span>
         </button>
       )}
       {/* Side Panel */}
@@ -46,24 +43,27 @@ const RightSideAIAssistant = ({
         style={{
           width: "400px",
           maxWidth: "100vw",
-          background: "rgba(24, 204, 252, 0.15)",
+          background: "rgba(0,0,0,0.6)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          borderLeft: "2px solid rgba(24, 204, 252, 0.18)",
+          borderLeft: "2px solid rgba(255,255,255,0.18)",
           borderRadius: "32px 0 0 32px",
           margin: "16px 0 16px auto",
-          boxShadow: "0 4px 32px 0 rgba(24,204,252,0.10)",
+          boxShadow: "0 4px 32px 0 rgba(0,0,0,0.25)",
         }}
       >
-        <div className="flex items-center justify-center p-4 border-b border-white/10 bg-transparent relative">
-          <h2 className="text-lg font-semibold text-black text-center flex-1">AI Assistant</h2>
-          <button
-            className="text-black hover:text-gray-700 transition-colors p-2 rounded-full text-2xl ml-2"
-            onClick={() => setIsOpen(false)}
-            aria-label="Close AI Assistant"
-          >
-            ×
-          </button>
+        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent">
+          <div className="flex-1 flex items-center justify-center relative">
+            <h2 className="text-lg font-semibold text-white text-center w-full">AI Assistant</h2>
+            <button
+              className="absolute right-0 text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
+              style={{ top: 0 }}
+              onClick={() => setIsOpen(false)}
+              aria-label="Close AI Assistant"
+            >
+              ×
+            </button>
+          </div>
         </div>
         <div className="overflow-y-auto h-[calc(100vh-64px-32px)] p-4 bg-transparent">
           <AIChatSection
