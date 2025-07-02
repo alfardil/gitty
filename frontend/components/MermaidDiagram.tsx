@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import mermaid from "mermaid";
+import { useEffect, useRef } from "react";
 // Remove the direct import
 // import svgPanZoom from "svg-pan-zoom";
 
@@ -82,13 +82,12 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
   return (
     <div
       ref={containerRef}
-      className={`w-full max-w-full p-4 ${zoomingEnabled ? "h-[600px]" : ""}`}
+      className="w-full max-w-full flex justify-center"
     >
       <div
         key={`${chart}-${zoomingEnabled}`}
-        className={`mermaid h-full ${
-          zoomingEnabled ? "rounded-lg border-2 border-black" : ""
-        }`}
+        className="mermaid w-full h-[600px] rounded-lg border-2 border-black flex items-center justify-center overflow-hidden"
+        style={{ background: 'white' }}
       >
         {chart}
       </div>
