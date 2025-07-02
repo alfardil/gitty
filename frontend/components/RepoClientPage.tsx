@@ -1,16 +1,16 @@
 "use client";
 import { fetchFile } from "@/lib/fetchFile";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { ChevronDown, ChevronUp, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { GitHubLoginButton } from "./LoginButton";
-import { Sidebar } from "./ui/dashboard/Sidebar";
-import { Spinner } from "./ui/neo/spinner";
 import { AIChatSection } from "./ui/analysis/AIChatSection";
 import { DiagramSection } from "./ui/analysis/DiagramSection";
 import { FileContent } from "./ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
+import { Sidebar } from "./ui/dashboard/Sidebar";
+import { Spinner } from "./ui/neo/spinner";
 
 const RightSideAIAssistant = ({
   owner,
@@ -28,31 +28,44 @@ const RightSideAIAssistant = ({
       {/* Toggle Button */}
       {!isOpen && (
         <button
-          className="fixed top-1/2 right-0 z-50 transform -translate-y-1/2 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-l-lg shadow-lg transition-all"
-          style={{}}
+          className="fixed bottom-8 right-8 z-50 bg-gradient-to-br from-[#18CCFC] via-[#1e90ff] to-[#18CCFC] shadow-lg hover:scale-105 transition-all rounded-full w-16 h-16 flex items-center justify-center border-4 border-[#18CCFC]/30 animate-pulse"
+          style={{ boxShadow: "0 0 32px 8px #18CCFC, 0 0 8px 2px #18CCFC" }}
           onClick={() => setIsOpen(true)}
         >
-          <span className="font-bold">AI</span>
+          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 18h.01" />
+            <path d="M12 14c0-2 4-2 4-6a4 4 0 1 0-8 0" />
+          </svg>
         </button>
       )}
       {/* Side Panel */}
       <div
-        className={`fixed top-0 right-0 h-full z-50 bg-black shadow-2xl border-l border-white/10 transition-transform duration-300 ${
+        className={`fixed top-0 right-0 h-[calc(100vh-32px)] z-50 border-l border-white/10 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
-        style={{ width: "400px", maxWidth: "100vw" }}
+        style={{
+          width: "400px",
+          maxWidth: "100vw",
+          background: "rgba(24, 204, 252, 0.15)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderLeft: "2px solid rgba(24, 204, 252, 0.18)",
+          borderRadius: "32px 0 0 32px",
+          margin: "16px 0 16px auto",
+          boxShadow: "0 4px 32px 0 rgba(24,204,252,0.10)",
+        }}
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black">
-          <h2 className="text-lg font-semibold text-white/90">AI Assistant</h2>
+        <div className="flex items-center justify-center p-4 border-b border-white/10 bg-transparent relative">
+          <h2 className="text-lg font-semibold text-black text-center flex-1">AI Assistant</h2>
           <button
-            className="text-white/70 hover:text-white/90 transition-colors p-2 rounded hover:bg-zinc-900/50"
+            className="text-black hover:text-gray-700 transition-colors p-2 rounded-full text-2xl ml-2"
             onClick={() => setIsOpen(false)}
             aria-label="Close AI Assistant"
           >
             ×
           </button>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-64px)] p-4">
+        <div className="overflow-y-auto h-[calc(100vh-64px-32px)] p-4 bg-transparent">
           <AIChatSection
             username={owner}
             repo={repo}

@@ -2,12 +2,10 @@
 
 import { useAnalyze } from "@/lib/hooks/useAnalyze";
 import { Bot } from "lucide-react";
-import { forwardRef, useImperativeHandle, useState } from "react";
-import { Button } from "../neo/button";
-import { Input } from "../neo/input";
-import { CodeBlock } from "./CodeBlock";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CodeBlock } from "./CodeBlock";
 
 interface FunctionAnalysisChatProps {
   owner: string;
@@ -28,9 +26,12 @@ const FunctionAnalysisChat = forwardRef<
   const [question, setQuestion] = useState("");
   const { analyzeRepoWithRAG, loading, error, response } = useAnalyze();
 
+  // Ref for auto-scroll
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!question.trim() || !selectedFilePath) return;
+    if (!question.trim()) return;
     await analyzeRepoWithRAG({
       owner,
       repo,
@@ -49,9 +50,19 @@ const FunctionAnalysisChat = forwardRef<
     },
   }));
 
+  // Auto-scroll to bottom when response, error, or loading changes
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [response, error, loading]);
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto px-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto px-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent pb-32"
+      >
         {error && (
           <div className="flex items-start gap-3 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg">
             <Bot className="w-5 h-5 mt-1 text-red-400" />
@@ -60,13 +71,13 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {!response && !error && !loading && (
-          <div className="flex flex-col items-center justify-center h-full space-y-6 text-center mb-16">
-            <div className="p-6 rounded-full bg-zinc-900/50 border border-white/10">
+          <div className="flex flex-col items-center space-y-6 text-center mt-24 mb-8">
+            <div className="p-6 rounded-full border border-white/10 bg-transparent">
               <Bot className="w-10 h-10 text-indigo-500" />
             </div>
             <div className="space-y-3">
               <p className="text-white text-xl font-semibold">
-                Ask me about this repository
+                <span className="text-black">Ask me about this repository</span>
               </p>
               <p className="text-zinc-500 text-base max-w-[280px]">
                 I can help you understand the code structure, function
@@ -77,7 +88,7 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {response && (
-          <div className="prose prose-invert max-w-none">
+          <div className="prose max-w-none text-black">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={
@@ -104,11 +115,12 @@ const FunctionAnalysisChat = forwardRef<
         )}
 
         {loading && (
-          <div className="flex items-start gap-3 px-4 py-3 bg-zinc-900/50 border border-white/10 rounded-lg animate-pulse">
-            <Bot className="w-5 h-5 mt-1 text-white/70" />
+          <div className="flex items-center gap-3 px-4 py-3 border border-gray-500 rounded-lg animate-pulse bg-transparent">
+            <Bot className="w-5 h-5 text-gray-900" />
+            <span className="text-black font-medium">Analyzing...</span>
             <div className="flex-1 space-y-2">
-              <div className="h-4 bg-zinc-800 rounded w-3/4" />
-              <div className="h-4 bg-zinc-800 rounded w-1/2" />
+              <div className="h-4 rounded w-3/4 bg-gray-500" />
+              <div className="h-4 rounded w-1/2 bg-gray-500" />
             </div>
           </div>
         )}
@@ -116,25 +128,25 @@ const FunctionAnalysisChat = forwardRef<
 
       <form
         onSubmit={handleSubmit}
-        className="p-4 border-t border-white/10 mt-8"
+        className="w-full flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-md shadow-lg border border-white/30 fixed bottom-6 left-1/2 transform -translate-x-1/2 max-w-[370px]"
+        style={{ zIndex: 60 }}
       >
-        <div className="flex gap-2">
-          <Input
+        <div className="flex gap-2 w-full">
+          <input
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about this repository..."
+            placeholder="Message Assistant"
             disabled={loading}
-            className="bg-zinc-900/50 border-white/10 text-white placeholder:text-white/30"
+            className="flex-1 bg-transparent border-none outline-none text-black placeholder:text-gray-500 px-2"
           />
-          <Button
+          <button
             type="submit"
             disabled={loading}
-            variant="default"
-            className="bg-indigo-500 hover:bg-indigo-600 text-white"
+            className="p-2 rounded-full hover:bg-blue-100 transition"
           >
-            {loading ? "Analyzing..." : "Ask"}
-          </Button>
+            {/* No icon, just a minimal button */}
+          </button>
         </div>
       </form>
     </div>

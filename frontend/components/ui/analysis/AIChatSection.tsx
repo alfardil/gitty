@@ -1,8 +1,8 @@
 "use client";
 
+import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
 import { FileSearch } from "lucide-react";
 import FunctionAnalysisChat from "./FunctionAnalysisChat";
-import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
 
 interface AIChatSectionProps {
   username: string;
@@ -34,7 +34,7 @@ export function AIChatSection({
   }
 
   return (
-    <div className="flex flex-col h-full text-white/90 bg-black">
+    <div className="flex flex-col h-full text-white/90 bg-transparent">
       <FunctionAnalysisChat
         owner={username}
         repo={repo}
