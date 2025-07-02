@@ -221,6 +221,6 @@ export function useAnalyze() {
     loading,
     error,
     response,
-    streamState: state,
+    state,
   };
 }

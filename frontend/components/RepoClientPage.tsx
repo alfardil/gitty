@@ -12,7 +12,7 @@ import { DiagramSection } from "./ui/analysis/DiagramSection";
 import { FileContent } from "./ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
 
-const FloatingAIAssistant = ({
+const RightSideAIAssistant = ({
   owner,
   repo,
   selectedFilePath,
@@ -21,82 +21,46 @@ const FloatingAIAssistant = ({
   repo: string;
   selectedFilePath: string;
 }) => {
-  const [isMinimized, setIsMinimized] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div
-      className="fixed z-50"
-      style={{
-        width: "400px",
-        right: "1.5rem",
-        bottom: "1.5rem",
-        transition: "bottom 0.3s cubic-bezier(0.4,0,0.2,1)",
-      }}
-    >
+    <>
+      {/* Toggle Button */}
+      {!isOpen && (
+        <button
+          className="fixed top-1/2 right-0 z-50 transform -translate-y-1/2 bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded-l-lg shadow-lg transition-all"
+          style={{}}
+          onClick={() => setIsOpen(true)}
+        >
+          <span className="font-bold">AI</span>
+        </button>
+      )}
+      {/* Side Panel */}
       <div
-        className={`
-          bg-black backdrop-blur-xl rounded-2xl shadow-2xl 
-          border border-white/10 overflow-hidden transition-all duration-300
-          hover:shadow-indigo-500/10 hover:border-white/20
-        `}
-        style={{
-          height: isMinimized ? "48px" : "90vh",
-          width: "100%",
-        }}
+        className={`fixed top-0 right-0 h-full z-50 bg-black shadow-2xl border-l border-white/10 transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+        style={{ width: "400px", maxWidth: "100vw" }}
       >
-        {/* Bar (clickable area) */}
-        <div
-          className="handle border-b border-white/10 bg-black p-3 relative flex items-center select-none cursor-pointer"
-          onClick={() => setIsMinimized((v) => !v)}
-          style={{ userSelect: "none" }}
-        >
-          {/* Indicator dot, absolutely positioned left */}
-          <span className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center">
-            <span className="relative w-4 h-4 flex items-center justify-center">
-              <span className="absolute inset-0 w-4 h-4 bg-indigo-500 rounded-full animate-ping opacity-70" />
-              <span className="w-2.5 h-2.5 bg-indigo-500 rounded-full animate-pulse z-10" />
-            </span>
-          </span>
-          {/* Centered text */}
-          <h2 className="mx-auto text-base font-medium text-white/90">
-            AI Assistant
-          </h2>
-          {/* Chevron, absolutely positioned right */}
-          <span className="absolute right-5 top-1/2 -translate-y-1/2">
-            <button
-              className="text-white/70 hover:text-white/90 transition-colors p-1 hover:bg-zinc-900/50 rounded"
-              tabIndex={-1}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsMinimized(!isMinimized);
-              }}
-            >
-              {isMinimized ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronUp className="w-4 h-4" />
-              )}
-            </button>
-          </span>
+        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-black">
+          <h2 className="text-lg font-semibold text-white/90">AI Assistant</h2>
+          <button
+            className="text-white/70 hover:text-white/90 transition-colors p-2 rounded hover:bg-zinc-900/50"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close AI Assistant"
+          >
+            ×
+          </button>
         </div>
-        {/* Modal content */}
-        <div
-          className="overflow-y-auto transition-all duration-300 bg-black"
-          style={{
-            height: isMinimized ? 0 : "calc(70vh - 48px)",
-            opacity: isMinimized ? 0 : 1,
-          }}
-        >
-          <div className="p-4">
-            <AIChatSection
-              username={owner}
-              repo={repo}
-              selectedFilePath={selectedFilePath}
-            />
-          </div>
+        <div className="overflow-y-auto h-[calc(100vh-64px)] p-4">
+          <AIChatSection
+            username={owner}
+            repo={repo}
+            selectedFilePath={selectedFilePath}
+          />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -307,8 +271,8 @@ export default function RepoClientPage({
             </div>
           </div>
 
-          {/* Floating AI Assistant */}
-          <FloatingAIAssistant
+          {/* Right Side AI Assistant */}
+          <RightSideAIAssistant
             owner={owner}
             repo={repo}
             selectedFilePath={selectedFile || ""}
