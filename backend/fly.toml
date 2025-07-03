@@ -6,6 +6,7 @@ dockerfile = "Dockerfile"
 
 [env]
 ENVIRONMENT = "production"
+CHROMA_PERSIST_DIR = "/data/chroma"
 
 [http_service]
 auto_start_machines = true
@@ -18,4 +19,8 @@ processes = [ "app" ]
 [[vm]]
 cpu_kind = "shared"
 cpus = 1
-memory = "1gb"
+memory = "2gb"
+
+[[vm.mounts]]
+source = "chroma_data"
+destination = "/data/chroma"
