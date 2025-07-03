@@ -12,6 +12,7 @@ import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
 import { Sidebar } from "./ui/dashboard/Sidebar";
 import { Switch } from "./ui/diagram/switch";
 import { Spinner } from "./ui/neo/spinner";
+import { useDiagram } from "@/lib/hooks/useDiagram";
 
 const RightSideAIAssistant = ({
   owner,
@@ -55,7 +56,9 @@ const RightSideAIAssistant = ({
       >
         <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent relative">
           <div className="w-8" />
-          <h2 className="flex-1 text-lg font-semibold text-white text-center">AI Assistant</h2>
+          <h2 className="flex-1 text-lg font-semibold text-white text-center">
+            AI Assistant
+          </h2>
           <button
             className="text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
             onClick={() => setIsOpen(false)}
@@ -112,6 +115,7 @@ export default function RepoClientPage({
   fileTree: any[];
 }) {
   const { user, loading: userLoading, logout } = useAuth();
+  const { handleExportImage, handleRegenerate } = useDiagram(owner, repo);
   const router = useRouter();
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -128,7 +132,7 @@ export default function RepoClientPage({
 
   const [zoomingEnabled, setZoomingEnabled] = useState(false);
 
-  const [explorerHeight, setExplorerHeight] = useState(600); // px
+  const [explorerHeight, setExplorerHeight] = useState(600);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -167,14 +171,6 @@ export default function RepoClientPage({
   };
 
   const tree = buildFileTree(fileTree || []);
-
-  const handleExportImage = () => {
-    // Implementation of handleExportImage
-  };
-
-  const handleRegenerate = (value: string) => {
-    // Implementation of handleRegenerate
-  };
 
   if (userLoading) {
     return (
@@ -226,7 +222,9 @@ export default function RepoClientPage({
         <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
           {/* System Design Diagram */}
           <div className="mb-4">
-            <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">System Design Diagram</div>
+            <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">
+              System Design Diagram
+            </div>
             <div className="flex flex-row gap-3 mb-8 justify-center items-center">
               <button
                 onClick={handleExportImage}
@@ -242,11 +240,18 @@ export default function RepoClientPage({
               </button>
               <div className="flex items-center gap-2 bg-[#23272f] rounded-lg py-2 px-4">
                 <span className="text-white font-medium">Zoom</span>
-                <Switch checked={zoomingEnabled} onCheckedChange={setZoomingEnabled} />
+                <Switch
+                  checked={zoomingEnabled}
+                  onCheckedChange={setZoomingEnabled}
+                />
               </div>
             </div>
             <div className="flex items-center justify-center w-full">
-              <DiagramSection owner={owner} repo={repo} zoomingEnabled={zoomingEnabled} />
+              <DiagramSection
+                owner={owner}
+                repo={repo}
+                zoomingEnabled={zoomingEnabled}
+              />
             </div>
           </div>
 
@@ -256,7 +261,11 @@ export default function RepoClientPage({
             <div className="w-full">
               <div
                 className="bg-[#23272f] mb-8 mt-8 flex flex-col relative select-none rounded-2xl border border-blue-400/20"
-                style={{ height: explorerHeight, minHeight: 120, maxHeight: 800 }}
+                style={{
+                  height: explorerHeight,
+                  minHeight: 120,
+                  maxHeight: 800,
+                }}
               >
                 {/* IDE Content */}
                 <div className="flex h-full">
