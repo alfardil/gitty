@@ -7,7 +7,9 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 
 
-def get_relevant_chunks(query: str, k: int = 4, persist_directory: str = "db"):
+def get_relevant_chunks(
+    query: str, k: int = 4, persist_directory: str = "/data/chroma"
+):
     """
     Retrieve the top-k most relevant document chunks from the Chroma vectorstore.
 
