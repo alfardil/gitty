@@ -115,7 +115,11 @@ export default function RepoClientPage({
   fileTree: any[];
 }) {
   const { user, loading: userLoading, logout } = useAuth();
-  const { handleExportImage, handleRegenerate } = useDiagram(owner, repo);
+  const {
+    handleExportImage,
+    handleRegenerate,
+    loading: diagramLoading,
+  } = useDiagram(owner, repo);
   const router = useRouter();
   const nodeRef = useRef<HTMLDivElement>(null);
 
@@ -246,13 +250,19 @@ export default function RepoClientPage({
                 />
               </div>
             </div>
-            <div className="flex items-center justify-center w-full">
-              <DiagramSection
-                owner={owner}
-                repo={repo}
-                zoomingEnabled={zoomingEnabled}
-              />
-            </div>
+            {diagramLoading ? (
+              <div className="flex items-center justify-center w-full">
+                <Spinner />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center w-full">
+                <DiagramSection
+                  owner={owner}
+                  repo={repo}
+                  zoomingEnabled={zoomingEnabled}
+                />
+              </div>
+            )}
           </div>
 
           {/* Main Content Area */}
