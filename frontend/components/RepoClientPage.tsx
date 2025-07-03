@@ -194,7 +194,7 @@ export default function RepoClientPage({
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50 text-gray-800">
+    <div className="min-h-screen flex bg-[#181A20] text-white">
       <Sidebar
         user={user}
         sidebarOpen={sidebarOpen}
@@ -210,38 +210,38 @@ export default function RepoClientPage({
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-gray-50 border-b border-gray-200">
+        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-[#23272f] border-b border-blue-400/10">
           <div className="flex items-center gap-3 w-full">
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-gray-200"
+              className="md:hidden p-2 rounded-lg hover:bg-blue-400/10"
               onClick={() => setSidebarMobile(true)}
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-6 h-6 text-gray-200" />
             </button>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-white tracking-tight">
               {owner}/{repo}
             </h1>
           </div>
         </header>
-        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2">
+        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
           {/* System Design Diagram */}
           <div className="mb-4">
-            <div className="text-4xl font-bold mb-2 mt-8 text-center">System Design Diagram</div>
+            <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">System Design Diagram</div>
             <div className="flex flex-row gap-3 mb-8 justify-center items-center">
               <button
                 onClick={handleExportImage}
-                className="bg-[#F3F3F0] rounded-lg py-2 px-4 text-gray-900 font-medium hover:bg-[#ECECE8] transition border border-transparent focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Download
               </button>
               <button
                 onClick={() => handleRegenerate("")}
-                className="bg-[#F3F3F0] rounded-lg py-2 px-4 text-gray-900 font-medium hover:bg-[#ECECE8] transition border border-transparent focus:outline-none focus:ring-2 focus:ring-gray-300"
+                className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 Regenerate
               </button>
-              <div className="flex items-center gap-2 bg-[#F3F3F0] rounded-lg py-2 px-4">
-                <span className="text-gray-900 font-medium">Zoom</span>
+              <div className="flex items-center gap-2 bg-[#23272f] rounded-lg py-2 px-4">
+                <span className="text-white font-medium">Zoom</span>
                 <Switch checked={zoomingEnabled} onCheckedChange={setZoomingEnabled} />
               </div>
             </div>
@@ -255,19 +255,19 @@ export default function RepoClientPage({
             {/* Left Side: IDE-like File Explorer + Code Viewer */}
             <div className="w-full">
               <div
-                className="bg-[#F3F3F0] mb-8 mt-8 flex flex-col relative select-none rounded-2xl"
+                className="bg-[#23272f] mb-8 mt-8 flex flex-col relative select-none rounded-2xl border border-blue-400/20"
                 style={{ height: explorerHeight, minHeight: 120, maxHeight: 800 }}
               >
                 {/* IDE Content */}
                 <div className="flex h-full">
                   {/* File Tree */}
-                  <div className="w-[280px] border-r border-gray-200 flex flex-col">
-                    <div className="bg-gray-100 border-b border-gray-200 p-3 flex items-center">
-                      <h2 className="text-sm font-medium text-gray-600">
+                  <div className="w-[280px] border-r border-blue-400/10 flex flex-col">
+                    <div className="bg-[#20232a] border-b border-blue-400/10 p-3 flex items-center">
+                      <h2 className="text-sm font-medium text-white">
                         Directory
                       </h2>
                     </div>
-                    <div className="overflow-y-auto flex-1 bg-gray-50">
+                    <div className="overflow-y-auto flex-1 bg-[#23272f]">
                       {fileTree.length === 0 ? (
                         <div className="text-gray-400 text-center py-4">
                           No files found or unable to fetch file tree.
@@ -290,8 +290,8 @@ export default function RepoClientPage({
                   <div className="flex-1 flex flex-col">
                     {selectedFile ? (
                       <>
-                        <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex-shrink-0">
-                          <h3 className="text-sm font-medium text-black truncate">
+                        <div className="bg-[#20232a] border-b border-blue-400/10 px-4 py-2 flex-shrink-0">
+                          <h3 className="text-sm font-medium text-white truncate">
                             {selectedFile}
                           </h3>
                         </div>
@@ -304,7 +304,7 @@ export default function RepoClientPage({
                         </div>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-gray-400 bg-gray-50">
+                      <div className="flex-1 flex items-center justify-center text-gray-400 bg-[#23272f]">
                         Select a file to view its contents
                       </div>
                     )}
