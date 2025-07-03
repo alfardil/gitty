@@ -15,7 +15,7 @@ def get_file_hash(file_contents: list[dict]) -> str:
     return hashlib.md5(content_str.encode()).hexdigest()
 
 
-def embed_repo(file_contents: list[dict], persist_directory: str = "db"):
+def embed_repo(file_contents: list[dict], persist_directory: str = "/data/chroma"):
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
