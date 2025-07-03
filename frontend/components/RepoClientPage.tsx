@@ -57,7 +57,7 @@ const RightSideAIAssistant = ({
         <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent relative">
           <div className="w-8" />
           <h2 className="flex-1 text-lg font-semibold text-white text-center">
-            Meet Mark, your AI Assistant
+            Meet Mark, your AI Assistant.
           </h2>
           <button
             className="text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
