@@ -1,6 +1,7 @@
 "use client";
 import { fetchFile } from "@/lib/fetchFile";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useDiagram } from "@/lib/hooks/useDiagram";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
 import { Sidebar } from "./ui/dashboard/Sidebar";
 import { Switch } from "./ui/diagram/switch";
 import { Spinner } from "./ui/neo/spinner";
-import { useDiagram } from "@/lib/hooks/useDiagram";
 
 const RightSideAIAssistant = ({
   owner,
@@ -30,11 +30,11 @@ const RightSideAIAssistant = ({
       {/* Toggle Button */}
       {!isOpen && (
         <button
-          className="fixed bottom-8 right-8 z-50 bg-black/70 backdrop-blur-md hover:scale-105 transition-all rounded-full w-16 h-16 flex items-center justify-center border-2 border-white/20 shadow-lg"
+          className="fixed bottom-8 right-8 z-50 bg-black/70 backdrop-blur-md hover:scale-105 transition-all rounded-lg w-20 h-12 flex items-center justify-center border-2 border-white/20 shadow-lg"
           style={{ boxShadow: "0 4px 32px 0 rgba(0,0,0,0.25)" }}
           onClick={() => setIsOpen(true)}
         >
-          <span className="text-2xl font-bold text-white">AI</span>
+          <span className="text-lg font-bold text-white">Mark</span>
         </button>
       )}
       {/* Side Panel */}
@@ -57,7 +57,7 @@ const RightSideAIAssistant = ({
         <div className="flex items-center justify-between p-4 border-b border-white/10 bg-transparent relative">
           <div className="w-8" />
           <h2 className="flex-1 text-lg font-semibold text-white text-center">
-            AI Assistant
+            Meet Mark, your AI Assistant
           </h2>
           <button
             className="text-white hover:text-gray-200 transition-colors p-2 rounded-full text-2xl"
