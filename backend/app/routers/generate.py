@@ -1,12 +1,38 @@
-from fastapi import APIRouter, Request
-from dotenv import load_dotenv
-from fastapi.responses import StreamingResponse
-from app.services.o4_mini_service import OpenAIo4Service
-from pydantic import BaseModel
-import json
-import asyncio
-import re
+"""
+This FastAPI router handles endpoints related to AI-powered code generation and analysis
+based on GitHub repository content. It integrates with OpenAI's o4-mini model to analyze
+repository structures, generate explanations, and produce system design diagrams using
+Mermaid syntax.
 
+Endpoints:
+- GET /generate: A basic test endpoint for validating OpenAI interaction.
+- POST /generate/cost: Estimates token usage and cost for analyzing a given GitHub repository.
+- POST /generate/stream: Streams multi-phase AI-generated output including:
+    1. Repository explanation
+    2. Component mapping
+    3. Mermaid diagram with interactive GitHub links
+
+Utilities:
+- get_github_data: Retrieves default branch, file tree, and README content via GitHub API.
+- process_click_events: Enhances Mermaid diagrams by embedding GitHub URLs into diagram nodes.
+
+Dependencies:
+- FastAPI
+- OpenAIo4Service (custom service for streaming OpenAI completions)
+- GitHubService (custom GitHub API wrapper)
+- Mermaid-compatible formatting
+
+All streamed endpoints follow Server-Sent Events (SSE) protocol.
+"""
+
+import re
+import asyncio
+import json
+from dotenv import load_dotenv
+from fastapi import APIRouter, Request
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from app.services.o4_mini_service import OpenAIo4Service
 from app.services.github import GitHubService
 from app.prompts import (
     SYSTEM_FIRST_PROMPT,
@@ -34,6 +60,20 @@ async def test():
 
 
 def get_github_data(username: str, repo: str, githubAccessToken: str):
+    """
+    Fetches key metadata from a GitHub repository including the default branch, file tree, and README contents.
+
+    Args:
+        username (str): The GitHub username or organization name.
+        repo (str): The name of the GitHub repository.
+        githubAccessToken (str): A GitHub personal access token for authenticated API access.
+
+    Returns:
+        dict: A dictionary containing:
+            - "default_branch" (str): The repository's default branch (e.g., "main" or "master").
+            - "file_tree" (str): A serialized representation of the repository's file structure.
+            - "readme" (str): The contents of the repository's README file as a string.
+    """
     github_service = GitHubService()
     default_branch = github_service.get_default_branch(
         username, repo, githubAccessToken

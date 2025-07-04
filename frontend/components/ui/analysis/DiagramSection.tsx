@@ -1,43 +1,68 @@
 "use client";
 
-import { getCachedDiagram, getLastGeneratedDate } from "@/app/_actions/cache";
 import MermaidDiagram from "@/components/MermaidDiagram";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { useDiagram } from "@/lib/hooks/useDiagram";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Switch } from "../diagram/switch";
 
 interface DiagramSectionProps {
   owner: string;
   repo: string;
-  zoomingEnabled: boolean;
 }
 
-export function DiagramSection({ owner, repo, zoomingEnabled }: DiagramSectionProps) {
-  const { diagram, loading, error, handleExportImage, handleRegenerate } =
-    useDiagram(owner, repo);
-  const [cachedDiagram, setCachedDiagram] = useState<string | null>(null);
-  const [lastGenerated, setLastGenerated] = useState<Date | undefined>();
+export function DiagramSection({ owner, repo }: DiagramSectionProps) {
+  const {
+    diagram,
+    loading,
+    error,
+    handleExportImage,
+    handleRegenerate,
+    lastGenerated,
+  } = useDiagram(owner, repo);
 
-  useEffect(() => {
-    const checkCache = async () => {
-      const cached = await getCachedDiagram(owner, repo);
-      if (cached) {
-        setCachedDiagram(cached);
-        const date = await getLastGeneratedDate(owner, repo);
-        setLastGenerated(date ?? undefined);
-      }
-    };
-    void checkCache();
-  }, [owner, repo]);
+  const [zoomingEnabled, setZoomingEnabled] = useState(false);
 
   const handleDownload = () => {
-    handleExportImage();
+    if (zoomingEnabled) {
+      setTimeout(() => {
+        setZoomingEnabled(false);
+        setTimeout(() => {
+          handleExportImage();
+          setZoomingEnabled(true);
+        }, 100);
+      }, 100);
+    } else {
+      handleExportImage();
+    }
   };
-
-  const displayDiagram = cachedDiagram || diagram;
 
   return (
     <div className="w-full text-center flex flex-col items-center justify-center p-0 bg-transparent">
+      {/* controls */}
+      <div className="flex flex-row gap-3 mb-8 justify-center items-center">
+        <button
+          onClick={handleDownload}
+          className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Download
+        </button>
+        <button
+          onClick={() => handleRegenerate("")}
+          className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Regenerate
+        </button>
+        <div className="flex items-center gap-2 bg-[#23272f] rounded-lg py-2 px-4">
+          <span className="text-white font-medium">Zoom</span>
+          <Switch
+            checked={zoomingEnabled}
+            onCheckedChange={setZoomingEnabled}
+          />
+        </div>
+      </div>
+
+      {/* show the diagram */}
       {loading ? (
         <Spinner>
           <div className="mt-2 text-gray-600">Generating diagram...</div>
@@ -48,9 +73,9 @@ export function DiagramSection({ owner, repo, zoomingEnabled }: DiagramSectionPr
         </Spinner>
       ) : error ? (
         <div className="text-red-600">{error}</div>
-      ) : displayDiagram ? (
+      ) : diagram ? (
         <div className="w-full flex flex-col items-center">
-          <MermaidDiagram chart={displayDiagram} zoomingEnabled={zoomingEnabled} />
+          <MermaidDiagram chart={diagram} zoomingEnabled={zoomingEnabled} />
           {lastGenerated && (
             <div className="text-sm text-gray-500 pt-4 text-center">
               Last generated: {lastGenerated.toLocaleString()}
