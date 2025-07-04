@@ -65,6 +65,26 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
             console.error("Failed to load svg-pan-zoom:", error);
           }
         }
+      } else if (svgElement && !zoomingEnabled) {
+        svgElement.style.maxWidth = "none";
+        svgElement.style.width = "100%";
+        svgElement.style.height = "100%";
+
+        try {
+          const svgPanZoom = (await import("svg-pan-zoom")).default;
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+          svgPanZoom(svgElement, {
+            zoomEnabled: true,
+            controlIconsEnabled: true,
+            fit: true,
+            center: true,
+            minZoom: 0.1,
+            maxZoom: 10,
+            zoomScaleSensitivity: 0.3,
+          });
+        } catch (error) {
+          console.error("Failed to load svg-pan-zoom:", error);
+        }
       }
     };
 
@@ -80,14 +100,11 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
   }, [chart, zoomingEnabled]); // Added zoomingEnabled to dependencies
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full max-w-full flex justify-center"
-    >
+    <div ref={containerRef} className="w-full max-w-full flex justify-center">
       <div
         key={`${chart}-${zoomingEnabled}`}
         className="mermaid w-full h-[600px] rounded-lg border-2 border-black flex items-center justify-center overflow-hidden"
-        style={{ background: 'white' }}
+        style={{ background: "white" }}
       >
         {chart}
       </div>
