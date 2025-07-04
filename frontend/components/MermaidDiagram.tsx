@@ -41,13 +41,13 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
 
     const initializePanZoom = async () => {
       const svgElement = containerRef.current?.querySelector("svg");
-      if (svgElement && zoomingEnabled) {
-        // Remove any max-width constraints
-        svgElement.style.maxWidth = "none";
-        svgElement.style.width = "100%";
-        svgElement.style.height = "100%";
-
+      if (svgElement) {
         if (zoomingEnabled) {
+          // Remove any max-width constraints for zoom mode
+          svgElement.style.maxWidth = "none";
+          svgElement.style.width = "100%";
+          svgElement.style.height = "100%";
+
           try {
             // Dynamically import svg-pan-zoom only when needed in the browser
             const svgPanZoom = (await import("svg-pan-zoom")).default;
@@ -64,26 +64,12 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
           } catch (error) {
             console.error("Failed to load svg-pan-zoom:", error);
           }
-        }
-      } else if (svgElement && !zoomingEnabled) {
-        svgElement.style.maxWidth = "none";
-        svgElement.style.width = "100%";
-        svgElement.style.height = "100%";
-
-        try {
-          const svgPanZoom = (await import("svg-pan-zoom")).default;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-          svgPanZoom(svgElement, {
-            zoomEnabled: true,
-            controlIconsEnabled: true,
-            fit: true,
-            center: true,
-            minZoom: 0.1,
-            maxZoom: 10,
-            zoomScaleSensitivity: 0.3,
-          });
-        } catch (error) {
-          console.error("Failed to load svg-pan-zoom:", error);
+        } else {
+          // Auto-fit mode: make SVG fit within container
+          svgElement.style.maxWidth = "100%";
+          svgElement.style.width = "100%";
+          svgElement.style.height = "100%";
+          svgElement.style.objectFit = "contain";
         }
       }
     };
