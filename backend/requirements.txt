@@ -9,3 +9,6 @@ httptools
 langchain
 langchain-openai
 langchain-chroma
+asyncpg
+pgvector
+pydantic
