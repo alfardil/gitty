@@ -17,7 +17,7 @@ import re
 from typing import Optional
 import tiktoken
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from app.rag.embedder_pgvector import embed_repo_pgvector
 from app.rag.retriever_pgvector import similar_chunks
@@ -281,7 +281,7 @@ async def rag_chat(rag_request: RAGChatRequest):
                     full_answer += chunk
                     yield f"data: {json.dumps({'status': 'llm_chunk', 'chunk': chunk})}\n\n"
                 yield f"data: {json.dumps({'status': 'complete', 'response': full_answer})}\n\n"
-            except Exception as e:
+            except (ValueError, RuntimeError, OSError) as e:
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
         return StreamingResponse(
