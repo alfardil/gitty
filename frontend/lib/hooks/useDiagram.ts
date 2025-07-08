@@ -57,7 +57,7 @@ export function useDiagram(username: string, repo: string) {
       });
 
       const baseUrl =
-        process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://gitty-api.fly.dev";
+        process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://devboard-api.fly.dev";
       const url = `${baseUrl}/generate/stream`;
 
       try {

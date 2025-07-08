@@ -14,10 +14,7 @@ RUN chmod +x /app/entrypoint.sh && \
     # Ensure the script uses Unix line endings
     sed -i 's/\r$//' /app/entrypoint.sh && \
     # Double check permissions
-    ls -la /app/entrypoint.sh && \
-    # Create volume directory for Chroma database
-    mkdir -p /data/chroma && \
-    chmod 755 /data/chroma
+    ls -la /app/entrypoint.sh
 
 # Expose port
 EXPOSE 8000

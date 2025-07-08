@@ -1,4 +1,4 @@
-app = "gitty-api"
+app = "devboard-api"
 primary_region = "iad"
 
 [build]
@@ -6,7 +6,6 @@ dockerfile = "Dockerfile"
 
 [env]
 ENVIRONMENT = "production"
-CHROMA_PERSIST_DIR = "/data/chroma"
 
 [http_service]
 auto_start_machines = true
@@ -20,7 +19,3 @@ processes = [ "app" ]
 cpu_kind = "shared"
 cpus = 1
 memory = "2gb"
-
-[[vm.mounts]]
-source = "chroma_data"
-destination = "/data/chroma"
