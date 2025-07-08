@@ -78,7 +78,7 @@ export function useAnalyze() {
         const validFiles = fileContents.filter(Boolean);
 
         const baseUrl =
-          process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://gitty-api.fly.dev";
+          process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://devboard-api.fly.dev";
         const url = `${baseUrl}/chat/rag`;
 
         setState({ status: "idle", message: "Starting analysis..." });
