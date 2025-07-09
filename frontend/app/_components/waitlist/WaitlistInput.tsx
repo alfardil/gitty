@@ -38,7 +38,8 @@ export function WaitlistInput() {
       >
         <div className="bg-green-500/10 border border-green-500/20 rounded-full p-4">
           <p className="text-green-400 font-medium">
-            🎉 You're on the waitlist! We'll notify you when we launch.
+            🎉 You&apos;re on the waitlist! We&apos;ll notify you when we
+            launch.
           </p>
         </div>
       </motion.div>
