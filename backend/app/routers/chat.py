@@ -296,3 +296,13 @@ async def rag_chat(rag_request: RAGChatRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e).split("\n")) from e
+
+
+@router.get("/rag")
+async def rag_chat_get(request: Request):
+    # Log request details for debugging
+    import logging
+    logging.warning(f"GET /chat/rag called. Headers: {dict(request.headers)} IP: {request.client.host if request.client else 'unknown'}")
+    user_agent = request.headers.get('user-agent', 'unknown')
+    print(f"[DEBUG] GET /chat/rag | IP: {request.client.host if request.client else 'unknown'} | User-Agent: {user_agent}")
+    return {"error": "This endpoint only supports POST requests. If you are seeing this, please use POST."}

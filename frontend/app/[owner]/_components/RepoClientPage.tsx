@@ -67,7 +67,13 @@ export default function RepoClientPage({
   };
 
   const handleSidebarNav = (key: string) => {
-    router.push("/dashboard");
+    if (key === "analysis") {
+      router.push("/dashboard?section=analysis");
+    } else if (key === "insights") {
+      router.push("/dashboard?section=insights");
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const tree = buildFileTree(fileTree || []);
@@ -122,8 +128,16 @@ export default function RepoClientPage({
         <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
           {/* System Design Diagram */}
           <div className="mb-4">
-            <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">
-              System Design Diagram
+            <div className="flex items-center gap-4 mb-2 mt-8 justify-center">
+              <button
+                onClick={() => router.push("/dashboard?section=analysis")}
+                className="flex items-center gap-2 text-[#a259ff] hover:text-white hover:bg-[#a259ff] bg-[#181a20] px-4 py-2 rounded-lg shadow transition"
+              >
+                <span className="text-xl">←</span> Back
+              </button>
+              <div className="text-4xl font-bold text-white">
+                System Design Diagram
+              </div>
             </div>
 
             <div className="flex items-center justify-center w-full">
