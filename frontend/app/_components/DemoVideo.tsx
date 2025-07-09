@@ -34,9 +34,8 @@ export function DemoVideo() {
               muted
               loop
               playsInline
-              poster="/analysis.png"
             >
-              <source src="/gitty-demo.mp4" type="video/mp4" />
+              <source src="/devboard-demo.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
