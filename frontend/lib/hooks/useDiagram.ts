@@ -56,8 +56,12 @@ export function useDiagram(username: string, repo: string) {
         message: "Generating diagram...",
       });
 
-      const baseUrl =
-        process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://devboard-api.fly.dev";
+      const isProd = process.env.NODE_ENV === "production";
+
+      const baseUrl = isProd
+        ? process.env.NEXT_PUBLIC_API_DEV_URL
+        : "http://localhost:3000";
+
       const url = `${baseUrl}/generate/stream`;
 
       try {

@@ -77,8 +77,12 @@ export function useAnalyze() {
 
         const validFiles = fileContents.filter(Boolean);
 
-        const baseUrl =
-          process.env.NEXT_PUBLIC_API_DEV_URL ?? "https://devboard-api.fly.dev";
+        const isProd = process.env.NODE_ENV === "production";
+
+        const baseUrl = isProd
+          ? process.env.NEXT_PUBLIC_API_DEV_URL
+          : "http://localhost:3000";
+
         const url = `${baseUrl}/chat/rag`;
 
         setState({ status: "idle", message: "Starting analysis..." });
