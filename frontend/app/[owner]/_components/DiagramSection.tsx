@@ -76,7 +76,7 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
         </div>
       ) : error ? (
         <div className="text-red-600">{error}</div>
-      ) : diagram ? (
+      ) : diagram && state.status === "complete" ? (
         <div className="w-full flex flex-col items-center">
           <MermaidDiagram chart={diagram} zoomingEnabled={zoomingEnabled} />
           {lastGenerated && (
