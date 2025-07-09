@@ -44,7 +44,7 @@ export function useAuth() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   return { user, loading, logout };
 }
