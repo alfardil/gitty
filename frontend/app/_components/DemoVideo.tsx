@@ -35,7 +35,7 @@ export function DemoVideo() {
               loop
               playsInline
             >
-              <source src="/devboard-demo.mp4" type="video/mp4" />
+              <source src="/output-video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
