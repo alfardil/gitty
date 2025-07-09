@@ -41,7 +41,7 @@ export function StatsSection() {
               {stats.totalUsers}+
             </div>
             <div className="text-base text-gray-400 font-medium">
-              Active Users
+              Active Enterprises
             </div>
           </div>
 
