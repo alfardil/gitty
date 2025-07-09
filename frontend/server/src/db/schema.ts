@@ -3,13 +3,13 @@ import {
   pgTable,
   varchar,
   timestamp,
-  uuid as uuidType,
   primaryKey,
   boolean,
+  uuid,
 } from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
-  id: uuidType().primaryKey().defaultRandom(),
+  id: uuid("id").primaryKey().defaultRandom(),
   githubId: varchar({ length: 32 }).notNull().unique(),
   githubUsername: varchar({ length: 255 }),
   firstName: varchar({ length: 255 }),
@@ -22,8 +22,8 @@ export const usersTable = pgTable("users", {
 });
 
 export const sessionsTable = pgTable("sessions", {
-  id: uuidType().primaryKey().defaultRandom(),
-  userId: uuidType()
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id),
   expiresAt: timestamp().notNull(),
@@ -50,3 +50,9 @@ export const diagramCache = pgTable(
     pk: primaryKey({ columns: [table.username, table.repo] }),
   })
 );
+
+export const waitlistEmails = pgTable("waitlist_emails", {
+  id: uuid("id").primaryKey().defaultRandom().notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  addedAt: timestamp("added_at").notNull().defaultNow(),
+});

@@ -1,7 +1,7 @@
 "use server";
 
-import { usersTable, sessionsTable } from "./schema";
-import { eq } from "drizzle-orm";
+import { usersTable, sessionsTable, waitlistEmails } from "./schema";
+import { eq, sql } from "drizzle-orm";
 import { db } from ".";
 
 export async function upsertUser({
@@ -104,4 +104,17 @@ export async function deleteSession({ id }: { id: string }) {
 
 export async function deleteSessionsByUserId({ userId }: { userId: string }) {
   await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId));
+}
+
+export async function getRowCount(): Promise<number> {
+  const result = await db.execute<{ count: number }>(
+    sql`SELECT COUNT(*) as count FROM repo_chunks`
+  );
+
+  const rows = result.rows as { count: number }[];
+  return rows[0]?.count ?? 0;
+}
+
+export async function addWaitlistEmail(email: string) {
+  await db.insert(waitlistEmails).values({ email });
 }

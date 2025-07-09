@@ -2,7 +2,7 @@
 
 import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
 import { FileSearch } from "lucide-react";
-import FunctionAnalysisChat from "./FunctionAnalysisChat";
+import MarkChat from "./MarkChat";
 
 interface AIChatSectionProps {
   username: string;
@@ -35,7 +35,7 @@ export function AIChatSection({
 
   return (
     <div className="flex flex-col h-full text-white/90 bg-transparent">
-      <FunctionAnalysisChat
+      <MarkChat
         owner={username}
         repo={repo}
         branch="main"

@@ -4,14 +4,14 @@ import { useAuth } from "@/lib/hooks/useAuth";
 import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { GitHubLoginButton } from "./LoginButton";
-import { DiagramSection } from "./ui/analysis/DiagramSection";
-import { FileContent } from "./ui/analysis/FileContent";
-import { FileTree, buildFileTree } from "./ui/analysis/FileTree";
-import { RightSideAIAssistant } from "./ui/analysis/RightSideAIAssistant";
-import { Sidebar } from "./ui/dashboard/Sidebar";
-import { Spinner } from "./ui/neo/spinner";
+import { useEffect, useState } from "react";
+import { GitHubLoginButton } from "@/components/LoginButton";
+import { DiagramSection } from "@/app/[owner]/_components/DiagramSection";
+import { FileContent } from "@/components/ui/analysis/FileContent";
+import { FileTree, buildFileTree } from "@/components/ui/analysis/FileTree";
+import { RightSideAIAssistant } from "@/app/[owner]/_components/RightSideAIAssistant";
+import { Sidebar } from "@/components/ui/dashboard/Sidebar";
+import { Spinner } from "@/components/ui/neo/spinner";
 
 export default function RepoClientPage({
   owner,
