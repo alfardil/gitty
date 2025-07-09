@@ -61,6 +61,26 @@ class OpenAIo4Service:
         system_prompt: str,
         data: dict,
     ) -> AsyncGenerator[str, None]:
+        """
+        Asynchronously streams a response from the OpenAI o4-mini model using SSE.
+
+        This function sends a system prompt and a user-formatted message to the OpenAI
+        Chat Completions API with streaming enabled. It yields incremental chunks of
+        the model's response as they arrive.
+
+        Args:
+            system_prompt (str): The system-level instructions for the model.
+            data (dict): Dictionary containing user input to be formatted into the prompt.
+
+        Yields:
+            str: Chunks of the model's response text as they are received.
+
+        Raises:
+            ValueError: If the API returns a non-200 response or the stream is malformed.
+            aiohttp.ClientError: If there's a connection issue with the API.
+            Exception: For any unexpected errors during the streaming process.
+
+        """
         user_message = format_user_message(data)
         api_key = self.api_key
 
@@ -121,7 +141,7 @@ class OpenAIo4Service:
 
         except aiohttp.ClientError as e:
             print(f"Connection error: {str(e)}")
-            raise ValueError(f"Failed to connect to OpenAI API: {str(e)}")
+            raise ValueError(f"Failed to connect to OpenAI API: {str(e)}") from e
         except Exception as e:
             print(f"Unexpected error in streaming API call: {str(e)}")
             raise

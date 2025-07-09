@@ -1,10 +1,10 @@
 "use client";
 
 import MermaidDiagram from "@/app/[owner]/_components/MermaidDiagram";
-import { Spinner } from "@/components/ui/neo/spinner";
 import { useDiagram } from "@/lib/hooks/useDiagram";
 import { useState } from "react";
 import { Switch } from "../../../components/ui/diagram/switch";
+import { GenerationProgress } from "@/components/ui/diagram/GenerationProgress";
 
 interface DiagramSectionProps {
   owner: string;
@@ -19,6 +19,9 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
     handleExportImage,
     handleRegenerate,
     lastGenerated,
+    progress,
+    currentPhase,
+    state,
   } = useDiagram(owner, repo);
 
   const [zoomingEnabled, setZoomingEnabled] = useState(false);
@@ -64,13 +67,13 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
 
       {/* show the diagram */}
       {loading ? (
-        <Spinner>
-          <div className="mt-2 text-gray-600">Generating diagram...</div>
-          <div className="mt-1 text-gray-500 text-sm">
-            Please allow a few seconds for the diagram of your project to
-            generate.
-          </div>
-        </Spinner>
+        <div className="w-full flex flex-col items-center">
+          <GenerationProgress
+            currentPhase={currentPhase}
+            progress={progress}
+            message={state.message}
+          />
+        </div>
       ) : error ? (
         <div className="text-red-600">{error}</div>
       ) : diagram ? (
