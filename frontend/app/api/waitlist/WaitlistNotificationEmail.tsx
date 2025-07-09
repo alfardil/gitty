@@ -27,7 +27,7 @@ export const WaitlistNotificationEmail = ({
     <Body style={main}>
       <Preview>New waitlist signup: {email}</Preview>
       <Container style={container}>
-        <Img src={logoUrl} width="120" height="40" alt="Gitty" style={logo} />
+        <Img src={logoUrl} width="120" height="120" alt="Gitty" style={logo} />
         <Text style={title}>New Waitlist Signup</Text>
         <Text style={paragraph}>Someone just joined the Gitty waitlist!</Text>
         <Section style={emailContainer}>
