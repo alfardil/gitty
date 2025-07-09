@@ -53,12 +53,12 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-[#23272f] transition-all duration-300 ${
+        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-[#181a20] transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-20"
-        } border-r border-blue-400/20 rounded-r-xl shadow-lg`}
+        } border-r border-[#a259ff]/20 rounded-r-xl shadow-lg`}
       >
         <div
-          className={`flex items-center border-b border-blue-400/10 transition-all duration-300 ${
+          className={`flex items-center border-b border-[#a259ff]/10 transition-all duration-300 ${
             sidebarOpen ? "p-4 justify-between" : "p-4 justify-center"
           }`}
           style={{ minHeight: "72px" }}
@@ -68,7 +68,7 @@ export function Sidebar({
               <img
                 src={user.avatar_url}
                 alt={user.name || user.login}
-                className="w-10 h-10 rounded-full border-2 border-blue-400/60"
+                className="w-10 h-10 rounded-full border-2 border-[#a259ff]/60"
               />
               <div className="flex flex-col">
                 <div className="font-semibold text-gray-100 text-sm">
@@ -76,7 +76,7 @@ export function Sidebar({
                 </div>
               </div>
               <button
-                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-blue-400/10 hover:text-blue-400"
+                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#a259ff]/10 hover:text-[#a259ff]"
                 onClick={() => setSidebarOpen(false)}
                 aria-label="Collapse sidebar"
               >
@@ -85,7 +85,7 @@ export function Sidebar({
             </div>
           ) : (
             <button
-              className="p-2 rounded-lg text-gray-400 hover:bg-blue-400/10 hover:text-blue-400"
+              className="p-2 rounded-lg text-gray-400 hover:bg-[#a259ff]/10 hover:text-[#a259ff]"
               onClick={() => setSidebarOpen(true)}
               aria-label="Expand sidebar"
             >
@@ -108,8 +108,8 @@ export function Sidebar({
                 key={key}
                 className={`group flex items-center w-full gap-3 rounded-lg text-base font-medium transition-colors ${
                   showSection === key
-                    ? "bg-blue-400/10 text-blue-400"
-                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-[#a259ff]/10 text-[#a259ff]"
+                    : "text-gray-300 hover:bg-[#6e1fff]/10 hover:text-[#a259ff]"
                 } ${
                   sidebarOpen
                     ? "px-4 py-2 justify-start"
@@ -123,9 +123,9 @@ export function Sidebar({
             )
           )}
         </nav>
-        <div className="mt-auto px-3 py-4 border-t border-blue-400/10 flex flex-col gap-2">
+        <div className="mt-auto px-3 py-4 border-t border-[#a259ff]/10 flex flex-col gap-2">
           <button
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
+            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
             onClick={() => handleSidebarNav("billing")}
@@ -134,7 +134,7 @@ export function Sidebar({
             {sidebarOpen && <span>Billing</span>}
           </button>
           <button
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
+            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
             onClick={() => handleSidebarNav("settings")}
@@ -144,7 +144,7 @@ export function Sidebar({
           </button>
           <button
             onClick={logout}
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
+            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
           >
@@ -157,15 +157,15 @@ export function Sidebar({
       {/* Mobile sidebar overlay */}
       {sidebarMobile && (
         <div className="fixed inset-0 z-40 flex">
-          <div className="relative w-64 bg-[#191919] flex flex-col h-full border-r border-[#18CCFC]/30">
+          <div className="relative w-64 bg-[#181a20] flex flex-col h-full border-r border-[#a259ff]/30">
             <div
-              className="flex items-center gap-3 px-4 py-4 border-b border-[#18CCFC]/30"
+              className="flex items-center gap-3 px-4 py-4 border-b border-[#a259ff]/30"
               style={{ minHeight: "72px" }}
             >
               <img
                 src={user.avatar_url}
                 alt={user.name || user.login}
-                className="w-10 h-10 rounded-full border-2 border-[#18CCFC]"
+                className="w-10 h-10 rounded-full border-2 border-[#a259ff]"
               />
               <div className="flex flex-col">
                 <div className="font-semibold text-white text-sm">
@@ -173,7 +173,7 @@ export function Sidebar({
                 </div>
               </div>
               <button
-                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#18CCFC]/20 hover:text-[#18CCFC]"
+                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#a259ff]/20 hover:text-[#a259ff]"
                 onClick={() => setSidebarMobile(false)}
                 aria-label="Close sidebar"
               >
@@ -195,8 +195,8 @@ export function Sidebar({
                     key={key}
                     className={`group flex items-center w-full gap-3 px-4 py-2 rounded-lg text-base font-medium transition-colors ${
                       showSection === key
-                        ? "bg-[#18CCFC]/20 text-[#18CCFC]"
-                        : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                        ? "bg-[#a259ff]/20 text-[#a259ff]"
+                        : "text-gray-400 hover:bg-[#6e1fff]/10 hover:text-[#a259ff]"
                     } justify-start`}
                     onClick={() => handleSidebarNav(key)}
                   >
@@ -206,18 +206,18 @@ export function Sidebar({
                 )
               )}
             </nav>
-            <div className="mt-auto px-3 py-4 border-t border-[#18CCFC]/30 flex flex-col gap-2">
-              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start" onClick={() => handleSidebarNav("billing")}> 
+            <div className="mt-auto px-3 py-4 border-t border-[#a259ff]/30 flex flex-col gap-2">
+              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] justify-start" onClick={() => handleSidebarNav("billing")}> 
                 <CreditCard className="w-6 h-6" />
                 <span>Billing</span>
               </button>
-              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start" onClick={() => handleSidebarNav("settings")}> 
+              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] justify-start" onClick={() => handleSidebarNav("settings")}> 
                 <Settings className="w-6 h-6" />
                 <span>Settings</span>
               </button>
               <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-[#6e1fff]/10 hover:text-[#a259ff] justify-start"
               >
                 <LogOut className="w-6 h-6" />
                 <span>Logout</span>

@@ -47,35 +47,45 @@ export function CommitActivityChart({ data }: CommitActivityChartProps) {
         data={data}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#a259ff" />
         <XAxis
           dataKey="name"
-          tick={{ fill: "#6b7280", fontSize: 14 }}
+          tick={{ fill: "#c7bfff", fontSize: 14 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 14 }}
+          tick={{ fill: "#c7bfff", fontSize: 14 }}
           axisLine={false}
           tickLine={false}
           allowDecimals={false}
         />
         <Tooltip
           contentStyle={{
-            background: "white",
-            borderRadius: 8,
-            border: "1px solid #e5e7eb",
-            color: "#111827",
+            background: "rgba(110,31,255,0.95)",
+            borderRadius: 12,
+            border: "1px solid #a259ff",
+            color: "#fff",
+            boxShadow: "0 4px 24px 0 #6e1fff44"
           }}
+          itemStyle={{ color: "#fff" }}
+          labelStyle={{ color: "#fff" }}
         />
         <Line
           type="monotone"
           dataKey="commits"
-          stroke="#6366f1"
-          strokeWidth={3}
-          dot={{ r: 5, fill: "#6366f1", stroke: "white", strokeWidth: 2 }}
-          activeDot={{ r: 7 }}
+          stroke="url(#purple-gradient)"
+          strokeWidth={4}
+          dot={{ r: 6, fill: "#a259ff", stroke: "#fff", strokeWidth: 2, filter: "drop-shadow(0 2px 8px #a259ff88)" }}
+          activeDot={{ r: 8, fill: "#6e1fff", stroke: "#fff", strokeWidth: 2, filter: "drop-shadow(0 2px 12px #6e1fff88)" }}
         />
+        <defs>
+          <linearGradient id="purple-gradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#a259ff" />
+            <stop offset="50%" stopColor="#6e1fff" />
+            <stop offset="100%" stopColor="#2d006b" />
+          </linearGradient>
+        </defs>
       </LineChart>
     </ResponsiveContainer>
   );

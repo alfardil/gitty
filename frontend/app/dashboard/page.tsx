@@ -1,6 +1,7 @@
 "use client";
 
 import { GitHubLoginButton } from "@/components/LoginButton";
+import { StarfieldBackground } from "@/components/ui/ace/StarfieldBackground";
 import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
 import { SettingsView } from "@/components/ui/dashboard/SettingsView";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
@@ -12,7 +13,8 @@ import { useScopeRepos } from "@/lib/hooks/useScopeRepos";
 import { useUserOrgs } from "@/lib/hooks/useUserOrgs";
 import { useUserRepos } from "@/lib/hooks/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 interface Repository {
@@ -30,7 +32,9 @@ interface Repository {
 export default function Dashboard() {
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const [showSection, setShowSection] = useState("insights");
+  const searchParams = useSearchParams();
+  const initialSection = searchParams.get("section") || "insights";
+  const [showSection, setShowSection] = useState(initialSection);
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
@@ -75,7 +79,8 @@ export default function Dashboard() {
   const isInsightsLoading = reposLoading || orgsLoading || commitsLoading;
 
   return (
-    <div className="min-h-screen flex bg-[#181A20] text-gray-100">
+    <div className="min-h-screen w-full flex bg-[#181a20] text-gray-100 relative overflow-hidden">
+      <StarfieldBackground className="absolute inset-0 z-0" />
       <Sidebar
         user={user}
         sidebarOpen={sidebarOpen}
@@ -92,7 +97,9 @@ export default function Dashboard() {
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-[#20232a] border-b border-blue-400/10">
+        <header className={`flex items-center justify-between w-full px-4 md:px-8 py-4 
+          ${(showSection === "insights" || showSection === "analysis") ? "bg-[#181a20] text-white shadow-lg" : "bg-[#20232a] text-white border-b border-blue-400/10"}
+        `}>
           <div className="flex items-center gap-3 w-full">
             <button
               className="md:hidden p-2 rounded-lg hover:bg-blue-400/10"
@@ -108,8 +115,44 @@ export default function Dashboard() {
                 : SIDEBAR_SECTIONS.find((s) => s.key === showSection)?.label ||
                   "Dashboard"}
             </h1>
+            {/* Analysis search bar and org selector */}
             {showSection === "analysis" && (
-              <div className="ml-auto relative">
+              <div className="flex items-center gap-3 ml-auto relative">
+                {/* Search button and animated bar */}
+                <button
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-[#2d313a] hover:bg-[#353a45] transition shadow-sm focus:outline-none"
+                  onClick={() => setShowSearch((prev) => !prev)}
+                  aria-label="Show search"
+                  style={{ outline: "none" }}
+                >
+                  <Search
+                    className={`w-6 h-6 text-white transition-transform duration-300 ${
+                      showSearch ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`flex items-center transition-all duration-500 ease-in-out overflow-hidden bg-[#23272f] rounded-lg border border-[#353a45] shadow-sm ml-2 ${
+                    showSearch
+                      ? "max-w-xs w-64 h-10 opacity-100 px-3 py-1 mr-2"
+                      : "max-w-0 w-0 h-0 opacity-0 px-0 py-0 mr-0"
+                  }`}
+                  style={{
+                    transitionProperty:
+                      "max-width, width, height, opacity, margin, padding",
+                  }}
+                >
+                  <input
+                    type="text"
+                    placeholder="Search repositories..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full bg-transparent text-white text-base placeholder-gray-400 focus:outline-none"
+                    autoFocus={showSearch}
+                    style={{ minWidth: showSearch ? 120 : 0 }}
+                  />
+                </div>
+                {/* Org selector (unchanged) */}
                 <div className="relative inline-block text-left">
                   <button
                     className="inline-flex justify-center items-center px-4 py-2 border border-blue-400/20 shadow-sm text-sm font-medium rounded-md text-gray-100 bg-[#23272f] hover:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -174,104 +217,77 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-[#181A20] text-gray-100">
-          {showSection === "insights" && (
-            <div>
-              {isInsightsLoading ? (
-                <div className="flex justify-center">
-                  <Spinner />
-                </div>
-              ) : (
-                <InsightsView
-                  repos={repos}
-                  orgs={orgs}
-                  recentCommits={recentCommits}
-                />
-              )}
-            </div>
-          )}
-          {showSection === "analysis" && (
-            <>
-              {/* Large centered header with animated search bar below */}
-              <div className="flex flex-col items-center mb-10">
-                <h2 className="text-4xl md:text-5xl font-extrabold text-center text-white mb-4">
-                  Select a Repo to Analyze
-                </h2>
-                <button
-                  className="flex items-center justify-center w-12 h-12 rounded-full bg-[#2d313a] hover:bg-[#353a45] transition mb-2 shadow-sm"
-                  onClick={() => setShowSearch((prev) => !prev)}
-                  aria-label="Show search"
-                  style={{ outline: "none" }}
-                >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#353a45]">
-                    <Search
-                      className={`w-7 h-7 text-white transition-transform duration-300 ${
-                        showSearch ? "rotate-90" : ""
-                      }`}
-                    />
-                  </span>
-                </button>
-                <div
-                  className={`flex justify-center items-center transition-all duration-500 ease-in-out overflow-hidden ${
-                    showSearch
-                      ? "max-w-xl w-full h-14 opacity-100 mt-2"
-                      : "max-w-0 w-0 h-0 opacity-0 mt-0"
-                  }`}
-                  style={{
-                    transitionProperty:
-                      "max-width, width, height, opacity, margin-top",
-                  }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Search repositories..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-[#353a45] shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-[#2d313a] text-white text-lg placeholder-gray-400"
-                    autoFocus={showSearch}
-                    style={{ minWidth: showSearch ? 200 : 0 }}
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-transparent text-gray-100">
+          <AnimatePresence mode="wait">
+            {showSection === "insights" && (
+              <motion.div
+                key="insights"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -24 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                {isInsightsLoading ? (
+                  <div className="flex justify-center">
+                    <Spinner />
+                  </div>
+                ) : (
+                  <InsightsView
+                    repos={repos}
+                    orgs={orgs}
+                    recentCommits={recentCommits}
                   />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {(search
-                  ? scopeRepos.filter((repo) =>
-                      repo.name.toLowerCase().includes(search.toLowerCase())
-                    )
-                  : scopeRepos
-                ).map((repo) => (
-                  <div
-                    key={repo.id}
-                    className="bg-[#23272f] rounded-2xl border border-[#353a45] shadow-sm hover:shadow-lg transition-shadow p-6 flex flex-col gap-4 cursor-pointer group"
-                    onClick={() => handleRepoClick(repo.owner.login, repo.name)}
-                  >
-                    {/* Title and Lock/Unlock Icon Row */}
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-bold text-white truncate">
-                        {repo.name}
-                      </h3>
-                      <div>
-                        {repo.private ? (
-                          <Lock className="w-5 h-5 text-blue-400" />
-                        ) : (
-                          <Unlock className="w-5 h-5 text-blue-400" />
-                        )}
+                )}
+              </motion.div>
+            )}
+            {showSection === "analysis" && (
+              <motion.div
+                key="analysis"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -24 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {(search
+                    ? scopeRepos.filter((repo) =>
+                        repo.name.toLowerCase().includes(search.toLowerCase())
+                      )
+                    : scopeRepos
+                  ).map((repo) => (
+                    <div
+                      key={repo.id}
+                      className="bg-gradient-to-br from-[#2d006b]/80 via-[#6e1fff]/80 to-[#a259ff]/80 rounded-2xl shadow-xl backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60 p-6 flex flex-col gap-4 cursor-pointer group"
+                      onClick={() => handleRepoClick(repo.owner.login, repo.name)}
+                    >
+                      {/* Title and Lock/Unlock Icon Row */}
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-bold text-white truncate">
+                          {repo.name}
+                        </h3>
+                        <div>
+                          {repo.private ? (
+                            <Lock className="w-5 h-5 text-blue-400" />
+                          ) : (
+                            <Unlock className="w-5 h-5 text-blue-400" />
+                          )}
+                        </div>
+                      </div>
+                      {/* Description */}
+                      <p className="text-sm text-gray-300 flex-1">
+                        {repo.description || "No description available"}
+                      </p>
+                      {/* Metadata */}
+                      <div className="flex items-center text-xs text-gray-400 mt-2">
+                        <span className="mr-4">⭐ {repo.stargazers_count}</span>
+                        <span>{repo.language || "No language specified"}</span>
                       </div>
                     </div>
-                    {/* Description */}
-                    <p className="text-sm text-gray-300 flex-1">
-                      {repo.description || "No description available"}
-                    </p>
-                    {/* Metadata */}
-                    <div className="flex items-center text-xs text-gray-400 mt-2">
-                      <span className="mr-4">⭐ {repo.stargazers_count}</span>
-                      <span>{repo.language || "No language specified"}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {showSection === "settings" && (
             <SettingsView handleSidebarNav={setShowSection} />
           )}

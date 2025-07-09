@@ -72,44 +72,44 @@ export function InsightsView({
   })();
 
   return (
-    <section>
+    <section className="relative">
       <div className="flex justify-center gap-6 mb-8">
-        {/* Stat cards - modern, colorful, with icons */}
-        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-blue-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
+        {/* Stat cards - modern, colorful, with icons and gradients */}
+        <div className="bg-gradient-to-br from-[#6e1fff]/80 via-[#a259ff]/80 to-[#2d006b]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <FolderGit2 className="w-7 h-7 text-blue-400" />
+            <FolderGit2 className="w-7 h-7 text-white drop-shadow-lg" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-white">
+          <div className="text-4xl font-extrabold text-white drop-shadow-lg">
             {repos.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-400 font-medium">Total Repos</div>
+          <div className="text-base text-white/80 font-medium">Total Repos</div>
         </div>
-        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-purple-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
+        <div className="bg-gradient-to-br from-[#a259ff]/80 via-[#6e1fff]/80 to-[#2d006b]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <Users className="w-7 h-7 text-purple-400" />
+            <Users className="w-7 h-7 text-white drop-shadow-lg" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-white">
+          <div className="text-4xl font-extrabold text-white drop-shadow-lg">
             {orgs.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-400 font-medium">Total Orgs</div>
+          <div className="text-base text-white/80 font-medium">Total Orgs</div>
         </div>
-        <div className="bg-[#23272f] rounded-2xl shadow-md p-6 flex flex-col gap-2 border-l-4 border-pink-400/60 relative hover:shadow-lg transition group w-56 min-w-[12rem] max-w-[15rem]">
+        <div className="bg-gradient-to-br from-[#2d006b]/80 via-[#6e1fff]/80 to-[#a259ff]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <GitCommit className="w-7 h-7 text-pink-400" />
+            <GitCommit className="w-7 h-7 text-white drop-shadow-lg" />
           </div>
           {/* Metric */}
-          <div className="text-4xl font-extrabold text-white">
+          <div className="text-4xl font-extrabold text-white drop-shadow-lg">
             {recentCommits.length}
           </div>
           {/* Label */}
-          <div className="text-base text-gray-400 font-medium">
+          <div className="text-base text-white/80 font-medium">
             Recent Commits
           </div>
         </div>
@@ -118,7 +118,7 @@ export function InsightsView({
       {/* Commits and Activity side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Latest Commits List */}
-        <div className="bg-[#23272f] rounded-lg border border-blue-400/20 p-6 flex flex-col mb-0">
+        <div className="bg-gradient-to-br from-[#2d006b]/60 via-[#6e1fff]/60 to-[#a259ff]/60 rounded-xl border-none p-6 flex flex-col mb-0 shadow-lg backdrop-blur-md bg-opacity-60 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
           <h3 className="text-lg font-semibold text-white mb-4">
             Latest Commits
           </h3>
@@ -209,7 +209,7 @@ export function InsightsView({
         </div>
 
         {/* Commit Activity Chart - consider updating to a modern, sleek line graph */}
-        <div className="bg-[#23272f] rounded-lg border border-blue-400/20 p-6 min-h-[300px] flex flex-col mb-0">
+        <div className="bg-gradient-to-br from-[#a259ff]/60 via-[#6e1fff]/60 to-[#2d006b]/60 rounded-xl border-none p-6 min-h-[300px] flex flex-col mb-0 shadow-lg backdrop-blur-md bg-opacity-60 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
           <div className="font-semibold text-white mb-2">
             Commit Activity (Last 7 Days)
           </div>
