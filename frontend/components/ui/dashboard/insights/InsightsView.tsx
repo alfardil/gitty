@@ -74,11 +74,11 @@ export function InsightsView({
   return (
     <section className="relative">
       <div className="flex justify-center gap-6 mb-8">
-        {/* Stat cards - modern, colorful, with icons and gradients */}
-        <div className="bg-gradient-to-br from-[#6e1fff]/80 via-[#a259ff]/80 to-[#2d006b]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
+        {/* Stat cards - black glassmorphic design with purple accents */}
+        <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-xl p-6 flex flex-col gap-2 border border-purple-500/20 relative group w-56 min-w-[12rem] max-w-[15rem] transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <FolderGit2 className="w-7 h-7 text-white drop-shadow-lg" />
+            <FolderGit2 className="w-7 h-7 text-purple-300 drop-shadow-lg" />
           </div>
           {/* Metric */}
           <div className="text-4xl font-extrabold text-white drop-shadow-lg">
@@ -87,10 +87,10 @@ export function InsightsView({
           {/* Label */}
           <div className="text-base text-white/80 font-medium">Total Repos</div>
         </div>
-        <div className="bg-gradient-to-br from-[#a259ff]/80 via-[#6e1fff]/80 to-[#2d006b]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
+        <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-xl p-6 flex flex-col gap-2 border border-purple-500/20 relative group w-56 min-w-[12rem] max-w-[15rem] transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <Users className="w-7 h-7 text-white drop-shadow-lg" />
+            <Users className="w-7 h-7 text-purple-300 drop-shadow-lg" />
           </div>
           {/* Metric */}
           <div className="text-4xl font-extrabold text-white drop-shadow-lg">
@@ -99,10 +99,10 @@ export function InsightsView({
           {/* Label */}
           <div className="text-base text-white/80 font-medium">Total Orgs</div>
         </div>
-        <div className="bg-gradient-to-br from-[#2d006b]/80 via-[#6e1fff]/80 to-[#a259ff]/80 rounded-2xl shadow-xl p-6 flex flex-col gap-2 border-none relative group w-56 min-w-[12rem] max-w-[15rem] backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
+        <div className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-xl p-6 flex flex-col gap-2 border border-purple-500/20 relative group w-56 min-w-[12rem] max-w-[15rem] transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100">
           {/* Icon */}
           <div className="absolute top-4 right-4">
-            <GitCommit className="w-7 h-7 text-white drop-shadow-lg" />
+            <GitCommit className="w-7 h-7 text-purple-300 drop-shadow-lg" />
           </div>
           {/* Metric */}
           <div className="text-4xl font-extrabold text-white drop-shadow-lg">
@@ -118,8 +118,9 @@ export function InsightsView({
       {/* Commits and Activity side by side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Latest Commits List */}
-        <div className="bg-gradient-to-br from-[#2d006b]/60 via-[#6e1fff]/60 to-[#a259ff]/60 rounded-xl border-none p-6 flex flex-col mb-0 shadow-lg backdrop-blur-md bg-opacity-60 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
-          <h3 className="text-lg font-semibold text-white mb-4">
+        <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 flex flex-col mb-0 shadow-lg transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100 relative">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
             Latest Commits
           </h3>
           <div className="space-y-4">
@@ -127,7 +128,7 @@ export function InsightsView({
               displayedCommits.map((commit) => (
                 <div
                   key={commit.sha}
-                  className="flex items-center gap-4 p-3 rounded-lg"
+                  className="flex items-center gap-4 p-3 rounded-lg bg-white/5 border border-purple-500/10 hover:bg-white/10 hover:border-purple-500/20 transition-all duration-200 shadow-[0_2px_8px_rgba(110,31,255,0.1)] hover:shadow-[0_4px_12px_rgba(110,31,255,0.2)]"
                 >
                   <div className="flex-1 min-w-0">
                     <p
@@ -137,7 +138,7 @@ export function InsightsView({
                       {commit.message}
                     </p>
                     <p className="text-sm text-gray-400">
-                      to <span className="font-semibold">{commit.repo}</span>
+                      to <span className="font-semibold text-purple-300">{commit.repo}</span>
                     </p>
                   </div>
                   <div className="text-sm text-gray-400 whitespace-nowrap">
@@ -147,7 +148,7 @@ export function InsightsView({
                     href={`https://github.com/${commit.repo}/commit/${commit.sha}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-400 hover:underline"
+                    className="text-sm text-purple-300 hover:text-purple-200 hover:underline transition-colors duration-200"
                   >
                     View
                   </a>
@@ -164,7 +165,7 @@ export function InsightsView({
               {!commitsExpanded && recentCommits.length > 3 && (
                 <button
                   onClick={() => setCommitsExpanded(true)}
-                  className="text-sm font-semibold text-blue-600 hover:underline hover:cursor-pointer"
+                  className="text-sm font-semibold text-purple-300 hover:text-purple-200 hover:underline hover:cursor-pointer transition-colors duration-200"
                 >
                   See more
                 </button>
@@ -175,7 +176,7 @@ export function InsightsView({
                     setCommitsExpanded(false);
                     setCommitPage(1);
                   }}
-                  className="text-sm font-semibold text-blue-600 hover:underline"
+                  className="text-sm font-semibold text-purple-300 hover:text-purple-200 hover:underline transition-colors duration-200"
                 >
                   See less
                 </button>
@@ -187,7 +188,7 @@ export function InsightsView({
                 <button
                   onClick={() => setCommitPage((p) => Math.max(1, p - 1))}
                   disabled={commitPage === 1}
-                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-blue-400/10 border-blue-400/20 text-gray-200"
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-purple-500/10 border-purple-500/20 text-gray-200 transition-all duration-200 shadow-[0_2px_8px_rgba(110,31,255,0.1)] hover:shadow-[0_4px_12px_rgba(110,31,255,0.2)]"
                 >
                   Previous
                 </button>
@@ -199,7 +200,7 @@ export function InsightsView({
                     setCommitPage((p) => Math.min(totalCommitPages, p + 1))
                   }
                   disabled={commitPage === totalCommitPages}
-                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-blue-400/10 border-blue-400/20 text-gray-200"
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-purple-500/10 border-purple-500/20 text-gray-200 transition-all duration-200 shadow-[0_2px_8px_rgba(110,31,255,0.1)] hover:shadow-[0_4px_12px_rgba(110,31,255,0.2)]"
                 >
                   Next
                 </button>
@@ -208,9 +209,10 @@ export function InsightsView({
           </div>
         </div>
 
-        {/* Commit Activity Chart - consider updating to a modern, sleek line graph */}
-        <div className="bg-gradient-to-br from-[#a259ff]/60 via-[#6e1fff]/60 to-[#2d006b]/60 rounded-xl border-none p-6 min-h-[300px] flex flex-col mb-0 shadow-lg backdrop-blur-md bg-opacity-60 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60">
-          <div className="font-semibold text-white mb-2">
+        {/* Commit Activity Chart */}
+        <div className="bg-black/20 backdrop-blur-xl rounded-xl border border-purple-500/20 p-6 min-h-[300px] flex flex-col mb-0 shadow-lg transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100 relative">
+          <div className="font-semibold text-white mb-2 flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
             Commit Activity (Last 7 Days)
           </div>
           <div className="flex-1 -ml-6">

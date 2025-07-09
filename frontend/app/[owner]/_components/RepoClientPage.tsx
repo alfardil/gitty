@@ -1,17 +1,16 @@
 "use client";
-import { fetchFile } from "@/lib/fetchFile";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
-import { Menu } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { GitHubLoginButton } from "@/components/LoginButton";
 import { DiagramSection } from "@/app/[owner]/_components/DiagramSection";
+import { RightSideAIAssistant } from "@/app/[owner]/_components/RightSideAIAssistant";
+import { GitHubLoginButton } from "@/components/LoginButton";
 import { FileContent } from "@/components/ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "@/components/ui/analysis/FileTree";
-import { RightSideAIAssistant } from "@/app/[owner]/_components/RightSideAIAssistant";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { Spinner } from "@/components/ui/neo/spinner";
+import { fetchFile } from "@/lib/fetchFile";
+import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function RepoClientPage({
   owner,
@@ -113,12 +112,14 @@ export default function RepoClientPage({
         }`}
       >
         <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-[#23272f] border-b border-blue-400/10">
-          <div className="flex items-center gap-3 w-full">
+          <div className="flex items-center gap-4 w-full">
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-blue-400/10"
-              onClick={() => setSidebarMobile(true)}
+              onClick={() => router.push("/dashboard?section=analysis")}
+              className="flex items-center gap-2 bg-black/30 backdrop-blur-xl border border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/20 shadow-[0_4px_24px_rgba(110,31,255,0.18)] hover:shadow-[0_8px_32px_rgba(110,31,255,0.25)] text-purple-200 hover:text-white px-5 py-2 rounded-full font-semibold text-lg transition-all duration-200 group"
+              style={{ minWidth: 120 }}
             >
-              <Menu className="w-6 h-6 text-gray-200" />
+              <span className="text-xl group-hover:-translate-x-1 transition-transform duration-200">←</span>
+              Back
             </button>
             <h1 className="text-2xl font-bold text-white tracking-tight">
               {owner}/{repo}
@@ -128,14 +129,8 @@ export default function RepoClientPage({
         <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
           {/* System Design Diagram */}
           <div className="mb-4">
-            <div className="flex items-center gap-4 mb-2 mt-8 justify-center">
-              <button
-                onClick={() => router.push("/dashboard?section=analysis")}
-                className="flex items-center gap-2 text-[#a259ff] hover:text-white hover:bg-[#a259ff] bg-[#181a20] px-4 py-2 rounded-lg shadow transition"
-              >
-                <span className="text-xl">←</span> Back
-              </button>
-              <div className="text-4xl font-bold text-white">
+            <div className="flex flex-col items-center justify-center mb-2 mt-8 relative w-full">
+              <div className="text-4xl font-bold text-white text-center w-full">
                 System Design Diagram
               </div>
             </div>

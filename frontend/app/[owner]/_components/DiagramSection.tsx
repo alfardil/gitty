@@ -1,10 +1,10 @@
 "use client";
 
 import MermaidDiagram from "@/app/[owner]/_components/MermaidDiagram";
+import { GenerationProgress } from "@/components/ui/diagram/GenerationProgress";
 import { useDiagram } from "@/lib/hooks/useDiagram";
 import { useState } from "react";
 import { Switch } from "../../../components/ui/diagram/switch";
-import { GenerationProgress } from "@/components/ui/diagram/GenerationProgress";
 
 interface DiagramSectionProps {
   owner: string;
@@ -46,18 +46,18 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
       <div className="flex flex-row gap-3 mb-8 justify-center items-center">
         <button
           onClick={handleDownload}
-          className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-black/30 backdrop-blur-xl border border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/20 shadow-[0_4px_24px_rgba(110,31,255,0.18)] hover:shadow-[0_8px_32px_rgba(110,31,255,0.25)] text-purple-200 hover:text-white px-5 py-2 rounded-full font-semibold text-base transition-all duration-200 group"
         >
           Download
         </button>
         <button
           onClick={() => handleRegenerate("")}
-          className="bg-[#23272f] rounded-lg py-2 px-4 text-white font-medium hover:bg-blue-700 transition border border-blue-400/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-black/30 backdrop-blur-xl border border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/20 shadow-[0_4px_24px_rgba(110,31,255,0.18)] hover:shadow-[0_8px_32px_rgba(110,31,255,0.25)] text-purple-200 hover:text-white px-5 py-2 rounded-full font-semibold text-base transition-all duration-200 group"
         >
           Regenerate
         </button>
-        <div className="flex items-center gap-2 bg-[#23272f] rounded-lg py-2 px-4">
-          <span className="text-white font-medium">Zoom</span>
+        <div className="flex items-center gap-2 bg-black/30 backdrop-blur-xl border border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/20 shadow-[0_4px_24px_rgba(110,31,255,0.18)] hover:shadow-[0_8px_32px_rgba(110,31,255,0.25)] text-purple-200 px-5 py-2 rounded-full font-semibold text-base transition-all duration-200 group">
+          <span className="text-purple-200 font-medium">Zoom</span>
           <Switch
             checked={zoomingEnabled}
             onCheckedChange={setZoomingEnabled}

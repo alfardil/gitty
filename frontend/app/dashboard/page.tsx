@@ -257,7 +257,7 @@ export default function Dashboard() {
                   ).map((repo) => (
                     <div
                       key={repo.id}
-                      className="bg-gradient-to-br from-[#2d006b]/80 via-[#6e1fff]/80 to-[#a259ff]/80 rounded-2xl shadow-xl backdrop-blur-md bg-opacity-70 transition-all duration-200 hover:shadow-[0_0_32px_8px_rgba(162,89,255,0.7)] hover:ring-2 hover:ring-purple-400/60 p-6 flex flex-col gap-4 cursor-pointer group"
+                      className="bg-black/20 backdrop-blur-xl rounded-2xl shadow-xl p-6 flex flex-col gap-4 border border-purple-500/20 relative group cursor-pointer transition-all duration-200 hover:bg-black/30 hover:border-purple-500/40 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] shadow-[0_8px_32px_rgba(110,31,255,0.15)] hover:shadow-[0_12px_40px_rgba(110,31,255,0.25)] before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-purple-500/5 before:to-transparent before:opacity-0 before:transition-opacity before:duration-200 hover:before:opacity-100"
                       onClick={() => handleRepoClick(repo.owner.login, repo.name)}
                     >
                       {/* Title and Lock/Unlock Icon Row */}
@@ -267,9 +267,9 @@ export default function Dashboard() {
                         </h3>
                         <div>
                           {repo.private ? (
-                            <Lock className="w-5 h-5 text-blue-400" />
+                            <Lock className="w-5 h-5 text-purple-300" />
                           ) : (
-                            <Unlock className="w-5 h-5 text-blue-400" />
+                            <Unlock className="w-5 h-5 text-purple-300" />
                           )}
                         </div>
                       </div>
@@ -279,8 +279,8 @@ export default function Dashboard() {
                       </p>
                       {/* Metadata */}
                       <div className="flex items-center text-xs text-gray-400 mt-2">
-                        <span className="mr-4">⭐ {repo.stargazers_count}</span>
-                        <span>{repo.language || "No language specified"}</span>
+                        <span className="mr-4 text-purple-300">⭐ {repo.stargazers_count}</span>
+                        <span className="text-purple-200">{repo.language || "No language specified"}</span>
                       </div>
                     </div>
                   ))}
