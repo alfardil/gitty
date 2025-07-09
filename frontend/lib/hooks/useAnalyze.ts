@@ -81,7 +81,7 @@ export function useAnalyze() {
 
         const baseUrl = isProd
           ? process.env.NEXT_PUBLIC_API_DEV_URL
-          : "http://localhost:3000";
+          : "http://localhost:8000";
 
         const url = `${baseUrl}/chat/rag`;
 

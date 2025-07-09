@@ -29,6 +29,8 @@ interface StreamState {
   mapping?: string;
   diagram?: string;
   error?: string;
+  progress?: number;
+  currentPhase?: "explanation" | "mapping" | "diagram" | "complete";
 }
 
 interface StreamResponse {
@@ -48,6 +50,10 @@ export function useDiagram(username: string, repo: string) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const [lastGenerated, setLastGenerated] = useState<Date | undefined>();
+  const [progress, setProgress] = useState<number>(0);
+  const [currentPhase, setCurrentPhase] = useState<
+    "explanation" | "mapping" | "diagram" | "complete"
+  >("explanation");
 
   const generateDiagram = useCallback(
     async (instructions: string = "") => {
@@ -60,7 +66,7 @@ export function useDiagram(username: string, repo: string) {
 
       const baseUrl = isProd
         ? process.env.NEXT_PUBLIC_API_DEV_URL
-        : "http://localhost:3000";
+        : "http://localhost:8000";
 
       const url = `${baseUrl}/generate/stream`;
 
@@ -90,6 +96,7 @@ export function useDiagram(username: string, repo: string) {
         let explanation = "";
         let mapping = "";
         let diagram = "";
+        let phaseProgress = 0;
 
         const processStream = async () => {
           try {
@@ -120,26 +127,48 @@ export function useDiagram(username: string, repo: string) {
                           ...prev,
                           status: "started",
                           message: data.message,
+                          currentPhase: "explanation",
+                          progress: 0,
                         }));
+                        setCurrentPhase("explanation");
+                        setProgress(0);
                         break;
                       case "explanation_sent":
                         setState((prev) => ({
                           ...prev,
                           status: "explanation_sent",
                           message: data.message,
+                          currentPhase: "explanation",
+                          progress: 10,
                         }));
+                        setCurrentPhase("explanation");
+                        setProgress(10);
                         break;
                       case "explanation":
                         setState((prev) => ({
                           ...prev,
                           status: "explanation",
                           explanation: data.message,
+                          currentPhase: "explanation",
+                          progress: 20,
                         }));
+                        setCurrentPhase("explanation");
+                        setProgress(20);
                         break;
                       case "explanation_chunk":
                         if (data.chunk) {
                           explanation += data.chunk;
-                          setState((prev) => ({ ...prev, explanation }));
+                          phaseProgress = Math.min(
+                            90,
+                            20 + (explanation.length / 1000) * 30
+                          );
+                          setState((prev) => ({
+                            ...prev,
+                            explanation,
+                            currentPhase: "explanation",
+                            progress: phaseProgress,
+                          }));
+                          setProgress(phaseProgress);
                         }
                         break;
                       case "mapping_sent":
@@ -147,19 +176,37 @@ export function useDiagram(username: string, repo: string) {
                           ...prev,
                           status: "mapping_sent",
                           message: data.message,
+                          currentPhase: "mapping",
+                          progress: 35,
                         }));
+                        setCurrentPhase("mapping");
+                        setProgress(35);
                         break;
                       case "mapping":
                         setState((prev) => ({
                           ...prev,
                           status: "mapping",
                           mapping: data.message,
+                          currentPhase: "mapping",
+                          progress: 40,
                         }));
+                        setCurrentPhase("mapping");
+                        setProgress(40);
                         break;
                       case "mapping_chunk":
                         if (data.chunk) {
                           mapping += data.chunk;
-                          setState((prev) => ({ ...prev, mapping }));
+                          phaseProgress = Math.min(
+                            65,
+                            40 + (mapping.length / 500) * 25
+                          );
+                          setState((prev) => ({
+                            ...prev,
+                            mapping,
+                            currentPhase: "mapping",
+                            progress: phaseProgress,
+                          }));
+                          setProgress(phaseProgress);
                         }
                         break;
                       case "diagram_sent":
@@ -167,19 +214,37 @@ export function useDiagram(username: string, repo: string) {
                           ...prev,
                           status: "diagram_sent",
                           message: data.message,
+                          currentPhase: "diagram",
+                          progress: 70,
                         }));
+                        setCurrentPhase("diagram");
+                        setProgress(70);
                         break;
                       case "diagram":
                         setState((prev) => ({
                           ...prev,
                           status: "diagram",
                           diagram: data.message,
+                          currentPhase: "diagram",
+                          progress: 75,
                         }));
+                        setCurrentPhase("diagram");
+                        setProgress(75);
                         break;
                       case "diagram_chunk":
                         if (data.chunk) {
                           diagram += data.chunk;
-                          setState((prev) => ({ ...prev, diagram }));
+                          phaseProgress = Math.min(
+                            95,
+                            75 + (diagram.length / 2000) * 20
+                          );
+                          setState((prev) => ({
+                            ...prev,
+                            diagram,
+                            currentPhase: "diagram",
+                            progress: phaseProgress,
+                          }));
+                          setProgress(phaseProgress);
                         }
                         break;
                       case "complete":
@@ -189,7 +254,11 @@ export function useDiagram(username: string, repo: string) {
                           explanation: data.explanation ?? prev.explanation,
                           mapping: data.mapping ?? prev.mapping,
                           diagram: data.diagram ?? prev.diagram,
+                          currentPhase: "complete",
+                          progress: 100,
                         }));
+                        setCurrentPhase("complete");
+                        setProgress(100);
                         const date = await getLastGeneratedDate(username, repo);
                         setLastGenerated(date ?? undefined);
                         break;
@@ -407,5 +476,7 @@ export function useDiagram(username: string, repo: string) {
     handleCopy,
     handleExportImage,
     state,
+    progress,
+    currentPhase,
   };
 }

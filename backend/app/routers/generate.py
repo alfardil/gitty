@@ -146,6 +146,97 @@ def process_click_events(diagram: str, username: str, repo: str, branch: str) ->
     return re.sub(click_pattern, replace_path, diagram)
 
 
+@router.post("/non-stream")
+async def generate_non_stream(request: Request, body: ApiRequest):
+    try:
+        if len(body.instructions) > 1000:
+            return {"error": "Instructions exceed maximum length of 1000 characters"}
+
+        # get github data
+        github_data = get_github_data(body.username, body.repo, body.githubAccessToken)
+        default_branch = github_data["default_branch"]
+        file_tree = github_data["file_tree"]
+        readme = github_data["readme"]
+
+        combined_content = f"{file_tree}\n{readme}"
+        token_count = o4_service.count_tokens(combined_content)
+
+        if 50000 < token_count < 195000:
+            return {
+                "error": f"File tree and README combined exceeds the token limit of (50,000). Current size: {token_count}"
+            }
+        elif token_count > 195000:
+            return {
+                "error": f"Repository is too large (>195k tokens) for analysis. Current size: {token_count}."
+            }
+
+        first_system_prompt = SYSTEM_FIRST_PROMPT
+        third_system_prompt = SYSTEM_THIRD_PROMPT
+        if body.instructions:
+            first_system_prompt = (
+                first_system_prompt + "\n" + ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT
+            )
+            third_system_prompt = (
+                third_system_prompt + "\n" + ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT
+            )
+
+        # Phase 1: Get explanation
+        explanation = o4_service.call_o4_api(
+            system_prompt=first_system_prompt,
+            data={
+                "file_tree": file_tree,
+                "readme": readme,
+                "instructions": body.instructions,
+            },
+        )
+
+        if "BAD_INSTRUCTIONS" in explanation:
+            return {"error": "Invalid or unclear instructions provided"}
+
+        # Phase 2: Get component mapping
+        full_second_response = o4_service.call_o4_api(
+            system_prompt=SYSTEM_SECOND_PROMPT,
+            data={"explanation": explanation, "file_tree": file_tree},
+        )
+
+        # Extract component mapping
+        start_tag = "<component_mapping>"
+        end_tag = "</component_mapping>"
+        component_mapping_text = full_second_response[
+            full_second_response.find(start_tag) : full_second_response.find(end_tag)
+        ]
+
+        # Phase 3: Generate Mermaid diagram
+        mermaid_code = o4_service.call_o4_api(
+            system_prompt=third_system_prompt,
+            data={
+                "explanation": explanation,
+                "component_mapping": component_mapping_text,
+                "instructions": body.instructions,
+            },
+        )
+
+        # Process final diagram
+        mermaid_code = mermaid_code.replace("```mermaid", "").replace("```", "")
+        if "BAD_INSTRUCTIONS" in mermaid_code:
+            return {"error": "Invalid or unclear instructions provided"}
+
+        processed_diagram = process_click_events(
+            mermaid_code, body.username, body.repo, default_branch
+        )
+
+        # Return final result
+        return {
+            "status": "complete",
+            "diagram": processed_diagram,
+            "explanation": explanation,
+            "mapping": component_mapping_text,
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @router.post("/stream")
 async def generate_stream(request: Request, body: ApiRequest):
     try:
