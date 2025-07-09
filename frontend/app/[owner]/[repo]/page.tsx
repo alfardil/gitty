@@ -1,5 +1,5 @@
 import { getRepoPageData } from "./actions";
-import RepoClientPage from "@/components/RepoClientPage";
+import RepoClientPage from "../_components/RepoClientPage";
 
 export default async function RepoPage({
   params,

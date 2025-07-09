@@ -4,6 +4,7 @@ import { db } from "@/server/src/db";
 import { eq, and } from "drizzle-orm";
 import { diagramCache } from "@/server/src/db/schema";
 import { sql } from "drizzle-orm";
+import { getRowCount } from "@/server/src/db/actions";
 
 export async function getCachedDiagram(username: string, repo: string) {
   try {
@@ -87,13 +88,15 @@ export async function cacheDiagramAndExplanation(
   }
 }
 
-export async function getDiagramStats() {
+export async function getDiagramAndUserStats(): Promise<{
+  totalDiagrams: number;
+  totalUsers: number;
+} | null> {
   try {
     const stats = await db
       .select({
-        totalDiagrams: sql`COUNT(*)`,
-        recentDiagrams: sql`COUNT(CASE WHEN ${diagramCache.updatedAt} > NOW() - INTERVAL '24 hours' THEN 1 END)`,
-        totalUsers: sql`COUNT(DISTINCT ${diagramCache.username})`,
+        totalDiagrams: sql<number>`COUNT(*)`,
+        totalUsers: sql<number>`COUNT(DISTINCT ${diagramCache.username})`,
       })
       .from(diagramCache);
 
@@ -101,5 +104,18 @@ export async function getDiagramStats() {
   } catch (error) {
     console.error("Error getting diagram stats:", error);
     return null;
+  }
+}
+
+export async function fetchRowCount(): Promise<{
+  success: boolean;
+  count: number;
+}> {
+  try {
+    const count = await getRowCount();
+    return { success: true, count };
+  } catch (error) {
+    console.error("Error fetching row count:", error);
+    return { success: false, count: 0 };
   }
 }

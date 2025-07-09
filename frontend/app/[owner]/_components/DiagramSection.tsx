@@ -1,10 +1,10 @@
 "use client";
 
-import MermaidDiagram from "@/components/MermaidDiagram";
+import MermaidDiagram from "@/app/[owner]/_components/MermaidDiagram";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { useDiagram } from "@/lib/hooks/useDiagram";
 import { useState } from "react";
-import { Switch } from "../diagram/switch";
+import { Switch } from "../../../components/ui/diagram/switch";
 
 interface DiagramSectionProps {
   owner: string;
