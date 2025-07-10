@@ -100,17 +100,29 @@ export function useDiagram(username: string, repo: string) {
 
         const processStream = async () => {
           try {
+            let buffer = "";
+
             while (true) {
               const { done, value } = await reader.read();
               if (done) break;
 
               const chunk = new TextDecoder().decode(value);
-              const lines = chunk.split("\n");
+              buffer += chunk;
+
+              // Process complete lines from the buffer
+              const lines = buffer.split("\n");
+              // Keep the last (potentially incomplete) line in the buffer
+              buffer = lines.pop() || "";
 
               for (const line of lines) {
                 if (line.startsWith("data: ")) {
+                  const jsonData = line.slice(6).trim();
+
+                  // Skip empty data lines
+                  if (!jsonData) continue;
+
                   try {
-                    const data = JSON.parse(line.slice(6)) as StreamResponse;
+                    const data = JSON.parse(jsonData) as StreamResponse;
 
                     if (data.error) {
                       setState({
@@ -270,7 +282,15 @@ export function useDiagram(username: string, repo: string) {
                         break;
                     }
                   } catch (error) {
-                    console.error("Error parsing SSE message:", error);
+                    // Only log parsing errors for non-empty data
+                    if (jsonData) {
+                      console.error(
+                        "Error parsing SSE message:",
+                        error,
+                        "Data:",
+                        jsonData
+                      );
+                    }
                   }
                 }
               }
