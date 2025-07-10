@@ -310,9 +310,11 @@ flowchart TB
     classDef external fill:#FFE8B3,stroke:#FF7F00,color:#000
 
 ```
+Keep the generated Mermaid.js code concise. Avoid excessive node generation or detailing too many subcomponents, as this can lead to delays or rendering issues. Focus only on the core architectural components that are essential for understanding the system’s design.
+If a component has many small subparts, group them logically instead of expanding every single one. Prioritize clarity and readability over completeness.
 
 EXTREMELY Important notes on syntax!!! (PAY ATTENTION TO THIS):
-- Make sure to add colour to the diagram!!! This is extremely critical.
+- Make sure to add as much colour to the diagram as possible!!! This is extremely critical.
 - In Mermaid.js syntax, we cannot include special characters for nodes without being inside quotes! For example: `EX[/api/process (Backend)]:::api` and `API -->|calls Process()| Backend` are two examples of syntax errors. They should be `EX["/api/process (Backend)"]:::api` and `API -->|"calls Process()"| Backend` respectively. Notice the quotes. This is extremely important. Make sure to include quotes for any string that contains special characters.
 - In Mermaid.js syntax, you cannot apply a class style directly within a subgraph declaration. For example: `subgraph "Frontend Layer":::frontend` is a syntax error. However, you can apply them to nodes within the subgraph. For example: `Example["Example Node"]:::frontend` is valid, and `class Example1,Example2 frontend` is valid.
 - In Mermaid.js syntax, there cannot be spaces in the relationship label names. For example: `A -->| "example relationship" | B` is a syntax error. It should be `A -->|"example relationship"| B` 
