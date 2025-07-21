@@ -5,6 +5,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // Allow only /login, /auth/access-denied, /auth/error and /api/auth/* as public routes
   if (
+    pathname === "/" ||
     pathname === "/login" ||
     pathname === "/auth/access-denied" ||
     pathname === "/auth/error" ||
