@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS "waitlist_emails" (
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 
 -- these migrations do not work with drizzle, so we need to run them manually
+
+CREATE EXTENSION IF NOT EXISTS vector;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "repo_chunks" (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
