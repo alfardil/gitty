@@ -6,6 +6,7 @@ import { diagramCache } from "@/server/src/db/schema";
 import { sql } from "drizzle-orm";
 import { getRowCount } from "@/server/src/db/actions";
 import { getUserByGithubId } from "@/server/src/db/actions";
+import { updateUsernameByGithubId } from "@/server/src/db/actions";
 
 export async function getCachedDiagram(username: string, repo: string) {
   try {
@@ -141,4 +142,13 @@ export async function fetchRowCount(): Promise<{
     console.error("Error fetching row count:", error);
     return { success: false, count: 0 };
   }
+}
+
+export async function setUsername(githubId: string, newUsername: string) {
+  return await updateUsernameByGithubId(githubId, newUsername);
+}
+
+export async function getUsername(githubId: string): Promise<string | null> {
+  const user = await getUserByGithubId(githubId);
+  return user?.username ?? null;
 }
