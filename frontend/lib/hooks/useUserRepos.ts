@@ -33,5 +33,7 @@ export function useUserRepos(user: any) {
     load();
   }, [user]);
 
-  return { repos, loading };
+  const totalRepos = repos.length;
+
+  return { repos, loading, totalRepos };
 }

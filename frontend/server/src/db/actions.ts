@@ -72,6 +72,16 @@ export async function getUserByGithubId(githubId: string) {
   return user[0] || null;
 }
 
+export async function getUserByUUID(uuid: string) {
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, uuid))
+    .limit(1);
+
+  return user[0] || null;
+}
+
 export async function createSession({
   userId,
   expiresAt,

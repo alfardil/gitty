@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { diagramCache } from "@/server/src/db/schema";
 import { sql } from "drizzle-orm";
 import { getRowCount } from "@/server/src/db/actions";
+import { getUserByGithubId } from "@/server/src/db/actions";
 
 export async function getCachedDiagram(username: string, repo: string) {
   try {
@@ -103,6 +104,28 @@ export async function getDiagramAndUserStats(): Promise<{
     return stats[0];
   } catch (error) {
     console.error("Error getting diagram stats:", error);
+    return null;
+  }
+}
+
+export async function getAnalyzedReposCount(
+  githubId: string
+): Promise<number | null> {
+  try {
+    const user = await getUserByGithubId(githubId);
+    return user?.analyzedReposCount ?? null;
+  } catch (error) {
+    console.error("Error fetching analyzedReposCount:", error);
+    return null;
+  }
+}
+
+export async function getSubscriptionPlan(githubId: string) {
+  try {
+    const user = await getUserByGithubId(githubId);
+    return user?.subscriptionPlan ?? null;
+  } catch (error) {
+    console.error("Error fetching subscription plan:", error);
     return null;
   }
 }
