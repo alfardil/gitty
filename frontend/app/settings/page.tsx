@@ -5,7 +5,7 @@ import { Edit3, LogOut } from "lucide-react";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { useUserStats } from "@/lib/hooks/useUserStats";
 import { useState } from "react";
-import { getAnalyzedReposCount, setUsername } from "@/app/_actions/cache";
+import { setUsername } from "@/app/_actions/cache";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
 import Link from "next/link";
 
