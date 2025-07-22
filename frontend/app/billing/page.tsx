@@ -3,7 +3,6 @@
 import { useUserStats } from "@/lib/hooks/useUserStats";
 import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useUserRepos } from "@/lib/hooks/useUserRepos";
 import { Spinner } from "@/components/ui/neo/spinner";
 
 const PLAN_DETAILS: Record<
@@ -42,8 +41,7 @@ const PLAN_DETAILS: Record<
 
 export default function BillingPage() {
   const { user, loading } = useAuth();
-  const { totalRepos } = useUserRepos(user);
-  const { analyzedReposCount, subscriptionPlan, error } = useUserStats(
+  const { subscriptionPlan, error } = useUserStats(
     user ? user.id.toString() : ""
   );
 
@@ -63,10 +61,10 @@ export default function BillingPage() {
     );
   }
 
-  const currentPlan = (
-    subscriptionPlan || "FREE"
-  ).toUpperCase() as keyof typeof PLAN_DETAILS;
-  const plan = PLAN_DETAILS[currentPlan] || PLAN_DETAILS.FREE;
+  const currentPlan = subscriptionPlan?.toUpperCase() as
+    | keyof typeof PLAN_DETAILS
+    | undefined;
+  const plan = currentPlan ? PLAN_DETAILS[currentPlan] : null;
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#23272F] text-white py-8">
@@ -95,22 +93,35 @@ export default function BillingPage() {
           Billing
         </h2>
         {/* Current Plan Card */}
-        <div className="bg-[#181A1F] border-2 border-green-700 rounded-2xl shadow p-6 flex flex-col gap-2">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-3xl font-bold text-white">{plan.price}</span>
-            <span className="text-lg text-gray-300">/ month</span>
+        {plan ? (
+          <div className="bg-[#181A1F] border-2 border-green-700 rounded-2xl shadow p-6 flex flex-col gap-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-3xl font-bold text-white">
+                {plan.price}
+              </span>
+              <span className="text-lg text-gray-300">/ month</span>
+            </div>
+            <div className="text-gray-400 mb-2 text-sm">
+              Current plan:{" "}
+              <span className="text-blue-400 font-semibold">{plan.label}</span>
+            </div>
+            <ul className="text-gray-300 text-sm mb-2 ml-4 list-disc">
+              {plan.features.map((feature: string, idx: number) => (
+                <li key={idx}>{feature}</li>
+              ))}
+            </ul>
+            <div className="text-xs text-gray-500 mt-2">{plan.description}</div>
           </div>
-          <div className="text-gray-400 mb-2 text-sm">
-            Current plan:{" "}
-            <span className="text-blue-400 font-semibold">{plan.label}</span>
+        ) : (
+          // SKELETON LOADING
+          <div className="bg-[#181A1F] border-2 border-gray-700 rounded-2xl shadow p-6 h-[180px] animate-pulse flex flex-col gap-4">
+            <div className="h-6 w-32 bg-gray-700 rounded" />
+            <div className="h-4 w-40 bg-gray-700 rounded" />
+            <div className="h-3 w-48 bg-gray-700 rounded" />
+            <div className="h-3 w-36 bg-gray-700 rounded" />
+            <div className="h-3 w-24 bg-gray-700 rounded" />
           </div>
-          <ul className="text-gray-300 text-sm mb-2 ml-4 list-disc">
-            {plan.features.map((feature: string, idx: number) => (
-              <li key={idx}>{feature}</li>
-            ))}
-          </ul>
-          <div className="text-xs text-gray-500 mt-2">{plan.description}</div>
-        </div>
+        )}
         {/* Pro Card with upgrade logic and Enterprise info as part of Pro card */}
         <div className="bg-[#181A1F] border border-blue-700/30 rounded-2xl shadow p-6 flex flex-col gap-2 min-w-[220px]">
           <div className="text-white font-bold text-lg">Pro: $20/mo</div>

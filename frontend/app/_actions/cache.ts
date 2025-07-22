@@ -75,14 +75,14 @@ export async function cacheDiagramAndExplanation(
         repo,
         diagram,
         explanation,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       })
       .onConflictDoUpdate({
         target: [diagramCache.username, diagramCache.repo],
         set: {
           diagram,
           explanation,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         },
       });
   } catch (error) {

@@ -1,9 +1,12 @@
 "use server";
 
-import { usersTable, sessionsTable, waitlistEmails } from "./schema";
+import {
+  users as usersTable,
+  sessions as sessionsTable,
+  waitlistEmails,
+} from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { db } from ".";
-import { usernameSchema } from "./validation";
 
 export async function upsertUser({
   githubId,
@@ -31,7 +34,14 @@ export async function upsertUser({
   if (existing.length > 0) {
     await db
       .update(usersTable)
-      .set({ firstName, lastName, email, avatarUrl, githubUsername, bio })
+      .set({
+        firstName,
+        lastName,
+        email,
+        avatarUrl,
+        githubUsername,
+        bio,
+      })
       .where(eq(usersTable.githubId, githubId));
     return { updated: true, user: existing[0] };
   } else {
@@ -39,18 +49,28 @@ export async function upsertUser({
       .insert(usersTable)
       .values({
         githubId,
+        githubUsername,
         firstName,
         lastName,
         email,
+        joinedAt: joinedAt ? joinedAt.toISOString() : undefined,
         avatarUrl,
-        githubUsername,
         bio,
-        joinedAt,
         admin: false,
       })
       .returning();
     return { created: true, user: inserted[0] };
   }
+}
+
+export async function updateUsernameByGithubId(
+  githubId: string,
+  newUsername: string
+) {
+  await db
+    .update(usersTable)
+    .set({ username: newUsername })
+    .where(eq(usersTable.githubId, githubId));
 }
 
 export async function isUserAdmin(githubId: string): Promise<boolean> {
@@ -94,7 +114,15 @@ export async function createSession({
 }) {
   const inserted = await db
     .insert(sessionsTable)
-    .values({ userId, expiresAt, deletedAt })
+    .values(
+      deletedAt
+        ? {
+            userId,
+            expiresAt: expiresAt.toISOString(),
+            deletedAt: deletedAt.toISOString(),
+          }
+        : { userId, expiresAt: expiresAt.toISOString() }
+    )
     .returning();
   return { created: true, session: inserted[0] };
 }
@@ -128,30 +156,4 @@ export async function getRowCount(): Promise<number> {
 
 export async function addWaitlistEmail(email: string) {
   await db.insert(waitlistEmails).values({ email });
-}
-
-export async function updateUsernameByGithubId(
-  githubId: string,
-  newUsername: string
-) {
-  // Validate username
-  const parseResult = usernameSchema.safeParse(newUsername);
-  if (!parseResult.success) {
-    return { error: parseResult.error.issues[0].message };
-  }
-  // Check uniqueness
-  const existing = await db
-    .select()
-    .from(usersTable)
-    .where(eq(usersTable.username, newUsername));
-  if (existing.length > 0) {
-    return { error: "Username is already taken" };
-  }
-  // Update
-  const updated = await db
-    .update(usersTable)
-    .set({ username: newUsername })
-    .where(eq(usersTable.githubId, githubId))
-    .returning();
-  return { user: updated[0] };
 }
