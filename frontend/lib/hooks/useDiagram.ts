@@ -272,7 +272,7 @@ export function useDiagram(username: string, repo: string) {
                         setCurrentPhase("complete");
                         setProgress(100);
                         const date = await getLastGeneratedDate(username, repo);
-                        setLastGenerated(date ?? undefined);
+                        setLastGenerated(date ? new Date(date) : undefined);
                         break;
                       case "error":
                         setState({
@@ -324,7 +324,7 @@ export function useDiagram(username: string, repo: string) {
       );
       setDiagram(state.diagram);
       void getLastGeneratedDate(username, repo).then((date) =>
-        setLastGenerated(date ?? undefined)
+        setLastGenerated(date ? new Date(date) : undefined)
       );
     } else if (state.status === "error") {
       setLoading(false);
@@ -349,7 +349,7 @@ export function useDiagram(username: string, repo: string) {
           explanation: explanation || "",
         }));
         const date = await getLastGeneratedDate(username, repo);
-        setLastGenerated(date ?? undefined);
+        setLastGenerated(date ? new Date(date) : undefined);
         setLoading(false);
         return;
       }
