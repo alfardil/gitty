@@ -6,12 +6,21 @@ import {
   primaryKey,
   boolean,
   uuid,
+  integer,
+  pgEnum,
 } from "drizzle-orm/pg-core";
+
+export const subscriptionPlanEnum = pgEnum("subscription_plan", [
+  "FREE",
+  "PRO",
+  "ENTERPRISE",
+]);
 
 export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   githubId: varchar({ length: 32 }).notNull().unique(),
   githubUsername: varchar({ length: 255 }),
+  username: varchar({ length: 255 }).unique(),
   firstName: varchar({ length: 255 }),
   lastName: varchar({ length: 255 }),
   email: varchar({ length: 255 }).notNull().unique(),
@@ -19,6 +28,8 @@ export const usersTable = pgTable("users", {
   avatarUrl: varchar({ length: 512 }),
   bio: varchar({ length: 512 }),
   admin: boolean().default(false).notNull(),
+  analyzedReposCount: integer().default(0),
+  subscriptionPlan: subscriptionPlanEnum("subscription_plan").default("FREE"),
 });
 
 export const sessionsTable = pgTable("sessions", {

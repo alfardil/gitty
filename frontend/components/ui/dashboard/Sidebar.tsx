@@ -3,6 +3,7 @@
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 // ChatGPTSidebarToggleLeft icon as provided by user
 function ChatGPTSidebarToggleLeft({ className = "" }) {
@@ -19,7 +20,16 @@ function ChatGPTSidebarToggleLeft({ className = "" }) {
       height={32}
     >
       {/* Outer box */}
-      <rect x="4" y="6" width="24" height="20" rx="2" ry="2" stroke="currentColor" fill="none" />
+      <rect
+        x="4"
+        y="6"
+        width="24"
+        height="20"
+        rx="2"
+        ry="2"
+        stroke="currentColor"
+        fill="none"
+      />
 
       {/* Vertical divider line */}
       <line x1="14" y1="6" x2="14" y2="26" stroke="currentColor" />
@@ -124,24 +134,24 @@ export function Sidebar({
           )}
         </nav>
         <div className="mt-auto px-3 py-4 border-t border-blue-400/10 flex flex-col gap-2">
-          <button
+          <Link
+            href="/billing"
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
-            onClick={() => handleSidebarNav("billing")}
           >
             <CreditCard className="w-6 h-6" />
             {sidebarOpen && <span>Billing</span>}
-          </button>
-          <button
+          </Link>
+          <Link
+            href="/settings"
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
-            onClick={() => handleSidebarNav("settings")}
           >
             <Settings className="w-6 h-6" />
             {sidebarOpen && <span>Settings</span>}
-          </button>
+          </Link>
           <button
             onClick={logout}
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
@@ -207,14 +217,20 @@ export function Sidebar({
               )}
             </nav>
             <div className="mt-auto px-3 py-4 border-t border-[#18CCFC]/30 flex flex-col gap-2">
-              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start" onClick={() => handleSidebarNav("billing")}> 
+              <Link
+                href="/billing"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
+              >
                 <CreditCard className="w-6 h-6" />
                 <span>Billing</span>
-              </button>
-              <button className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start" onClick={() => handleSidebarNav("settings")}> 
+              </Link>
+              <Link
+                href="/settings"
+                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
+              >
                 <Settings className="w-6 h-6" />
                 <span>Settings</span>
-              </button>
+              </Link>
               <button
                 onClick={logout}
                 className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
