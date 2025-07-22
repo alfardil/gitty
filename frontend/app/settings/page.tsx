@@ -38,14 +38,10 @@ export default function Settings() {
     setUsernameLoading(true);
     setUsernameError(null);
     const newUsername = usernameInput.trim();
-    const res = await setUsername(user!.id.toString(), newUsername);
-    if (res && res.error) {
-      setUsernameError(res.error);
-    } else {
-      setEditing(false);
-      setUsernameInput(newUsername); // update UI immediately
-      refetchUsername(); // force refetch from DB
-    }
+    await setUsername(user!.id.toString(), newUsername);
+    setEditing(false);
+    setUsernameInput(newUsername);
+    refetchUsername();
     setUsernameLoading(false);
   }
 
