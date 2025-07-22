@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useUserRepos } from "@/lib/hooks/useUserRepos";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { Button } from "@/components/ui/neo/button";
 
 const PLAN_DETAILS: Record<
   string,
@@ -25,12 +24,7 @@ const PLAN_DETAILS: Record<
   PRO: {
     price: "$20",
     label: "PRO",
-    features: [
-      "Everything in Free, plus:",
-      "Priority support",
-      "Up to 5 users",
-      "Advanced analytics",
-    ],
+    features: ["Priority support", "Up to 5 users", "Advanced analytics"],
     description: "You are on the PRO plan.",
   },
   ENTERPRISE: {
@@ -76,6 +70,26 @@ export default function BillingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#23272F] text-white py-8">
+      <Link
+        href="/dashboard"
+        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 text-blue-400 hover:text-blue-200 text-sm font-semibold"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+        Back to Dashboard
+      </Link>
       <div className="max-w-2xl w-full flex flex-col gap-6">
         <h2 className="text-3xl font-extrabold text-white mb-2 text-center">
           Billing
@@ -181,70 +195,26 @@ export default function BillingPage() {
             Contact Us
           </Link>
         </div>
-        <div className="bg-[#181A1F] border border-blue-700/30 rounded-2xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="text-white font-semibold text-lg mb-2 md:mb-0">
-            Next payment
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-gray-200 text-lg">2025-07-16</span>
-            <Link
-              href="/payment"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 9V7a5 5 0 00-10 0v2M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"
-                />
-              </svg>
-              Update Payment Method
-            </Link>
-            <button className="ml-2 text-gray-400 hover:text-blue-400 transition text-xl">
-              •••
-            </button>
-          </div>
-        </div>
-        <div className="bg-[#181A1F] border border-blue-700/30 rounded-2xl shadow p-6 flex flex-col gap-2">
-          <div className="text-white font-semibold text-lg mb-2">
-            {analyzedReposCount}
-          </div>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-            <div>
-              <div className="text-gray-300 text-sm font-semibold">
-                Current Period
-              </div>
-              <div className="text-gray-400 text-sm">Repos analyzed</div>
-            </div>
-            <div className="text-gray-200 text-sm">
-              {totalRepos} repos{" "}
-              <span className="text-gray-400">(this month)</span>
-            </div>
-            <div className="text-white font-bold text-base">
-              Total {totalRepos} repos{" "}
-              <span className="text-blue-400 cursor-pointer" title="Info">
-                ⓘ
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="bg-[#181A1F] border border-blue-700/30 rounded-2xl shadow p-6 flex flex-col gap-2">
-          <div className="text-white font-semibold text-lg mb-2">Invoices</div>
-          <div className="flex items-center gap-4">
-            <span className="bg-green-500/20 text-green-400 text-xs font-bold px-3 py-1 rounded-full">
-              COMPLETED
-            </span>
-            <span className="text-gray-200 text-base">2025-06-16</span>
-            <span className="text-gray-400 text-base">$0.00 + $0.00 tax</span>
-          </div>
-        </div>
+        <Link
+          href="/payment"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 9V7a5 5 0 00-10 0v2M5 20h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"
+            />
+          </svg>
+          Update Payment Method
+        </Link>
       </div>
     </div>
   );

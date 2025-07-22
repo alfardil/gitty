@@ -3,6 +3,7 @@
 import { usersTable, sessionsTable, waitlistEmails } from "./schema";
 import { eq, sql } from "drizzle-orm";
 import { db } from ".";
+import { usernameSchema } from "./validation";
 
 export async function upsertUser({
   githubId,
@@ -127,4 +128,30 @@ export async function getRowCount(): Promise<number> {
 
 export async function addWaitlistEmail(email: string) {
   await db.insert(waitlistEmails).values({ email });
+}
+
+export async function updateUsernameByGithubId(
+  githubId: string,
+  newUsername: string
+) {
+  // Validate username
+  const parseResult = usernameSchema.safeParse(newUsername);
+  if (!parseResult.success) {
+    return { error: parseResult.error.issues[0].message };
+  }
+  // Check uniqueness
+  const existing = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.username, newUsername));
+  if (existing.length > 0) {
+    return { error: "Username is already taken" };
+  }
+  // Update
+  const updated = await db
+    .update(usersTable)
+    .set({ username: newUsername })
+    .where(eq(usersTable.githubId, githubId))
+    .returning();
+  return { user: updated[0] };
 }

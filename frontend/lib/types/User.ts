@@ -8,4 +8,5 @@ export type GithubUser = {
   public_repos: number;
   bio: string | null;
   email: string | null;
+  username: string | null;
 };
