@@ -4,9 +4,9 @@ import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X } from "lucide-react";
 import React from "react";
 import Link from "next/link";
+import { useUserUsername } from "@/lib/hooks/useUserUsername";
 
-// ChatGPTSidebarToggleLeft icon as provided by user
-function ChatGPTSidebarToggleLeft({ className = "" }) {
+const ChatGPTSidebarToggleLeft = ({ className = "" }) => {
   return (
     <svg
       viewBox="0 0 32 32"
@@ -39,7 +39,7 @@ function ChatGPTSidebarToggleLeft({ className = "" }) {
       <line x1="8" y1="18" x2="12" y2="18" stroke="currentColor" />
     </svg>
   );
-}
+};
 
 export function Sidebar({
   user,
@@ -60,6 +60,8 @@ export function Sidebar({
   handleSidebarNav: (section: string) => void;
   logout: () => void;
 }) {
+  const { username } = useUserUsername(user ? user.id.toString() : "");
+
   return (
     <>
       <aside
@@ -82,7 +84,7 @@ export function Sidebar({
               />
               <div className="flex flex-col">
                 <div className="font-semibold text-gray-100 text-sm">
-                  {user.name || user.login}
+                  {username || user.name || user.login}
                 </div>
               </div>
               <button
