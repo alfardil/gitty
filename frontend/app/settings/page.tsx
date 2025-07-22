@@ -5,13 +5,15 @@ import { Edit3, LogOut } from "lucide-react";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { useUserStats } from "@/lib/hooks/useUserStats";
 import { useState } from "react";
-import { setUsername } from "@/app/_actions/cache";
+import { getAnalyzedReposCount, setUsername } from "@/app/_actions/cache";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
 import Link from "next/link";
 
 export default function Settings() {
   const { user, loading, logout } = useAuth();
-  const { subscriptionPlan } = useUserStats(user ? user.id.toString() : "");
+  const { subscriptionPlan, analyzedReposCount } = useUserStats(
+    user ? user.id.toString() : ""
+  );
   const [editing, setEditing] = useState(false);
   const [usernameInput, setUsernameInput] = useState(user?.username || "");
   const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -141,6 +143,11 @@ export default function Settings() {
             Current Plan:{" "}
             <span className="text-blue-400 font-semibold">
               {subscriptionPlan}
+            </span>
+            <br />
+            Repos Analyzed:{" "}
+            <span className="text-blue-400 font-semibold">
+              {analyzedReposCount ?? 0}
             </span>
           </div>
         </div>
