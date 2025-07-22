@@ -12,6 +12,7 @@ import { FileTree, buildFileTree } from "@/components/ui/analysis/FileTree";
 import { RightSideAIAssistant } from "@/app/[owner]/_components/RightSideAIAssistant";
 import { Sidebar } from "@/components/ui/dashboard/Sidebar";
 import { Spinner } from "@/components/ui/neo/spinner";
+import { addAnalyzedReposCount } from "@/app/_actions/cache";
 
 export default function RepoClientPage({
   owner,
@@ -29,19 +30,19 @@ export default function RepoClientPage({
   const [fileContent, setFileContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState<{ [key: string]: boolean }>({});
-  const [showScrollTop, setShowScrollTop] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
-  const [explorerHeight, setExplorerHeight] = useState(600);
+  const explorerHeight = 600;
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    if (user && user.id) {
+      const key = `analyzedRepo:${user.id}:${owner}/${repo}`;
+      if (typeof window !== "undefined" && !localStorage.getItem(key)) {
+        addAnalyzedReposCount(String(user.id));
+        localStorage.setItem(key, "Viewed");
+      }
+    }
+  }, [user, owner, repo, addAnalyzedReposCount]);
 
   const handleFileClick = async (filePath: string) => {
     setSelectedFile(filePath);

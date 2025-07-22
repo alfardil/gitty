@@ -73,6 +73,13 @@ export async function updateUsernameByGithubId(
     .where(eq(usersTable.githubId, githubId));
 }
 
+export async function addAnalyzedReposCountDB(githubId: string) {
+  await db
+    .update(usersTable)
+    .set({ analyzedReposCount: sql`${usersTable.analyzedReposCount} + 1` })
+    .where(eq(usersTable.githubId, githubId));
+}
+
 export async function isUserAdmin(githubId: string): Promise<boolean> {
   const user = await db
     .select({ admin: usersTable.admin })
