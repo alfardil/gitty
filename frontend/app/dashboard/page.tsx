@@ -42,12 +42,8 @@ export default function Dashboard() {
     loading: boolean;
   };
   const { recentCommits, loading: commitsLoading } = useRecentCommits(user);
-  const { scopeRepos, loading: scopeReposLoading } = useScopeRepos(
-    user,
-    selectedScope
-  ) as {
+  const { scopeRepos } = useScopeRepos(user, selectedScope) as {
     scopeRepos: Repository[];
-    loading: boolean;
   };
 
   const handleRepoClick = (owner: string, repo: string) => {

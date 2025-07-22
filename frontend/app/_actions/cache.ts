@@ -7,6 +7,7 @@ import { sql } from "drizzle-orm";
 import { getRowCount } from "@/server/src/db/actions";
 import { getUserByGithubId } from "@/server/src/db/actions";
 import { updateUsernameByGithubId } from "@/server/src/db/actions";
+import { addAnalyzedReposCountDB } from "@/server/src/db/actions";
 
 export async function getCachedDiagram(username: string, repo: string) {
   try {
@@ -151,4 +152,12 @@ export async function setUsername(githubId: string, newUsername: string) {
 export async function getUsername(githubId: string): Promise<string | null> {
   const user = await getUserByGithubId(githubId);
   return user?.username ?? null;
+}
+
+export async function addAnalyzedReposCount(githubId: string): Promise<void> {
+  try {
+    await addAnalyzedReposCountDB(githubId);
+  } catch (error) {
+    console.error("Error incrementing analyzedReposCount:", error);
+  }
 }

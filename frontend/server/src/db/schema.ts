@@ -76,10 +76,7 @@ export const waitlistEmails = pgTable(
     email: varchar({ length: 255 }).notNull(),
     addedAt: timestamp("added_at", { mode: "string" }).defaultNow().notNull(),
   },
-  (table) => [
-    unique("waitlist_emails_id_unique").on(table.id),
-    unique("waitlist_emails_email_unique").on(table.email),
-  ]
+  (table) => [unique("waitlist_emails_email_unique").on(table.email)]
 );
 
 export const diagramCache = pgTable(
