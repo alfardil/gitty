@@ -159,7 +159,7 @@ export function Billing() {
             <li>Custom integrations</li>
             <li>Unlimited users</li>
           </ul>
-          <a
+          <Link
             href="mailto:devboard.ai@gmail.com"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
           >
@@ -178,9 +178,9 @@ export function Billing() {
               />
             </svg>
             Contact Us
-          </a>
+          </Link>
         </div>
-        <a
+        <Link
           href="/payment"
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
         >
@@ -199,7 +199,7 @@ export function Billing() {
             />
           </svg>
           Update Payment Method
-        </a>
+        </Link>
       </div>
     </div>
   );
