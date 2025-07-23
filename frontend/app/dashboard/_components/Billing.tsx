@@ -108,7 +108,7 @@ export function Billing() {
             <li>Advanced analytics</li>
           </ul>
           {subscriptionPlan !== "PRO" ? (
-            <a
+            <Link
               href="/payment"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
             >
@@ -127,7 +127,7 @@ export function Billing() {
                 />
               </svg>
               Upgrade Now!
-            </a>
+            </Link>
           ) : (
             <div
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 text-white font-semibold text-sm opacity-60 cursor-not-allowed select-none"
