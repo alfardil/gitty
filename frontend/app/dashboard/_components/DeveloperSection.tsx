@@ -39,10 +39,9 @@ export function DeveloperSection({ user }: { user: any }) {
     const data = await res.json();
     if (data?.error?.fieldErrors || data?.error?.formErrors) {
       toast.error(
-        "Validation error: " +
-          Object.values(data.error.fieldErrors || {})
-            .flat()
-            .join(", ")
+        Object.values(data.error.fieldErrors || {})
+          .flat()
+          .join(", ")
       );
     } else if (typeof data?.error === "string") {
       toast.error(data.error);
@@ -77,10 +76,9 @@ export function DeveloperSection({ user }: { user: any }) {
     const data = await res.json();
     if (data?.error?.fieldErrors || data?.error?.formErrors) {
       toast.error(
-        "Validation error: " +
-          Object.values(data.error.fieldErrors || {})
-            .flat()
-            .join(", ")
+        Object.values(data.error.fieldErrors || {})
+          .flat()
+          .join(", ")
       );
     } else if (typeof data?.error === "string") {
       toast.error(data.error);
@@ -109,10 +107,9 @@ export function DeveloperSection({ user }: { user: any }) {
     const data = await res.json();
     if (data?.error?.fieldErrors || data?.error?.formErrors) {
       toast.error(
-        "Validation error: " +
-          Object.values(data.error.fieldErrors || {})
-            .flat()
-            .join(", ")
+        Object.values(data.error.fieldErrors || {})
+          .flat()
+          .join(", ")
       );
     } else if (typeof data?.error === "string") {
       toast.error(data.error);
@@ -191,7 +188,7 @@ export function DeveloperSection({ user }: { user: any }) {
           onChange={(e) => setInviteEnterpriseId(e.target.value)}
         />
         <div className="mb-2">
-          <label className="block text-sm font-medium text-white mb-1 flex items-center gap-2">
+          <label className="flex text-sm font-medium text-white mb-1 items-center gap-2">
             <CalendarIcon className="w-4 h-4" /> Expiration Date
           </label>
           <DropdownMenu open={calendarOpen} onOpenChange={setCalendarOpen}>
@@ -210,9 +207,8 @@ export function DeveloperSection({ user }: { user: any }) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              side="bottom"
+              side="top"
               align="start"
-              avoidCollisions={false}
               className="p-0 mt-2 bg-[#181A20] border border-blue-400/20 rounded-lg shadow-lg max-h-80 overflow-y-auto"
             >
               <Calendar
