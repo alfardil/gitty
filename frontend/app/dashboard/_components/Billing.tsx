@@ -108,7 +108,7 @@ export function Billing() {
             <li>Advanced analytics</li>
           </ul>
           {subscriptionPlan !== "PRO" ? (
-            <Link
+            <a
               href="/payment"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
             >
@@ -127,7 +127,7 @@ export function Billing() {
                 />
               </svg>
               Upgrade Now!
-            </Link>
+            </a>
           ) : (
             <div
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 text-white font-semibold text-sm opacity-60 cursor-not-allowed select-none"
@@ -159,7 +159,7 @@ export function Billing() {
             <li>Custom integrations</li>
             <li>Unlimited users</li>
           </ul>
-          <Link
+          <a
             href="mailto:devboard.ai@gmail.com"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
           >
@@ -178,9 +178,9 @@ export function Billing() {
               />
             </svg>
             Contact Us
-          </Link>
+          </a>
         </div>
-        <Link
+        <a
           href="/payment"
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
         >
@@ -199,7 +199,7 @@ export function Billing() {
             />
           </svg>
           Update Payment Method
-        </Link>
+        </a>
       </div>
     </div>
   );

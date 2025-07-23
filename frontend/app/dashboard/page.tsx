@@ -79,6 +79,8 @@ function DashboardPage() {
         setSidebarMobile={setSidebarMobile}
         showSection={section}
         handleSidebarNav={() => {}}
+        showSection={section}
+        handleSidebarNav={() => {}}
         logout={logout}
       />
 
