@@ -79,8 +79,6 @@ function DashboardPage() {
         setSidebarMobile={setSidebarMobile}
         showSection={section}
         handleSidebarNav={() => {}}
-        showSection={section}
-        handleSidebarNav={() => {}}
         logout={logout}
       />
 
@@ -98,42 +96,55 @@ function DashboardPage() {
               <Menu className="w-6 h-6 text-gray-200" />
             </button>
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              {section === "settings"
-                ? "Settings"
-                : section === "billing"
-                  ? "Billing"
-                  : SIDEBAR_SECTIONS.find((s) => s.key === section)?.label ||
-                    "Dashboard"}
+              {SIDEBAR_SECTIONS.find((s) => s.key === section)?.label ||
+                "Dashboard"}
             </h1>
-            {section === "analysis" && (
-              <div className="ml-auto relative">
-                <div className="relative inline-block text-left">
-                  <button
-                    className="inline-flex justify-center items-center px-4 py-2 border border-blue-400/20 shadow-sm text-sm font-medium rounded-md text-gray-100 bg-[#23272f] hover:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    onClick={() => {
-                      const dropdown =
-                        document.getElementById("scope-dropdown");
-                      if (dropdown) {
-                        dropdown.classList.toggle("hidden");
-                      }
-                    }}
-                  >
-                    {selectedScope}
-                    <ChevronDown className="ml-2 h-4 w-4 text-blue-400" />
-                  </button>
-                  <div
-                    id="scope-dropdown"
-                    className="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#23272f] ring-1 ring-blue-400/20 z-10"
-                  >
-                    <div className="py-1" role="menu">
+            <div className="ml-auto relative">
+              <div className="relative inline-block text-left">
+                <button
+                  className="inline-flex justify-center items-center px-4 py-2 border border-blue-400/20 shadow-sm text-sm font-medium rounded-md text-gray-100 bg-[#23272f] hover:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={() => {
+                    const dropdown = document.getElementById("scope-dropdown");
+                    if (dropdown) {
+                      dropdown.classList.toggle("hidden");
+                    }
+                  }}
+                >
+                  {selectedScope}
+                  <ChevronDown className="ml-2 h-4 w-4 text-blue-400" />
+                </button>
+                <div
+                  id="scope-dropdown"
+                  className="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#23272f] ring-1 ring-blue-400/20 z-10"
+                >
+                  <div className="py-1" role="menu">
+                    <button
+                      className={`${
+                        selectedScope === "Personal"
+                          ? "bg-blue-400/10 text-white"
+                          : "text-gray-200"
+                      } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
+                      onClick={() => {
+                        setSelectedScope("Personal");
+                        const dropdown =
+                          document.getElementById("scope-dropdown");
+                        if (dropdown) {
+                          dropdown.classList.add("hidden");
+                        }
+                      }}
+                    >
+                      Personal
+                    </button>
+                    {orgs.map((org) => (
                       <button
+                        key={org.login}
                         className={`${
-                          selectedScope === "Personal"
+                          selectedScope === org.login
                             ? "bg-blue-400/10 text-white"
                             : "text-gray-200"
                         } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
                         onClick={() => {
-                          setSelectedScope("Personal");
+                          setSelectedScope(org.login);
                           const dropdown =
                             document.getElementById("scope-dropdown");
                           if (dropdown) {
@@ -141,33 +152,13 @@ function DashboardPage() {
                           }
                         }}
                       >
-                        Personal
+                        {org.login}
                       </button>
-                      {orgs.map((org) => (
-                        <button
-                          key={org.login}
-                          className={`${
-                            selectedScope === org.login
-                              ? "bg-blue-400/10 text-white"
-                              : "text-gray-200"
-                          } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
-                          onClick={() => {
-                            setSelectedScope(org.login);
-                            const dropdown =
-                              document.getElementById("scope-dropdown");
-                            if (dropdown) {
-                              dropdown.classList.add("hidden");
-                            }
-                          }}
-                        >
-                          {org.login}
-                        </button>
-                      ))}
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </header>
 
