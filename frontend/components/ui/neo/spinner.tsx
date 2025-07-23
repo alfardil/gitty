@@ -48,3 +48,11 @@ export function Spinner({
     </span>
   );
 }
+
+export function PageSpinner() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <Spinner />
+    </div>
+  );
+}
