@@ -3,7 +3,7 @@
 import { GitHubLoginButton } from "@/components/LoginButton";
 import { InsightsView } from "@/app/dashboard/_components/insights/InsightsView";
 import { Sidebar } from "@/app/dashboard/_components/Sidebar";
-import { Spinner } from "@/components/ui/neo/spinner";
+import { PageSpinner, Spinner } from "@/components/ui/neo/spinner";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRecentCommits } from "@/lib/hooks/useRecentCommits";
@@ -15,6 +15,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Billing } from "@/app/dashboard/_components/Billing";
 import { Settings } from "@/app/dashboard/_components/Settings";
+import { Suspense } from "react";
 
 interface Repository {
   id: number;
@@ -28,11 +29,10 @@ interface Repository {
   private: boolean;
 }
 
-export default function Dashboard() {
+function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, logout } = useAuth();
-
   const section = searchParams.get("section") || "insights";
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -55,11 +55,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Spinner />
-      </div>
-    );
+    return <PageSpinner />;
   }
 
   if (!user) {
@@ -276,5 +272,13 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPageWrapper() {
+  return (
+    <Suspense fallback={<PageSpinner />}>
+      <DashboardPage />
+    </Suspense>
   );
 }
