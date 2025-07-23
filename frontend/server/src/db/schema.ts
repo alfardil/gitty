@@ -100,3 +100,63 @@ export const diagramCache = pgTable(
     }),
   ]
 );
+
+export const enterpriseRole = pgEnum("enterprise_role", ["admin", "member"]);
+
+export const enterprises = pgTable("enterprises", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  updatedAt: timestamp({ mode: "string" }),
+});
+
+export const enterpriseUsers = pgTable(
+  "enterprise_users",
+  {
+    enterpriseId: uuid("enterprise_id").notNull(),
+    userId: uuid("user_id").notNull(),
+    role: enterpriseRole("role").default("member").notNull(),
+    joinedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.enterpriseId, table.userId],
+      name: "enterprise_users_pk",
+    }),
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "enterprise_users_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "enterprise_users_user_id_fk",
+    }),
+  ]
+);
+
+export const enterpriseInviteCodes = pgTable(
+  "enterprise_invite_codes",
+  {
+    code: varchar({ length: 64 }).primaryKey().notNull(),
+    enterpriseId: uuid("enterprise_id").notNull(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    expiresAt: timestamp({ mode: "string" }),
+    used: boolean().default(false).notNull(),
+    usedBy: uuid("used_by"),
+    usedAt: timestamp({ mode: "string" }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "invite_codes_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.usedBy],
+      foreignColumns: [users.id],
+      name: "invite_codes_used_by_fk",
+    }),
+  ]
+);

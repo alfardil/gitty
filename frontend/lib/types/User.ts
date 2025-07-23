@@ -1,4 +1,4 @@
-export type GithubUser = {
+export type User = {
   id: number;
   login: string;
   name: string | null;
@@ -9,4 +9,5 @@ export type GithubUser = {
   bio: string | null;
   email: string | null;
   username: string | null;
+  uuid?: string;
 };

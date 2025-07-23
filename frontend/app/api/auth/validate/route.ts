@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { getUserByGithubId } from "@/server/src/db/actions";
+import { User } from "@/lib/types/User";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -28,11 +30,18 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  let dbUser = null;
+  if (user && user.id) {
+    dbUser = await getUserByGithubId(String(user.id));
+  }
+  const userWithUuid = dbUser ? { ...user, uuid: dbUser.id } : user;
+
   return NextResponse.json({
     success: true,
     message: "You are authenticated!",
     data: {
-      user,
+      user: userWithUuid,
       session: {
         accessToken: accessToken.value,
       },

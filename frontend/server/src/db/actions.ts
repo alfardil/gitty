@@ -4,9 +4,14 @@ import {
   users as usersTable,
   sessions as sessionsTable,
   waitlistEmails,
+  enterprises,
+  enterpriseUsers,
+  enterpriseInviteCodes,
+  enterpriseRole,
 } from "./schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { db } from ".";
+import { randomBytes } from "crypto";
 
 export async function upsertUser({
   githubId,
@@ -163,4 +168,88 @@ export async function getRowCount(): Promise<number> {
 
 export async function addWaitlistEmail(email: string) {
   await db.insert(waitlistEmails).values({ email });
+}
+
+export async function createEnterprise({
+  name,
+  ownerUserId,
+}: {
+  name: string;
+  ownerUserId: string;
+}) {
+  const inserted = await db.insert(enterprises).values({ name }).returning();
+  const enterprise = inserted[0];
+  // Add owner as admin
+  await db.insert(enterpriseUsers).values({
+    enterpriseId: enterprise.id,
+    userId: ownerUserId,
+    role: "admin",
+  });
+  return enterprise;
+}
+
+export async function generateEnterpriseInviteCode({
+  enterpriseId,
+  expiresAt,
+}: {
+  enterpriseId: string;
+  expiresAt?: Date;
+}) {
+  const code = randomBytes(16).toString("hex");
+  await db.insert(enterpriseInviteCodes).values({
+    code,
+    enterpriseId,
+    expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
+  });
+  return code;
+}
+
+export async function redeemEnterpriseInviteCode({
+  code,
+  userId,
+}: {
+  code: string;
+  userId: string;
+}) {
+  // Find invite code
+  const invite = await db
+    .select()
+    .from(enterpriseInviteCodes)
+    .where(eq(enterpriseInviteCodes.code, code))
+    .limit(1);
+  const inviteCode = invite[0];
+  if (!inviteCode) throw new Error("Invalid invite code");
+  if (inviteCode.used) throw new Error("Invite code already used");
+  if (inviteCode.expiresAt && new Date(inviteCode.expiresAt) < new Date())
+    throw new Error("Invite code expired");
+
+  // Check if user is already a member
+  const existing = await db
+    .select()
+    .from(enterpriseUsers)
+    .where(
+      and(
+        eq(enterpriseUsers.enterpriseId, inviteCode.enterpriseId),
+        eq(enterpriseUsers.userId, userId)
+      )
+    )
+    .limit(1);
+  if (existing.length > 0) {
+    const err: any = new Error("User is already a member of this enterprise.");
+    err.code = "ALREADY_MEMBER";
+    throw err;
+  }
+
+  // Add user as member
+  await db.insert(enterpriseUsers).values({
+    enterpriseId: inviteCode.enterpriseId,
+    userId,
+    role: "member",
+  });
+  // Mark code as used
+  await db
+    .update(enterpriseInviteCodes)
+    .set({ used: true, usedBy: userId, usedAt: new Date().toISOString() })
+    .where(eq(enterpriseInviteCodes.code, code));
+  return true;
 }

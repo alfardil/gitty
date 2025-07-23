@@ -1,9 +1,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { GithubUser } from "../types/User";
+import { User } from "../types/User";
 
 export function useAuth() {
-  const [user, setUser] = useState<GithubUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

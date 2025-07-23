@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Billing } from "@/app/dashboard/_components/Billing";
 import { Settings } from "@/app/dashboard/_components/Settings";
 import { Suspense } from "react";
+import { DeveloperSection } from "@/app/dashboard/_components/DeveloperSection";
 
 interface Repository {
   id: number;
@@ -262,6 +263,7 @@ function DashboardPage() {
           )}
           {section === "billing" && <Billing />}
           {section === "settings" && <Settings />}
+          {section === "developer" && <DeveloperSection user={user} />}
         </main>
       </div>
     </div>

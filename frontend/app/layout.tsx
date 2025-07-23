@@ -30,8 +30,8 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/gittylogo.png" />
       </head>
       <body>
-        {children}
         <Toaster />
+        {children}
         <Analytics />
         <SpeedInsights />
       </body>
