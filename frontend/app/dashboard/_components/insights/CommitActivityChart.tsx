@@ -17,29 +17,6 @@ interface CommitActivityChartProps {
   }[];
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload;
-    const date = new Date(data.date);
-    const formattedDate = date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
-    return (
-      <div className="bg-white p-2 border border-gray-200 rounded shadow-sm">
-        <p className="font-medium text-gray-900">{formattedDate}</p>
-        <p className="text-gray-600">{`${payload[0].value} commit${
-          payload[0].value !== 1 ? "s" : ""
-        }`}</p>
-      </div>
-    );
-  }
-  return null;
-};
-
 export function CommitActivityChart({ data }: CommitActivityChartProps) {
   return (
     <ResponsiveContainer width="100%" height={250}>

@@ -10,7 +10,7 @@ import { DiagramSection } from "@/app/[owner]/_components/DiagramSection";
 import { FileContent } from "@/components/ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "@/components/ui/analysis/FileTree";
 import { RightSideAIAssistant } from "@/app/[owner]/_components/RightSideAIAssistant";
-import { Sidebar } from "@/components/ui/dashboard/Sidebar";
+import { Sidebar } from "@/app/dashboard/_components/Sidebar";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { addAnalyzedReposCount } from "@/app/_actions/cache";
 
