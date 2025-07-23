@@ -191,20 +191,23 @@ export async function createEnterprise({
 export async function generateEnterpriseInviteCode({
   enterpriseId,
   expiresAt,
+  role = "member",
 }: {
   enterpriseId: string;
   expiresAt?: Date;
+  role?: "admin" | "member";
 }) {
   const code = randomBytes(16).toString("hex");
   await db.insert(enterpriseInviteCodes).values({
     code,
     enterpriseId,
     expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
+    role,
   });
   return code;
 }
 
-export async function redeemEnterpriseInviteCode({
+export async function redeemEnterpriseInviteCodeForMember({
   code,
   userId,
 }: {
@@ -240,13 +243,68 @@ export async function redeemEnterpriseInviteCode({
     throw err;
   }
 
-  // Add user as member
   await db.insert(enterpriseUsers).values({
     enterpriseId: inviteCode.enterpriseId,
     userId,
-    role: "member",
+    role: inviteCode.role,
   });
-  // Mark code as used
+
+  await db
+    .update(enterpriseInviteCodes)
+    .set({ used: true, usedBy: userId, usedAt: new Date().toISOString() })
+    .where(eq(enterpriseInviteCodes.code, code));
+  return true;
+}
+
+export async function redeemEnterpriseInviteCodeForAdmin({
+  code,
+  userId,
+}: {
+  code: string;
+  userId: string;
+}) {
+  // Find invite code
+  const invite = await db
+    .select()
+    .from(enterpriseInviteCodes)
+    .where(eq(enterpriseInviteCodes.code, code))
+    .limit(1);
+  const inviteCode = invite[0];
+  if (!inviteCode) throw new Error("Invalid invite code");
+  if (inviteCode.used) throw new Error("Invite code already used");
+  if (inviteCode.expiresAt && new Date(inviteCode.expiresAt) < new Date())
+    throw new Error("Invite code expired");
+
+  // Check if user is already a member
+  const existing = await db
+    .select()
+    .from(enterpriseUsers)
+    .where(
+      and(
+        eq(enterpriseUsers.enterpriseId, inviteCode.enterpriseId),
+        eq(enterpriseUsers.userId, userId)
+      )
+    )
+    .limit(1);
+  if (existing.length > 0) {
+    // Instead of throwing, upgrade their role to admin
+    await db
+      .update(enterpriseUsers)
+      .set({ role: "admin" })
+      .where(
+        and(
+          eq(enterpriseUsers.enterpriseId, inviteCode.enterpriseId),
+          eq(enterpriseUsers.userId, userId)
+        )
+      );
+  } else {
+    await db.insert(enterpriseUsers).values({
+      enterpriseId: inviteCode.enterpriseId,
+      userId,
+      role: inviteCode.role,
+    });
+  }
+
   await db
     .update(enterpriseInviteCodes)
     .set({ used: true, usedBy: userId, usedAt: new Date().toISOString() })

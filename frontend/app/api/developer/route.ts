@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   createEnterprise,
   generateEnterpriseInviteCode,
-  redeemEnterpriseInviteCode,
+  redeemEnterpriseInviteCodeForMember,
 } from "@/server/src/db/actions";
 import { db } from "@/server/src/db";
 import { enterprises } from "@/server/src/db/schema";
@@ -63,6 +63,36 @@ export async function POST(req: NextRequest) {
       });
       return NextResponse.json({ success: true, code });
     }
+    if (action === "generateMemberInviteCode") {
+      const parse = generateInviteCodeSchema.safeParse(params);
+      if (!parse.success)
+        return NextResponse.json(
+          { error: parse.error.flatten() },
+          { status: 400 }
+        );
+      const { enterpriseId, expiresAt } = parse.data;
+      const code = await generateEnterpriseInviteCode({
+        enterpriseId,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+        role: "member",
+      });
+      return NextResponse.json({ success: true, code });
+    }
+    if (action === "generateAdminInviteCode") {
+      const parse = generateInviteCodeSchema.safeParse(params);
+      if (!parse.success)
+        return NextResponse.json(
+          { error: parse.error.flatten() },
+          { status: 400 }
+        );
+      const { enterpriseId, expiresAt } = parse.data;
+      const code = await generateEnterpriseInviteCode({
+        enterpriseId,
+        expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+        role: "admin",
+      });
+      return NextResponse.json({ success: true, code });
+    }
     if (action === "redeemInviteCode") {
       const parse = redeemInviteCodeSchema.safeParse(params);
       if (!parse.success)
@@ -71,7 +101,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       const { code, userId } = parse.data;
-      await redeemEnterpriseInviteCode({ code, userId });
+      await redeemEnterpriseInviteCodeForMember({ code, userId });
       return NextResponse.json({ success: true });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });

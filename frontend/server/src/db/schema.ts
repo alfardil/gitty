@@ -146,6 +146,7 @@ export const enterpriseInviteCodes = pgTable(
     used: boolean().default(false).notNull(),
     usedBy: uuid("used_by"),
     usedAt: timestamp({ mode: "string" }),
+    role: enterpriseRole("role").default("member").notNull(),
   },
   (table) => [
     foreignKey({
