@@ -3,8 +3,8 @@
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X } from "lucide-react";
 import React from "react";
-import Link from "next/link";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
+import { useRouter } from "next/navigation";
 
 const ChatGPTSidebarToggleLeft = ({ className = "" }) => {
   return (
@@ -61,6 +61,7 @@ export function Sidebar({
   logout: () => void;
 }) {
   const { username } = useUserUsername(user ? user.id.toString() : "");
+  const router = useRouter();
 
   return (
     <>
@@ -127,7 +128,7 @@ export function Sidebar({
                     ? "px-4 py-2 justify-start"
                     : "h-12 justify-center"
                 }`}
-                onClick={() => handleSidebarNav(key)}
+                onClick={() => router.push(`/dashboard?section=${key}`)}
               >
                 <Icon className="w-6 h-6" />
                 {sidebarOpen && <span className="truncate">{label}</span>}
@@ -136,24 +137,24 @@ export function Sidebar({
           )}
         </nav>
         <div className="mt-auto px-3 py-4 border-t border-blue-400/10 flex flex-col gap-2">
-          <Link
-            href="/billing"
+          <button
+            onClick={() => router.push(`/dashboard?section=billing`)}
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
           >
             <CreditCard className="w-6 h-6" />
             {sidebarOpen && <span>Billing</span>}
-          </Link>
-          <Link
-            href="/settings"
+          </button>
+          <button
+            onClick={() => router.push(`/dashboard?section=settings`)}
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
               sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
             }`}
           >
             <Settings className="w-6 h-6" />
             {sidebarOpen && <span>Settings</span>}
-          </Link>
+          </button>
           <button
             onClick={logout}
             className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
@@ -219,20 +220,20 @@ export function Sidebar({
               )}
             </nav>
             <div className="mt-auto px-3 py-4 border-t border-[#18CCFC]/30 flex flex-col gap-2">
-              <Link
-                href="/billing"
+              <button
+                onClick={() => handleSidebarNav("billing")}
                 className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
               >
                 <CreditCard className="w-6 h-6" />
                 <span>Billing</span>
-              </Link>
-              <Link
-                href="/settings"
+              </button>
+              <button
+                onClick={() => handleSidebarNav("settings")}
                 className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
               >
                 <Settings className="w-6 h-6" />
                 <span>Settings</span>
-              </Link>
+              </button>
               <button
                 onClick={logout}
                 className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"

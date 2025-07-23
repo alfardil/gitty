@@ -1,8 +1,8 @@
 "use client";
 
 import { GitHubLoginButton } from "@/components/LoginButton";
-import { InsightsView } from "@/components/ui/dashboard/insights/InsightsView";
-import { Sidebar } from "@/components/ui/dashboard/Sidebar";
+import { InsightsView } from "@/app/dashboard/_components/insights/InsightsView";
+import { Sidebar } from "@/app/dashboard/_components/Sidebar";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -11,8 +11,10 @@ import { useScopeRepos } from "@/lib/hooks/useScopeRepos";
 import { useUserOrgs } from "@/lib/hooks/useUserOrgs";
 import { useUserRepos } from "@/lib/hooks/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { Billing } from "@/app/dashboard/_components/Billing";
+import { Settings } from "@/app/dashboard/_components/Settings";
 
 interface Repository {
   id: number;
@@ -28,8 +30,10 @@ interface Repository {
 
 export default function Dashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading, logout } = useAuth();
-  const [showSection, setShowSection] = useState("insights");
+
+  const section = searchParams.get("section") || "insights";
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarMobile, setSidebarMobile] = useState(false);
@@ -77,8 +81,8 @@ export default function Dashboard() {
         setSidebarOpen={setSidebarOpen}
         sidebarMobile={sidebarMobile}
         setSidebarMobile={setSidebarMobile}
-        showSection={showSection}
-        handleSidebarNav={setShowSection}
+        showSection={section}
+        handleSidebarNav={() => {}}
         logout={logout}
       />
 
@@ -96,14 +100,14 @@ export default function Dashboard() {
               <Menu className="w-6 h-6 text-gray-200" />
             </button>
             <h1 className="text-2xl font-bold text-white tracking-tight">
-              {showSection === "settings"
+              {section === "settings"
                 ? "Settings"
-                : showSection === "billing"
+                : section === "billing"
                   ? "Billing"
-                  : SIDEBAR_SECTIONS.find((s) => s.key === showSection)
-                      ?.label || "Dashboard"}
+                  : SIDEBAR_SECTIONS.find((s) => s.key === section)?.label ||
+                    "Dashboard"}
             </h1>
-            {showSection === "analysis" && (
+            {section === "analysis" && (
               <div className="ml-auto relative">
                 <div className="relative inline-block text-left">
                   <button
@@ -170,7 +174,7 @@ export default function Dashboard() {
         </header>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-[#181A20] text-gray-100">
-          {showSection === "insights" && (
+          {section === "insights" && (
             <div>
               {isInsightsLoading ? (
                 <div className="flex justify-center">
@@ -185,7 +189,7 @@ export default function Dashboard() {
               )}
             </div>
           )}
-          {showSection === "analysis" && (
+          {section === "analysis" && (
             <>
               {/* Large centered header with animated search bar below */}
               <div className="flex flex-col items-center mb-10">
@@ -267,6 +271,8 @@ export default function Dashboard() {
               </div>
             </>
           )}
+          {section === "billing" && <Billing />}
+          {section === "settings" && <Settings />}
         </main>
       </div>
     </div>

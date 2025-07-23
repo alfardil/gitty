@@ -1,5 +1,4 @@
 "use client";
-
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Edit3, LogOut } from "lucide-react";
 import { Spinner } from "@/components/ui/neo/spinner";
@@ -7,9 +6,8 @@ import { useUserStats } from "@/lib/hooks/useUserStats";
 import { useState } from "react";
 import { setUsername } from "@/app/_actions/cache";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
-import Link from "next/link";
 
-export default function Settings() {
+export function Settings() {
   const { user, loading, logout } = useAuth();
   const { subscriptionPlan, analyzedReposCount } = useUserStats(
     user ? user.id.toString() : ""
@@ -49,26 +47,6 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#23272F] text-white py-8">
-      <Link
-        href="/dashboard"
-        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 text-blue-400 hover:text-blue-200 text-sm font-semibold"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back to Dashboard
-      </Link>
       <div className="max-w-md mx-auto py-12 px-4 sm:px-0 flex flex-col items-center">
         <h2 className="text-xl font-bold mb-8 text-white text-center">
           Account

@@ -27,42 +27,34 @@ export function InsightsView({
   const totalCommitPages = Math.ceil(recentCommits.length / commitsPerPage);
 
   const commitActivityData = (() => {
-    // Get today's date at the start of the day (midnight)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use current exact date and time
+    const now = new Date();
 
     // Create array of last 7 days, starting from 6 days ago
     const last7Days = Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(today);
-      d.setDate(d.getDate() - (6 - i)); // This makes today the last day
+      const d = new Date(now);
+      d.setDate(d.getDate() - (6 - i)); // 6 days ago to today
       return d;
     });
 
     // Map each date to its data point
     const chartData = last7Days.map((day) => {
-      const dayString = day.toISOString().split("T")[0];
       const dayName = day.toLocaleDateString("en-US", { weekday: "short" });
       return {
         name: dayName,
-        date: day.toISOString(), // Store full ISO string for accurate comparison
+        date: day.toISOString(), // Full ISO string for comparison
         commits: 0,
       };
     });
 
+    // Increment commits for matching days
     recentCommits.forEach((commit) => {
       const commitDate = new Date(commit.date);
-      commitDate.setHours(0, 0, 0, 0);
+      const commitDayString = commitDate.toISOString().split("T")[0];
 
-      // Find matching day by comparing dates directly
-      const dayData = chartData.find((d) => {
-        const chartDate = new Date(d.date);
-        return (
-          chartDate.getFullYear() === commitDate.getFullYear() &&
-          chartDate.getMonth() === commitDate.getMonth() &&
-          chartDate.getDate() === commitDate.getDate()
-        );
-      });
-
+      const dayData = chartData.find(
+        (d) => d.date.split("T")[0] === commitDayString
+      );
       if (dayData) {
         dayData.commits += 1;
       }

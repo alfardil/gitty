@@ -1,18 +1,11 @@
 "use client";
-
 import { useUserStats } from "@/lib/hooks/useUserStats";
-import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
 
 const PLAN_DETAILS: Record<
   string,
-  {
-    price: string;
-    label: string;
-    features: string[];
-    description: string;
-  }
+  { price: string; label: string; features: string[]; description: string }
 > = {
   FREE: {
     price: "$0",
@@ -39,7 +32,7 @@ const PLAN_DETAILS: Record<
   },
 };
 
-export default function BillingPage() {
+export function Billing() {
   const { user, loading } = useAuth();
   const { subscriptionPlan, error } = useUserStats(
     user ? user.id.toString() : ""
@@ -68,26 +61,6 @@ export default function BillingPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-[#23272F] text-white py-8">
-      <Link
-        href="/dashboard"
-        className="absolute top-6 left-6 z-20 inline-flex items-center gap-2 text-blue-400 hover:text-blue-200 text-sm font-semibold"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-        Back to Dashboard
-      </Link>
       <div className="max-w-2xl w-full flex flex-col gap-6">
         <h2 className="text-3xl font-extrabold text-white mb-2 text-center">
           Billing
@@ -134,7 +107,7 @@ export default function BillingPage() {
             <li>Advanced analytics</li>
           </ul>
           {subscriptionPlan !== "PRO" ? (
-            <Link
+            <a
               href="/payment"
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
             >
@@ -153,7 +126,7 @@ export default function BillingPage() {
                 />
               </svg>
               Upgrade Now!
-            </Link>
+            </a>
           ) : (
             <div
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 text-white font-semibold text-sm opacity-60 cursor-not-allowed select-none"
@@ -185,7 +158,7 @@ export default function BillingPage() {
             <li>Custom integrations</li>
             <li>Unlimited users</li>
           </ul>
-          <Link
+          <a
             href="mailto:devboard.ai@gmail.com"
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
           >
@@ -204,9 +177,9 @@ export default function BillingPage() {
               />
             </svg>
             Contact Us
-          </Link>
+          </a>
         </div>
-        <Link
+        <a
           href="/payment"
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-700 text-white font-semibold hover:bg-blue-800 transition text-sm"
         >
@@ -225,7 +198,7 @@ export default function BillingPage() {
             />
           </svg>
           Update Payment Method
-        </Link>
+        </a>
       </div>
     </div>
   );
