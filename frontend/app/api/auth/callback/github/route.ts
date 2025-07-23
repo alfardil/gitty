@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import {
   upsertUser,
   createSession,
-  isUserAdmin,
+  isUserDeveloper,
 } from "@/server/src/db/actions";
 
 export async function GET(request: NextRequest) {
@@ -74,8 +74,8 @@ export async function GET(request: NextRequest) {
     });
 
     // Check if user is admin before proceeding
-    const isAdmin = await isUserAdmin(String(userData.id));
-    if (!isAdmin) {
+    const isDeveloper = await isUserDeveloper(String(userData.id));
+    if (!isDeveloper) {
       // Clear any existing cookies
       cookieStore.delete("github_user");
       cookieStore.delete("github_access_token");
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create a session in the database if they are an admin
-    if (upsertResult && upsertResult.user && isAdmin) {
+    if (upsertResult && upsertResult.user && isDeveloper) {
       const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 1 week
       const sessionResult = await createSession({
         userId: upsertResult.user.id,

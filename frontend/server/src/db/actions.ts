@@ -56,7 +56,7 @@ export async function upsertUser({
         joinedAt: joinedAt ? joinedAt.toISOString() : undefined,
         avatarUrl,
         bio,
-        admin: false,
+        developer: false,
       })
       .returning();
     return { created: true, user: inserted[0] };
@@ -80,14 +80,14 @@ export async function addAnalyzedReposCountDB(githubId: string) {
     .where(eq(usersTable.githubId, githubId));
 }
 
-export async function isUserAdmin(githubId: string): Promise<boolean> {
+export async function isUserDeveloper(githubId: string): Promise<boolean> {
   const user = await db
-    .select({ admin: usersTable.admin })
+    .select({ developer: usersTable.developer })
     .from(usersTable)
     .where(eq(usersTable.githubId, githubId))
     .limit(1);
 
-  return user.length > 0 && user[0].admin === true;
+  return user.length > 0 && user[0].developer === true;
 }
 
 export async function getUserByGithubId(githubId: string) {

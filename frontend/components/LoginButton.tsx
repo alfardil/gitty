@@ -6,7 +6,7 @@ export function GitHubLoginButton() {
   return (
     <Button
       variant="default"
-      className="bg-black hover:bg-gray-800 border-black text-white font-semibold px-6 py-2 rounded shadow flex items-center justify-center gap-2 transition-colors duration-200 mt-4 mb-4"
+      className="bg-black hover:bg-gray-800 border-white text-white font-semibold px-6 py-2 rounded shadow flex items-center justify-center gap-2 transition-colors duration-200 mt-4 mb-4"
       onClick={() => {
         window.location.href = "/api/auth/github";
       }}

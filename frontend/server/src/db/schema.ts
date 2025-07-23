@@ -40,7 +40,7 @@ export const users = pgTable(
     joinedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
     avatarUrl: varchar({ length: 512 }),
     bio: varchar({ length: 512 }),
-    admin: boolean().default(false).notNull(),
+    developer: boolean().default(false).notNull(),
     username: varchar({ length: 255 }),
     analyzedReposCount: integer().default(0),
     subscriptionPlan: subscriptionPlan("subscription_plan").default("FREE"),
