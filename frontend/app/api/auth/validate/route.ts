@@ -36,7 +36,14 @@ export async function GET(request: NextRequest) {
     dbUser = await getUserByGithubId(String(user.id));
   }
   const userWithUuid = dbUser
-    ? { ...user, uuid: dbUser.id, developer: dbUser.developer }
+    ? {
+        ...user,
+        firstName: dbUser.firstName,
+        lastName: dbUser.lastName,
+        uuid: dbUser.id,
+        developer: dbUser.developer,
+        subscription_plan: dbUser.subscriptionPlan,
+      }
     : user;
 
   return NextResponse.json({

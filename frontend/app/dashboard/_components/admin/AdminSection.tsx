@@ -1,10 +1,8 @@
 import { Spinner } from "@/components/ui/neo/spinner";
 import React from "react";
-import {
-  Enterprise,
-  useAdminEnterprises,
-  User,
-} from "./hooks/useAdminEnterprises";
+import { useAdminEnterprises } from "./hooks/useAdminEnterprises";
+import { Enterprise } from "@/lib/types/Enterprise";
+import { User } from "@/lib/types/User";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -67,19 +65,19 @@ function AdminSection({ userId }: AdminSectionProps) {
               key={user.id}
               className="flex items-center space-x-4 p-2 border rounded"
             >
-              {user.avatarUrl && (
+              {user.avatar_url && (
                 <img
-                  src={user.avatarUrl}
+                  src={user.avatar_url}
                   alt="avatar"
                   className="w-10 h-10 rounded-full"
                 />
               )}
               <div>
                 <div className="font-medium">
-                  {user.firstName} {user.lastName}
+                  {user.firstName || user.login}
                 </div>
                 <div className="text-sm text-gray-500">
-                  {user.subscriptionPlan}
+                  {user.subscription_plan}
                 </div>
               </div>
             </li>
