@@ -1,7 +1,7 @@
 "use client";
 
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
-import { CreditCard, LogOut, Settings, X } from "lucide-react";
+import { CreditCard, LogOut, Settings, X, Gift } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
 import { useRouter } from "next/navigation";

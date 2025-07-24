@@ -113,6 +113,9 @@ export function useEnterpriseActions(user: User) {
       }
       return data;
     },
+    onSuccess: () => {
+      toast.success("Member invite code generated successfully!");
+    },
     onError: (error: any) => {
       showApiErrorToast(error.message || "Failed to generate member invite");
     },
@@ -139,6 +142,9 @@ export function useEnterpriseActions(user: User) {
         throw new Error(data.error);
       }
       return data;
+    },
+    onSuccess: () => {
+      toast.success("Admin invite code generated successfully!");
     },
     onError: (error: any) => {
       showApiErrorToast(error.message || "Failed to generate admin invite");

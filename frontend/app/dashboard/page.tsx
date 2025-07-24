@@ -19,6 +19,7 @@ import { Suspense } from "react";
 import DeveloperSection from "@/app/dashboard/_components/developer";
 import AdminSection from "@/app/dashboard/_components/admin/AdminSection";
 import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
+import RedeemSection from "@/app/dashboard/_components/redeem/RedeemSection";
 
 interface Repository {
   id: number;
@@ -274,6 +275,7 @@ function DashboardPage() {
               </div>
             </>
           )}
+          {section === "redeem" && <RedeemSection user={user} />}
           {section === "billing" && <Billing />}
           {section === "settings" && <Settings />}
           {section === "developer" && user.developer && (

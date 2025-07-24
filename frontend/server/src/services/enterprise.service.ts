@@ -65,7 +65,7 @@ export async function generateMemberInviteCodeService(
 ): Promise<ServiceResponse<{ code: string }>> {
   const parse = generateInviteCodeSchema.safeParse(params);
   if (!parse.success)
-    throw new ServiceError("Validation failed", 400, "validation");
+    throw new ServiceError("Must be a valid Enterprise ID", 400, "validation");
   const { enterpriseId, expiresAt } = parse.data;
   const enterprise = await db
     .select()
@@ -91,7 +91,7 @@ export async function generateAdminInviteCodeService(
 ): Promise<ServiceResponse<{ code: string }>> {
   const parse = generateInviteCodeSchema.safeParse(params);
   if (!parse.success)
-    throw new ServiceError("Validation failed", 400, "validation");
+    throw new ServiceError("Must be a valid Enterprise ID", 400, "validation");
   const { enterpriseId, expiresAt } = parse.data;
   const enterprise = await db
     .select()
@@ -200,10 +200,10 @@ export async function getAdminEnterprisesService(
 
 interface User {
   id: string;
-  avatarUrl: string | null;
+  avatar_url: string | null;
   firstName: string | null;
   lastName: string | null;
-  subscriptionPlan: string | null;
+  subscription_plan: string | null;
   role: string;
 }
 
@@ -216,10 +216,10 @@ export async function getEnterpriseUsersService(
     const usersInEnterprise = await db
       .select({
         id: users.id,
-        avatarUrl: users.avatarUrl,
+        avatar_url: users.avatarUrl,
         firstName: users.firstName,
         lastName: users.lastName,
-        subscriptionPlan: users.subscriptionPlan,
+        subscription_plan: users.subscriptionPlan,
         role: enterpriseUsers.role,
       })
       .from(enterpriseUsers)

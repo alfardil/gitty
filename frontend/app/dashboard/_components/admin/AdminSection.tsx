@@ -1,5 +1,5 @@
 import { Spinner } from "@/components/ui/neo/spinner";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAdminEnterprises } from "./hooks/useAdminEnterprises";
 import { Enterprise } from "@/lib/types/Enterprise";
 import { User } from "@/lib/types/User";
@@ -9,6 +9,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/neo/dropdown-menu";
+import { InviteCodeForm } from "../developer/_components/CreateInvite";
+import { useEnterpriseActions } from "../developer/hooks/useEnterpriseActions";
 
 interface AdminSectionProps {
   userId: string;
@@ -23,8 +25,24 @@ function AdminSection({ userId }: AdminSectionProps) {
     loading,
   } = useAdminEnterprises(userId);
 
+  // Fake user object for useEnterpriseActions (only uuid is needed)
+  const user = { uuid: userId } as User;
+  const actions = useEnterpriseActions(user);
+
+  // Sync selected enterprise to invite forms
+  useEffect(() => {
+    if (selectedEnterprise) {
+      actions.setMemberInviteEnterpriseId(selectedEnterprise);
+      actions.setAdminInviteEnterpriseId(selectedEnterprise);
+    }
+  }, [selectedEnterprise]);
+
   if (loading) return <Spinner size="large" />;
   if (!enterprises.length) return null;
+
+  const selectedEnt = enterprises.find(
+    (ent: Enterprise) => ent.id === selectedEnterprise
+  );
 
   return (
     <section>
@@ -39,9 +57,7 @@ function AdminSection({ userId }: AdminSectionProps) {
               id="enterprise-select"
               className="border border-blue-400/20 rounded px-2 py-1 min-w-[160px] text-left bg-[#181A20] text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              {enterprises.find(
-                (ent: Enterprise) => ent.id === selectedEnterprise
-              )?.name || "Select..."}
+              {selectedEnt?.name || "Select..."}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="bg-[#23272f] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
@@ -57,6 +73,39 @@ function AdminSection({ userId }: AdminSectionProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      {/* Invite forms for members and admins, above users list */}
+      {selectedEnt && (
+        <div className="mb-8 flex flex-col items-center">
+          <div className="w-full max-w-lg space-y-4">
+            <InviteCodeForm
+              role="member"
+              enterpriseId={actions.memberInviteEnterpriseId}
+              setEnterpriseId={actions.setMemberInviteEnterpriseId}
+              expiresDate={actions.memberInviteExpiresDate}
+              setExpiresDate={actions.setMemberInviteExpiresDate}
+              calendarOpen={actions.memberCalendarOpen}
+              setCalendarOpen={actions.setMemberCalendarOpen}
+              handleGenerateInvite={actions.handleGenerateMemberInvite}
+              generateMemberInviteLoading={actions.generateMemberInviteLoading}
+              generateAdminInviteLoading={false}
+              inviteResult={actions.memberInviteResult}
+            />
+            <InviteCodeForm
+              role="admin"
+              enterpriseId={actions.adminInviteEnterpriseId}
+              setEnterpriseId={actions.setAdminInviteEnterpriseId}
+              expiresDate={actions.adminInviteExpiresDate}
+              setExpiresDate={actions.setAdminInviteExpiresDate}
+              calendarOpen={actions.adminCalendarOpen}
+              setCalendarOpen={actions.setAdminCalendarOpen}
+              handleGenerateInvite={actions.handleGenerateAdminInvite}
+              generateMemberInviteLoading={false}
+              generateAdminInviteLoading={actions.generateAdminInviteLoading}
+              inviteResult={actions.adminInviteResult}
+            />
+          </div>
+        </div>
+      )}
       <div>
         <h3 className="text-lg font-semibold mb-2">Users in Enterprise</h3>
         <ul className="space-y-2">
@@ -74,7 +123,7 @@ function AdminSection({ userId }: AdminSectionProps) {
               )}
               <div>
                 <div className="font-medium">
-                  {user.firstName || user.login}
+                  {user.firstName + " " + user.lastName || user.login}
                 </div>
                 <div className="text-sm text-gray-500">
                   {user.subscription_plan}
