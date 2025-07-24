@@ -1,30 +1,25 @@
 import { useState } from "react";
 import { showApiErrorToast } from "./useToastError";
 import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 
 export function useEnterpriseActions(user: any) {
   const [enterpriseName, setEnterpriseName] = useState("");
-  const [enterpriseResult, setEnterpriseResult] = useState<any>(null);
   const [redeemCode, setRedeemCode] = useState("");
-  const [redeemResult, setRedeemResult] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
   const [memberInviteEnterpriseId, setMemberInviteEnterpriseId] = useState("");
   const [memberInviteExpiresDate, setMemberInviteExpiresDate] = useState<
     Date | undefined
   >(undefined);
-  const [memberInviteResult, setMemberInviteResult] = useState<any>(null);
   const [adminInviteEnterpriseId, setAdminInviteEnterpriseId] = useState("");
   const [adminInviteExpiresDate, setAdminInviteExpiresDate] = useState<
     Date | undefined
   >(undefined);
-  const [adminInviteResult, setAdminInviteResult] = useState<any>(null);
   const [memberCalendarOpen, setMemberCalendarOpen] = useState(false);
   const [adminCalendarOpen, setAdminCalendarOpen] = useState(false);
 
-  const handleCreateEnterprise = async () => {
-    setLoading(true);
-    setEnterpriseResult(null);
-    try {
+  // Create Enterprise Mutation
+  const createEnterpriseMutation = useMutation({
+    mutationFn: async () => {
       const res = await fetch("/api/developer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -36,23 +31,22 @@ export function useEnterpriseActions(user: any) {
       });
       const data = await res.json();
       if (data?.error) {
-        showApiErrorToast(data.error);
-      } else if (data?.success) {
-        setEnterpriseName("");
+        throw new Error(data.error);
       }
-      setEnterpriseResult(data);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showApiErrorToast(msg || "Failed to create enterprise");
-    } finally {
-      setLoading(false);
-    }
-  };
+      toast.success("Enterprise created successfully!");
+      return data;
+    },
+    onSuccess: (data) => {
+      setEnterpriseName("");
+    },
+    onError: (error: any) => {
+      showApiErrorToast(error.message || "Failed to create enterprise");
+    },
+  });
 
-  const handleRedeemInvite = async () => {
-    setLoading(true);
-    setRedeemResult(null);
-    try {
+  // Redeem Invite Mutation
+  const redeemInviteMutation = useMutation({
+    mutationFn: async () => {
       const res = await fetch("/api/developer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,17 +64,12 @@ export function useEnterpriseActions(user: any) {
         } catch {
           errorData = `HTTP ${res.status}: ${errorText}`;
         }
-        showApiErrorToast(errorData);
-        setRedeemResult(null);
-        return;
+        throw new Error(errorData);
       }
       const data = await res.json();
       if (data?.error) {
-        showApiErrorToast(data.error);
-        setRedeemResult(null);
-        return;
+        throw new Error(data.error);
       }
-      setRedeemResult(data);
       // Show toast if joined as member or admin
       if (data.success && data.role) {
         if (data.role === "admin") {
@@ -89,25 +78,22 @@ export function useEnterpriseActions(user: any) {
           toast.success("Successfully joined as member!");
         }
       }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showApiErrorToast(msg || "Failed to redeem invite code");
-      setRedeemResult(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data;
+    },
+    onError: (error: any) => {
+      showApiErrorToast(error.message || "Failed to redeem invite code");
+    },
+  });
 
-  const handleGenerateMemberInvite = async () => {
-    setLoading(true);
-    setMemberInviteResult(null);
-    let expiresAt: string | undefined = undefined;
-    if (memberInviteExpiresDate) {
-      const endOfDay = new Date(memberInviteExpiresDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      expiresAt = endOfDay.toISOString();
-    }
-    try {
+  // Generate Member Invite Mutation
+  const generateMemberInviteMutation = useMutation({
+    mutationFn: async () => {
+      let expiresAt: string | undefined = undefined;
+      if (memberInviteExpiresDate) {
+        const endOfDay = new Date(memberInviteExpiresDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        expiresAt = endOfDay.toISOString();
+      }
       const res = await fetch("/api/developer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,27 +105,24 @@ export function useEnterpriseActions(user: any) {
       });
       const data = await res.json();
       if (data?.error) {
-        showApiErrorToast(data.error);
+        throw new Error(data.error);
       }
-      setMemberInviteResult(data);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showApiErrorToast(msg || "Failed to generate member invite");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data;
+    },
+    onError: (error: any) => {
+      showApiErrorToast(error.message || "Failed to generate member invite");
+    },
+  });
 
-  const handleGenerateAdminInvite = async () => {
-    setLoading(true);
-    setAdminInviteResult(null);
-    let expiresAt: string | undefined = undefined;
-    if (adminInviteExpiresDate) {
-      const endOfDay = new Date(adminInviteExpiresDate);
-      endOfDay.setHours(23, 59, 59, 999);
-      expiresAt = endOfDay.toISOString();
-    }
-    try {
+  // Generate Admin Invite Mutation
+  const generateAdminInviteMutation = useMutation({
+    mutationFn: async () => {
+      let expiresAt: string | undefined = undefined;
+      if (adminInviteExpiresDate) {
+        const endOfDay = new Date(adminInviteExpiresDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        expiresAt = endOfDay.toISOString();
+      }
       const res = await fetch("/api/developer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -151,42 +134,43 @@ export function useEnterpriseActions(user: any) {
       });
       const data = await res.json();
       if (data?.error) {
-        showApiErrorToast(data.error);
+        throw new Error(data.error);
       }
-      setAdminInviteResult(data);
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      showApiErrorToast(msg || "Failed to generate admin invite");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data;
+    },
+    onError: (error: any) => {
+      showApiErrorToast(error.message || "Failed to generate admin invite");
+    },
+  });
 
   return {
     enterpriseName,
     setEnterpriseName,
-    enterpriseResult,
+    enterpriseResult: createEnterpriseMutation.data,
     redeemCode,
     setRedeemCode,
-    redeemResult,
-    loading,
+    redeemResult: redeemInviteMutation.data,
+    createEnterpriseLoading: createEnterpriseMutation.isPending,
+    redeemInviteLoading: redeemInviteMutation.isPending,
+    generateMemberInviteLoading: generateMemberInviteMutation.isPending,
+    generateAdminInviteLoading: generateAdminInviteMutation.isPending,
     memberInviteEnterpriseId,
     setMemberInviteEnterpriseId,
     memberInviteExpiresDate,
     setMemberInviteExpiresDate,
-    memberInviteResult,
+    memberInviteResult: generateMemberInviteMutation.data,
     adminInviteEnterpriseId,
     setAdminInviteEnterpriseId,
     adminInviteExpiresDate,
     setAdminInviteExpiresDate,
-    adminInviteResult,
+    adminInviteResult: generateAdminInviteMutation.data,
     memberCalendarOpen,
     setMemberCalendarOpen,
     adminCalendarOpen,
     setAdminCalendarOpen,
-    handleCreateEnterprise,
-    handleRedeemInvite,
-    handleGenerateMemberInvite,
-    handleGenerateAdminInvite,
+    handleCreateEnterprise: createEnterpriseMutation.mutate,
+    handleRedeemInvite: redeemInviteMutation.mutate,
+    handleGenerateMemberInvite: generateMemberInviteMutation.mutate,
+    handleGenerateAdminInvite: generateAdminInviteMutation.mutate,
   };
 }

@@ -4,4 +4,5 @@ export const SIDEBAR_SECTIONS = [
   { key: "insights", label: "Insights", icon: BarChart2 },
   { key: "analysis", label: "Analysis", icon: FileText },
   { key: "developer", label: "Developer", icon: Users },
+  { key: "admin", label: "Admin", icon: Users },
 ];

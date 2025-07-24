@@ -16,7 +16,7 @@ export default function DeveloperSection({ user }: { user: any }) {
         enterpriseName={actions.enterpriseName}
         setEnterpriseName={actions.setEnterpriseName}
         handleCreateEnterprise={actions.handleCreateEnterprise}
-        loading={actions.loading}
+        createEnterpriseLoading={actions.createEnterpriseLoading}
         enterpriseResult={actions.enterpriseResult}
       />
       <InviteCodeForm
@@ -28,7 +28,8 @@ export default function DeveloperSection({ user }: { user: any }) {
         calendarOpen={actions.memberCalendarOpen}
         setCalendarOpen={actions.setMemberCalendarOpen}
         handleGenerateInvite={actions.handleGenerateMemberInvite}
-        loading={actions.loading}
+        generateMemberInviteLoading={actions.generateMemberInviteLoading}
+        generateAdminInviteLoading={false}
         inviteResult={actions.memberInviteResult}
       />
       <InviteCodeForm
@@ -40,14 +41,15 @@ export default function DeveloperSection({ user }: { user: any }) {
         calendarOpen={actions.adminCalendarOpen}
         setCalendarOpen={actions.setAdminCalendarOpen}
         handleGenerateInvite={actions.handleGenerateAdminInvite}
-        loading={actions.loading}
+        generateMemberInviteLoading={false}
+        generateAdminInviteLoading={actions.generateAdminInviteLoading}
         inviteResult={actions.adminInviteResult}
       />
       <RedeemInviteForm
         redeemCode={actions.redeemCode}
         setRedeemCode={actions.setRedeemCode}
         handleRedeemInvite={actions.handleRedeemInvite}
-        loading={actions.loading}
+        redeemInviteLoading={actions.redeemInviteLoading}
         redeemResult={actions.redeemResult}
       />
     </div>

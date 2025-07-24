@@ -291,16 +291,24 @@ export async function redeemEnterpriseInviteCodeForAdmin({
     )
     .limit(1);
   if (existing.length > 0) {
-    // Instead of throwing, upgrade their role to admin
-    await db
-      .update(enterpriseUsers)
-      .set({ role: "admin" })
-      .where(
-        and(
-          eq(enterpriseUsers.enterpriseId, inviteCode.enterpriseId),
-          eq(enterpriseUsers.userId, userId)
-        )
+    if (existing[0].role === "admin") {
+      const err: any = new Error(
+        "User is already an admin of this enterprise."
       );
+      err.code = "ALREADY_MEMBER";
+      throw err;
+    } else {
+      // Upgrade member to admin
+      await db
+        .update(enterpriseUsers)
+        .set({ role: "admin" })
+        .where(
+          and(
+            eq(enterpriseUsers.enterpriseId, inviteCode.enterpriseId),
+            eq(enterpriseUsers.userId, userId)
+          )
+        );
+    }
   } else {
     await db.insert(enterpriseUsers).values({
       enterpriseId: inviteCode.enterpriseId,

@@ -6,6 +6,7 @@ import { Toaster } from "../components/ui/neo/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React from "react";
+import ReactQueryProvider from "@/lib/queryProvider";
 
 const sen = Sen({
   variable: "--font-sen",
@@ -30,10 +31,12 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/gittylogo.png" />
       </head>
       <body>
-        <Toaster />
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <ReactQueryProvider>
+          <Toaster />
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </ReactQueryProvider>
       </body>
     </html>
   );

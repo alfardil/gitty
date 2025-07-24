@@ -1,12 +1,13 @@
 import React from "react";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/neo/spinner";
 
 interface CreateEnterpriseProps {
   enterpriseName: string;
   setEnterpriseName: (v: string) => void;
   handleCreateEnterprise: () => void;
-  loading: boolean;
+  createEnterpriseLoading: boolean;
   enterpriseResult: any;
 }
 
@@ -14,7 +15,7 @@ export function CreateEnterprise({
   enterpriseName,
   setEnterpriseName,
   handleCreateEnterprise,
-  loading,
+  createEnterpriseLoading,
   enterpriseResult,
 }: CreateEnterpriseProps) {
   return (
@@ -27,23 +28,36 @@ export function CreateEnterprise({
         onChange={(e) => setEnterpriseName(e.target.value)}
       />
       <button
-        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center justify-center"
         onClick={handleCreateEnterprise}
-        disabled={loading || !enterpriseName}
+        disabled={createEnterpriseLoading || !enterpriseName}
       >
-        Create
+        {createEnterpriseLoading ? (
+          <>
+            <Spinner size="small" className="mr-2" /> Creating...
+          </>
+        ) : (
+          "Create"
+        )}
       </button>
-      {enterpriseResult && enterpriseResult.success && (
+      {createEnterpriseLoading ? (
         <div className="mt-2 text-sm text-white">
-          <div>Created: {enterpriseResult.enterprise?.name}</div>
+          <div className="h-5 w-32 bg-gray-700 rounded animate-pulse mb-2" />
+          <div className="h-5 w-64 bg-gray-700 rounded animate-pulse" />
+        </div>
+      ) : enterpriseResult && enterpriseResult.success ? (
+        <div className="mt-2 text-sm text-white">
+          <div>Created: {enterpriseResult.data?.enterprise?.name}</div>
           <div className="flex items-center gap-2 mt-1">
             Enterprise ID:{" "}
-            <span className="font-mono">{enterpriseResult.enterprise?.id}</span>
+            <span className="font-mono">
+              {enterpriseResult.data?.enterprise?.id}
+            </span>
             <button
               className="ml-1 p-1 rounded bg-blue-400/20 hover:bg-blue-400/40 text-blue-200 inline-flex items-center"
               onClick={() => {
                 navigator.clipboard.writeText(
-                  enterpriseResult.enterprise?.id || ""
+                  enterpriseResult.data?.enterprise?.id || ""
                 );
                 toast.success("Copied to clipboard");
               }}
@@ -53,7 +67,7 @@ export function CreateEnterprise({
             </button>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

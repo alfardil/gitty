@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/neo/dropdown-menu";
 import { Calendar as CalendarIcon, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/neo/spinner";
 
 interface InviteCodeFormProps {
   role: "member" | "admin";
@@ -17,7 +18,8 @@ interface InviteCodeFormProps {
   calendarOpen: boolean;
   setCalendarOpen: (v: boolean) => void;
   handleGenerateInvite: () => void;
-  loading: boolean;
+  generateMemberInviteLoading: boolean;
+  generateAdminInviteLoading: boolean;
   inviteResult: any;
 }
 
@@ -30,7 +32,8 @@ export function InviteCodeForm({
   calendarOpen,
   setCalendarOpen,
   handleGenerateInvite,
-  loading,
+  generateMemberInviteLoading,
+  generateAdminInviteLoading,
   inviteResult,
 }: InviteCodeFormProps) {
   return (
@@ -81,19 +84,34 @@ export function InviteCodeForm({
         </DropdownMenu>
       </div>
       <button
-        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center justify-center"
         onClick={handleGenerateInvite}
-        disabled={loading || !enterpriseId}
+        disabled={
+          generateMemberInviteLoading ||
+          generateAdminInviteLoading ||
+          !enterpriseId
+        }
       >
-        Generate {role === "member" ? "Member" : "Admin"} Invite
+        {generateMemberInviteLoading || generateAdminInviteLoading ? (
+          <>
+            <Spinner size="small" className="mr-2" /> Generating...
+          </>
+        ) : (
+          "Generate Invite"
+        )}
       </button>
-      {inviteResult && inviteResult.success && (
+      {generateMemberInviteLoading || generateAdminInviteLoading ? (
+        <div className="mt-2 text-sm text-white">
+          <div className="h-5 w-32 bg-gray-700 rounded animate-pulse mb-2" />
+        </div>
+      ) : inviteResult && inviteResult.success ? (
         <div className="mt-2 text-sm text-white flex items-center gap-2">
-          Invite Code: <span className="font-mono">{inviteResult.code}</span>
+          Invite Code:{" "}
+          <span className="font-mono">{inviteResult.data?.code}</span>
           <button
             className="ml-1 p-1 rounded bg-blue-400/20 hover:bg-blue-400/40 text-blue-200 inline-flex items-center"
             onClick={() => {
-              navigator.clipboard.writeText(inviteResult.code || "");
+              navigator.clipboard.writeText(inviteResult.data?.code || "");
               toast.success("Copied to clipboard");
             }}
             title="Copy Invite Code"
@@ -101,7 +119,7 @@ export function InviteCodeForm({
             <Copy className="w-4 h-4" />
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
