@@ -2,7 +2,7 @@
 
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X } from "lucide-react";
-import React from "react";
+import React, { useMemo } from "react";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
 import { useRouter } from "next/navigation";
 
@@ -63,6 +63,13 @@ export function Sidebar({
   const { username } = useUserUsername(user ? user.id.toString() : "");
   const router = useRouter();
 
+  const filteredSidebarSections = useMemo(() => {
+    if (!user?.developer) {
+      return SIDEBAR_SECTIONS.filter((section) => section.key !== "developer");
+    }
+    return SIDEBAR_SECTIONS;
+  }, [user]);
+
   return (
     <>
       <aside
@@ -107,7 +114,7 @@ export function Sidebar({
           )}
         </div>
         <nav className="flex-1 px-3 py-4 space-y-2">
-          {SIDEBAR_SECTIONS.map(
+          {filteredSidebarSections.map(
             ({
               key,
               label,
@@ -194,7 +201,7 @@ export function Sidebar({
               </button>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-2">
-              {SIDEBAR_SECTIONS.map(
+              {filteredSidebarSections.map(
                 ({
                   key,
                   label,

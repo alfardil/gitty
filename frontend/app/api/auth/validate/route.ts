@@ -35,7 +35,9 @@ export async function GET(request: NextRequest) {
   if (user && user.id) {
     dbUser = await getUserByGithubId(String(user.id));
   }
-  const userWithUuid = dbUser ? { ...user, uuid: dbUser.id } : user;
+  const userWithUuid = dbUser
+    ? { ...user, uuid: dbUser.id, developer: dbUser.developer }
+    : user;
 
   return NextResponse.json({
     success: true,

@@ -263,7 +263,9 @@ function DashboardPage() {
           )}
           {section === "billing" && <Billing />}
           {section === "settings" && <Settings />}
-          {section === "developer" && <DeveloperSection user={user} />}
+          {section === "developer" && user.developer && (
+            <DeveloperSection user={user} />
+          )}
         </main>
       </div>
     </div>

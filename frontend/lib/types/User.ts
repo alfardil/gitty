@@ -10,4 +10,5 @@ export type User = {
   email: string | null;
   username: string | null;
   uuid?: string;
+  developer?: boolean;
 };
