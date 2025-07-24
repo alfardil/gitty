@@ -38,7 +38,7 @@ export const redeemInviteCodeSchema = z.object({
 });
 
 export async function createEnterpriseService(
-  params: any
+  params: z.infer<typeof createEnterpriseSchema>
 ): Promise<ServiceResponse<{ enterprise: any }>> {
   const parse = createEnterpriseSchema.safeParse(params);
   if (!parse.success)
@@ -60,7 +60,7 @@ export async function createEnterpriseService(
 }
 
 export async function generateMemberInviteCodeService(
-  params: any
+  params: z.infer<typeof generateInviteCodeSchema>
 ): Promise<ServiceResponse<{ code: string }>> {
   const parse = generateInviteCodeSchema.safeParse(params);
   if (!parse.success)
@@ -86,7 +86,7 @@ export async function generateMemberInviteCodeService(
 }
 
 export async function generateAdminInviteCodeService(
-  params: any
+  params: z.infer<typeof generateInviteCodeSchema>
 ): Promise<ServiceResponse<{ code: string }>> {
   const parse = generateInviteCodeSchema.safeParse(params);
   if (!parse.success)
@@ -112,7 +112,7 @@ export async function generateAdminInviteCodeService(
 }
 
 export async function redeemInviteCodeService(
-  params: any
+  params: z.infer<typeof redeemInviteCodeSchema>
 ): Promise<ServiceResponse<{ role: string }>> {
   const parse = redeemInviteCodeSchema.safeParse(params);
   if (!parse.success)
@@ -135,8 +135,12 @@ export async function redeemInviteCodeService(
       await redeemEnterpriseInviteCodeForMember({ code, userId });
       return { success: true, data: { role: "member" } };
     }
-  } catch (error: any) {
-    if (error.code === "ALREADY_MEMBER") {
+  } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      "code" in error &&
+      error.code === "ALREADY_MEMBER"
+    ) {
       if (inviteCode.role === "admin") {
         throw new ServiceError(
           "Already an admin of this enterprise!",
@@ -151,10 +155,13 @@ export async function redeemInviteCodeService(
         );
       }
     }
-    if (error.message === "Invite code already used") {
+    if (
+      error instanceof Error &&
+      error.message === "Invite code already used"
+    ) {
       throw new ServiceError("Invite code already used", 400, "used_code");
     }
-    if (error.message === "Invalid invite code") {
+    if (error instanceof Error && error.message === "Invalid invite code") {
       throw new ServiceError("Invalid invite code", 400, "invalid_code");
     }
     throw error;
@@ -183,8 +190,10 @@ export async function getAdminEnterprisesService(
         )
       );
     return { success: true, data: { enterprises: adminEnterprises } };
-  } catch (error: any) {
-    throw new ServiceError(error.message || "Internal error", 500, "db_error");
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Internal error";
+    throw new ServiceError(errorMessage, 500, "db_error");
   }
 }
 
@@ -207,7 +216,9 @@ export async function getEnterpriseUsersService(
       .innerJoin(users, eq(enterpriseUsers.userId, users.id))
       .where(eq(enterpriseUsers.enterpriseId, enterpriseId));
     return { success: true, data: { users: usersInEnterprise } };
-  } catch (error: any) {
-    throw new ServiceError(error.message || "Internal error", 500, "db_error");
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Internal error";
+    throw new ServiceError(errorMessage, 500, "db_error");
   }
 }
