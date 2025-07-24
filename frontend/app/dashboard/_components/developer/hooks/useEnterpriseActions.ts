@@ -2,6 +2,7 @@ import { useState } from "react";
 import { showApiErrorToast } from "./useToastError";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { User } from "@/lib/types/User";
 
 function getEndOfDay(date: Date): string {
   const endOfDay = new Date(date);
@@ -9,7 +10,7 @@ function getEndOfDay(date: Date): string {
   return endOfDay.toISOString();
 }
 
-export function useEnterpriseActions(user: any) {
+export function useEnterpriseActions(user: User) {
   const [enterpriseName, setEnterpriseName] = useState("");
   const [redeemCode, setRedeemCode] = useState("");
   const [memberInviteEnterpriseId, setMemberInviteEnterpriseId] = useState("");

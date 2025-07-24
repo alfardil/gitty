@@ -9,6 +9,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { enterpriseUsers, users } from "@/server/src/db/schema";
+import { Enterprise } from "@/lib/types/Enterprise";
 
 export type ServiceResponse<T> =
   | { success: true; data: T }
@@ -39,7 +40,7 @@ export const redeemInviteCodeSchema = z.object({
 
 export async function createEnterpriseService(
   params: z.infer<typeof createEnterpriseSchema>
-): Promise<ServiceResponse<{ enterprise: any }>> {
+): Promise<ServiceResponse<{ enterprise: Enterprise }>> {
   const parse = createEnterpriseSchema.safeParse(params);
   if (!parse.success)
     throw new ServiceError("Validation failed", 400, "validation");
@@ -170,7 +171,7 @@ export async function redeemInviteCodeService(
 
 export async function getAdminEnterprisesService(
   userId: string
-): Promise<ServiceResponse<{ enterprises: any[] }>> {
+): Promise<ServiceResponse<{ enterprises: Enterprise[] }>> {
   if (!userId) throw new ServiceError("Missing userId", 400, "missing_userId");
   try {
     const adminEnterprises = await db
@@ -197,9 +198,18 @@ export async function getAdminEnterprisesService(
   }
 }
 
+interface User {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  subscriptionPlan: string | null;
+  role: string;
+}
+
 export async function getEnterpriseUsersService(
   enterpriseId: string
-): Promise<ServiceResponse<{ users: any[] }>> {
+): Promise<ServiceResponse<{ users: User[] }>> {
   if (!enterpriseId)
     throw new ServiceError("Missing enterpriseId", 400, "missing_enterpriseId");
   try {

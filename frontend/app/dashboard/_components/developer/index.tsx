@@ -3,8 +3,9 @@ import { useEnterpriseActions } from "./hooks/useEnterpriseActions";
 import { CreateEnterprise } from "./_components/CreateEnterprise";
 import { InviteCodeForm } from "./_components/CreateInvite";
 import { RedeemInviteForm } from "./_components/RedeemInvite";
+import { User } from "@/lib/types/User";
 
-export default function DeveloperSection({ user }: { user: any }) {
+export default function DeveloperSection({ user }: { user: User }) {
   const actions = useEnterpriseActions(user);
 
   return (

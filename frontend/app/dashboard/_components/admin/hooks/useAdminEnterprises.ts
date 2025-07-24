@@ -1,20 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-export interface Enterprise {
-  id: string;
-  name: string;
-}
-
-export interface User {
-  id: string;
-  avatarUrl?: string;
-  firstName?: string;
-  lastName?: string;
-  subscriptionPlan?: string;
-  role?: string;
-}
-
 export function useAdminEnterprises(userId: string) {
   const { data: enterprisesData, isLoading: enterprisesLoading } = useQuery({
     queryKey: ["admin-enterprises", userId],

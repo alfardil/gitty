@@ -75,6 +75,11 @@ function DashboardPage() {
 
   const isInsightsLoading = reposLoading || orgsLoading || commitsLoading;
 
+  const shouldRenderAdminSection =
+    section === "admin" &&
+    typeof user.uuid === "string" &&
+    isAdminOfAnyEnterprise;
+
   return (
     <div className="min-h-screen flex bg-[#181A20] text-gray-100">
       <Sidebar
@@ -169,9 +174,9 @@ function DashboardPage() {
         </header>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-[#181A20] text-gray-100">
-          {section === "admin" &&
-            typeof user.uuid === "string" &&
-            isAdminOfAnyEnterprise && <AdminSection userId={user.uuid} />}
+          {shouldRenderAdminSection && (
+            <AdminSection userId={user.uuid as string} />
+          )}
           {section === "insights" && (
             <div>
               {isInsightsLoading ? (
