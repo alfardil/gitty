@@ -51,7 +51,7 @@ export function Settings() {
         <h2 className="text-xl font-bold mb-8 text-white text-center">
           Account
         </h2>
-        {/* Avatar and Name */}
+
         <div className="flex flex-col items-center mb-6">
           <div className="relative mb-2">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-5xl select-none">

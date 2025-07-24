@@ -13,10 +13,10 @@ import { useUserRepos } from "@/lib/hooks/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Billing } from "@/app/dashboard/_components/Billing";
-import { Settings } from "@/app/dashboard/_components/Settings";
+import { Billing } from "@/app/dashboard/_components/billing/Billing";
+import { Settings } from "@/app/dashboard/_components/settings/Settings";
 import { Suspense } from "react";
-import { DeveloperSection } from "@/app/dashboard/_components/DeveloperSection";
+import DeveloperSection from "@/app/dashboard/_components/developer";
 
 interface Repository {
   id: number;

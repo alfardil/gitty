@@ -214,7 +214,6 @@ export async function redeemEnterpriseInviteCodeForMember({
   code: string;
   userId: string;
 }) {
-  // Find invite code
   const invite = await db
     .select()
     .from(enterpriseInviteCodes)
@@ -226,7 +225,6 @@ export async function redeemEnterpriseInviteCodeForMember({
   if (inviteCode.expiresAt && new Date(inviteCode.expiresAt) < new Date())
     throw new Error("Invite code expired");
 
-  // Check if user is already a member
   const existing = await db
     .select()
     .from(enterpriseUsers)
@@ -238,7 +236,13 @@ export async function redeemEnterpriseInviteCodeForMember({
     )
     .limit(1);
   if (existing.length > 0) {
-    const err: any = new Error("User is already a member of this enterprise.");
+    const userRole = existing[0].role;
+    let err: any;
+    if (userRole === "admin") {
+      err = new Error("User is already an admin of this enterprise.");
+    } else {
+      err = new Error("User is already a member of this enterprise.");
+    }
     err.code = "ALREADY_MEMBER";
     throw err;
   }
