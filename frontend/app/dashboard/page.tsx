@@ -18,6 +18,7 @@ import { Settings } from "@/app/dashboard/_components/settings/Settings";
 import { Suspense } from "react";
 import DeveloperSection from "@/app/dashboard/_components/developer";
 import AdminSection from "@/app/dashboard/_components/admin/AdminSection";
+import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
 
 interface Repository {
   id: number;
@@ -41,6 +42,9 @@ function DashboardPage() {
   const [sidebarMobile, setSidebarMobile] = useState(false);
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const { data: isAdminOfAnyEnterprise } = useIsAdminOfAnyEnterprise(
+    user?.uuid
+  );
 
   const { repos, loading: reposLoading } = useUserRepos(user);
   const { orgs, loading: orgsLoading } = useUserOrgs(user) as {
@@ -165,9 +169,9 @@ function DashboardPage() {
         </header>
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-[#181A20] text-gray-100">
-          {section === "admin" && user && user.uuid && (
-            <AdminSection userId={user.uuid} />
-          )}
+          {section === "admin" &&
+            typeof user.uuid === "string" &&
+            isAdminOfAnyEnterprise && <AdminSection userId={user.uuid} />}
           {section === "insights" && (
             <div>
               {isInsightsLoading ? (

@@ -2,9 +2,10 @@
 
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useUserUsername } from "@/lib/hooks/useUserUsername";
 import { useRouter } from "next/navigation";
+import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
 
 const ChatGPTSidebarToggleLeft = ({ className = "" }) => {
   return (
@@ -62,13 +63,20 @@ export function Sidebar({
 }) {
   const { username } = useUserUsername(user ? user.id.toString() : "");
   const router = useRouter();
+  const { data: isAdminOfAnyEnterprise } = useIsAdminOfAnyEnterprise(
+    user?.uuid
+  );
 
   const filteredSidebarSections = useMemo(() => {
+    let sections = SIDEBAR_SECTIONS;
     if (!user?.developer) {
-      return SIDEBAR_SECTIONS.filter((section) => section.key !== "developer");
+      sections = sections.filter((section) => section.key !== "developer");
     }
-    return SIDEBAR_SECTIONS;
-  }, [user]);
+    if (!isAdminOfAnyEnterprise) {
+      sections = sections.filter((section) => section.key !== "admin");
+    }
+    return sections;
+  }, [user, isAdminOfAnyEnterprise]);
 
   return (
     <>

@@ -323,3 +323,16 @@ export async function redeemEnterpriseInviteCodeForAdmin({
     .where(eq(enterpriseInviteCodes.code, code));
   return true;
 }
+
+export async function isUserAdminOfAnyEnterprise(
+  userId: string
+): Promise<boolean> {
+  const result = await db
+    .select()
+    .from(enterpriseUsers)
+    .where(
+      and(eq(enterpriseUsers.userId, userId), eq(enterpriseUsers.role, "admin"))
+    )
+    .limit(1);
+  return result.length > 0;
+}
