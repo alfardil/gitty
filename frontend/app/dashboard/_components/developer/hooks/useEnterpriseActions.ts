@@ -76,11 +76,10 @@ export function useEnterpriseActions(user: any) {
       if (data?.error) {
         throw new Error(data.error);
       }
-      // Show toast if joined as member or admin
-      if (data.success && data.role) {
-        if (data.role === "admin") {
+      if (data.success && data.data?.role) {
+        if (data.data.role === "admin") {
           toast.success("Successfully joined as admin!");
-        } else if (data.role === "member") {
+        } else if (data.data.role === "member") {
           toast.success("Successfully joined as member!");
         }
       }
