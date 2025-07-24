@@ -3,6 +3,12 @@ import { showApiErrorToast } from "./useToastError";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 
+function getEndOfDay(date: Date): string {
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+  return endOfDay.toISOString();
+}
+
 export function useEnterpriseActions(user: any) {
   const [enterpriseName, setEnterpriseName] = useState("");
   const [redeemCode, setRedeemCode] = useState("");
@@ -90,9 +96,7 @@ export function useEnterpriseActions(user: any) {
     mutationFn: async () => {
       let expiresAt: string | undefined = undefined;
       if (memberInviteExpiresDate) {
-        const endOfDay = new Date(memberInviteExpiresDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        expiresAt = endOfDay.toISOString();
+        expiresAt = getEndOfDay(memberInviteExpiresDate);
       }
       const res = await fetch("/api/developer", {
         method: "POST",
@@ -119,9 +123,7 @@ export function useEnterpriseActions(user: any) {
     mutationFn: async () => {
       let expiresAt: string | undefined = undefined;
       if (adminInviteExpiresDate) {
-        const endOfDay = new Date(adminInviteExpiresDate);
-        endOfDay.setHours(23, 59, 59, 999);
-        expiresAt = endOfDay.toISOString();
+        expiresAt = getEndOfDay(adminInviteExpiresDate);
       }
       const res = await fetch("/api/developer", {
         method: "POST",

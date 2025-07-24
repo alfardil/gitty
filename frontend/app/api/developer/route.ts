@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   createEnterpriseService,
-  generateInviteCodeService,
   generateMemberInviteCodeService,
   generateAdminInviteCodeService,
   redeemInviteCodeService,
@@ -16,9 +15,6 @@ export async function POST(req: NextRequest) {
     switch (action) {
       case "createEnterprise":
         result = await createEnterpriseService(params);
-        break;
-      case "generateInviteCode":
-        result = await generateInviteCodeService(params);
         break;
       case "generateMemberInviteCode":
         result = await generateMemberInviteCodeService(params);

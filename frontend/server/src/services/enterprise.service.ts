@@ -59,20 +59,6 @@ export async function createEnterpriseService(
   return { success: true, data: { enterprise } };
 }
 
-export async function generateInviteCodeService(
-  params: any
-): Promise<ServiceResponse<{ code: string }>> {
-  const parse = generateInviteCodeSchema.safeParse(params);
-  if (!parse.success)
-    throw new ServiceError("Validation failed", 400, "validation");
-  const { enterpriseId, expiresAt } = parse.data;
-  const code = await generateEnterpriseInviteCode({
-    enterpriseId,
-    expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-  });
-  return { success: true, data: { code } };
-}
-
 export async function generateMemberInviteCodeService(
   params: any
 ): Promise<ServiceResponse<{ code: string }>> {

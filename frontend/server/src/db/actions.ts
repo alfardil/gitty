@@ -237,14 +237,7 @@ export async function redeemEnterpriseInviteCodeForMember({
     .limit(1);
   if (existing.length > 0) {
     const userRole = existing[0].role;
-    let err: any;
-    if (userRole === "admin") {
-      err = new Error("User is already an admin of this enterprise.");
-    } else {
-      err = new Error("User is already a member of this enterprise.");
-    }
-    err.code = "ALREADY_MEMBER";
-    throw err;
+    throw createEnterpriseUserError(userRole);
   }
 
   await db.insert(enterpriseUsers).values({
@@ -292,11 +285,7 @@ export async function redeemEnterpriseInviteCodeForAdmin({
     .limit(1);
   if (existing.length > 0) {
     if (existing[0].role === "admin") {
-      const err: any = new Error(
-        "User is already an admin of this enterprise."
-      );
-      err.code = "ALREADY_MEMBER";
-      throw err;
+      throw createEnterpriseUserError("admin");
     } else {
       // Upgrade member to admin
       await db
@@ -335,4 +324,15 @@ export async function isUserAdminOfAnyEnterprise(
     )
     .limit(1);
   return result.length > 0;
+}
+
+function createEnterpriseUserError(userRole: string) {
+  let err: any;
+  if (userRole === "admin") {
+    err = new Error("User is already an admin of this enterprise.");
+  } else {
+    err = new Error("User is already a member of this enterprise.");
+  }
+  err.code = "ALREADY_MEMBER";
+  return err;
 }
