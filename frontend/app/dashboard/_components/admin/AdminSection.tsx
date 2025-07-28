@@ -75,8 +75,8 @@ function AdminSection({ userId }: AdminSectionProps) {
       </div>
       {/* Invite forms for members and admins, above users list */}
       {selectedEnt && (
-        <div className="mb-8 flex flex-col items-center">
-          <div className="w-full max-w-lg space-y-4">
+        <div className="mb-8 flex justify-center">
+          <div className="flex gap-8">
             <InviteCodeForm
               role="member"
               enterpriseId={actions.memberInviteEnterpriseId}
@@ -123,7 +123,9 @@ function AdminSection({ userId }: AdminSectionProps) {
               )}
               <div>
                 <div className="font-medium">
-                  {user.firstName + " " + user.lastName || user.login}
+                  {user.firstName && user.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user.githubUsername}
                 </div>
                 <div className="text-sm text-gray-500">
                   {user.subscription_plan}

@@ -201,6 +201,8 @@ export async function getAdminEnterprisesService(
 interface User {
   id: string;
   avatar_url: string | null;
+  githubId: string | null;
+  githubUsername: string | null;
   firstName: string | null;
   lastName: string | null;
   subscription_plan: string | null;
@@ -216,6 +218,8 @@ export async function getEnterpriseUsersService(
     const usersInEnterprise = await db
       .select({
         id: users.id,
+        githubId: users.githubId,
+        githubUsername: users.githubUsername,
         avatar_url: users.avatarUrl,
         firstName: users.firstName,
         lastName: users.lastName,
