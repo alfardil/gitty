@@ -20,6 +20,7 @@ import DeveloperSection from "@/app/dashboard/_components/developer";
 import AdminSection from "@/app/dashboard/_components/admin/AdminSection";
 import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
 import RedeemSection from "@/app/dashboard/_components/redeem/RedeemSection";
+import { RoadMapSection } from "@/app/dashboard/_components/roadmap/RoadMapSection";
 
 interface Repository {
   id: number;
@@ -275,6 +276,7 @@ function DashboardPage() {
               </div>
             </>
           )}
+          {section === "roadmap" && <RoadMapSection />}
           {section === "redeem" && <RedeemSection user={user} />}
           {section === "billing" && <Billing />}
           {section === "settings" && <Settings />}

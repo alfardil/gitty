@@ -11,6 +11,7 @@ import {
   foreignKey,
   primaryKey,
   pgEnum,
+  decimal,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -158,6 +159,53 @@ export const enterpriseInviteCodes = pgTable(
       columns: [table.usedBy],
       foreignColumns: [users.id],
       name: "invite_codes_used_by_fk",
+    }),
+  ]
+);
+
+export const taskStatus = pgEnum("task_status", [
+  "not_started",
+  "in_progress",
+  "pending_pr_approval",
+  "done",
+]);
+
+export const taskPriority = pgEnum("task_priority", ["low", "medium", "high"]);
+
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    title: varchar({ length: 255 }).notNull(),
+    description: text(),
+    status: taskStatus("status").default("not_started").notNull(),
+    priority: taskPriority("priority").default("medium").notNull(),
+    dueDate: timestamp({ mode: "string" }),
+    assigneeId: uuid("assignee_id"),
+    createdById: uuid("created_by_id").notNull(),
+    enterpriseId: uuid("enterprise_id"),
+    tags: text().array(),
+    position: decimal("position", { precision: 10, scale: 2 })
+      .default("0")
+      .notNull(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.assigneeId],
+      foreignColumns: [users.id],
+      name: "tasks_assignee_id_fk",
+    }),
+    foreignKey({
+      columns: [table.createdById],
+      foreignColumns: [users.id],
+      name: "tasks_created_by_id_fk",
+    }),
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "tasks_enterprise_id_fk",
     }),
   ]
 );
