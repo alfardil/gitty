@@ -6,7 +6,11 @@
 [![Fly.io](https://img.shields.io/badge/Fly.io-000000?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
 [![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=white)](https://neon.tech/)
 
-Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
+Welcome to Gitty - Your AI-Powered GitHub Repository Analysis & Team Collaboration Platform.
+
+> **The tool for people who hate their employees** 🎭
+>
+> _"Why explain your codebase to new hires when AI can do it for you? Gitty: Making onboarding so easy, you'll forget what human interaction feels like!"_
 
 ## 🌐 Production URLs
 
@@ -22,63 +26,54 @@ Welcome to Gitty - Your AI-Powered GitHub Repository Analysis Tool.
 
 ## 🚀 Features
 
-- **Comprehensive GitHub Repository Contextualization**
-  - Analyze and contextualize the entire GitHub repository for LLM-powered insights.
-- **Automated System Design Visualization**
-  - Instantly generate images that represent your project's system architecture.
-- **API Endpoint & Routing Documentation**
-  - Automatically produce detailed documentation of all possible API endpoints and routing logic.
-- **Codebase Intelligence**
-  - Identify function entry points and trace where functions are invoked.
-  - Locate the main file for each component, streamlining navigation.
-  - Retrieve any file and provide a clear explanation of what it renders.
-  - Instantly pinpoint routing logic and its implementation location.
-  - Summarize functions, files, or entire modules for rapid understanding.
-- **Developer Productivity Tools**
-  - Integrated chatbot for quick codebase queries and navigation.
-  - Easy project setup with a Makefile for streamlined development.
-- **Planned Features**
-  - Visual Studio Code extension for seamless in-editor assistance (coming soon).
+- **AI-Powered System Design Generation**
 
-## 🛠️ Development Setup
+  - Automatically analyze any GitHub repository and generate interactive system design diagrams
+  - Multi-phase AI processing: repository explanation → component mapping → Mermaid.js diagram generation
+  - Interactive diagrams with clickable components that link directly to GitHub files
+  - Customizable diagram generation with user instructions and reasoning effort controls
 
-### Prerequisites
+- **Intelligent Codebase Chat Assistant**
 
-- Python 3.8+
-- Node.js 18+
-- pnpm
-- Make (optional)
+  - RAG (Retrieval-Augmented Generation) powered chat for repository-specific questions
+  - Context-aware responses using vector similarity search and direct text matching
+  - File-specific analysis with prioritized context from selected files
+  - Streaming responses with real-time progress updates
 
-### Running the Development Server
+    <br>
+  ![App Screenshot](./docs/diagram.png)
+    <br>
 
-#### Option 1: Using Make (Recommended)
+- **GitHub Integration & Repository Management**
 
-```bash
-make dev
-```
+  - Seamless GitHub OAuth authentication
+  - Browse and analyze personal repositories and organization repos
+  - Repository insights with commit activity tracking and statistics
+  - Support for both public and private repositories
 
-#### Option 2: Manual Setup
+- **Team Collaboration & Project Management**
 
-```bash
-# Start backend
-cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload
+  - Enterprise-based task management with Kanban-style roadmaps
+  - Task creation, assignment, and status tracking with drag-and-drop functionality
+  - Priority levels, due dates, tags, and assignment history
+  - Team insights and user profile analytics
+    <br>
+    ![App Screenshot](./docs/stats.png)
+    </br>
 
-# Start frontend (in a new terminal)
-pnpm i && pnpm run dev
-```
+- **Developer Dashboard & Analytics**
 
-#### Option 3: Using Virtual Environment
+  - Comprehensive insights view with repository and organization statistics
+  - Recent commits tracking and activity visualization
+  - User performance metrics and task completion analytics
+  - Enterprise administration tools for team management
 
-```bash
-# Find and activate virtual environment
-find . -type d -name "*.venv"
-source ${result}/bin/activate
-```
+- **Advanced AI Capabilities**
 
-### Development URLs
-
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- API Documentation: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+  - OpenAI o4-mini integration for intelligent code analysis
+  - Vector embeddings with pgvector for semantic search
+  - Streaming responses for real-time user experience
+  - Intelligent caching to reduce API costs and improve performance
 
 ## 📝 License
 
