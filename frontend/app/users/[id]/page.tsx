@@ -7,6 +7,7 @@ import { useUserAssignmentHistory } from "@/lib/hooks/api/useUserAssignmentHisto
 import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/business/useIsAdminOfAnyEnterprise";
 import { useAuth } from "@/lib/hooks/business/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState } from "react";
 import { format } from "date-fns";
 import {
@@ -23,6 +24,50 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+
+// Skeleton components for loading states
+const RecentTasksSkeleton = () => (
+  <div className="space-y-3">
+    {Array.from({ length: 5 }).map((_, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] min-h-[80px]"
+      >
+        <div className="flex items-center gap-4">
+          <Skeleton width={20} height={20} rounded="full" />
+          <div className="flex-1">
+            <Skeleton width="60%" height={20} className="mb-2" />
+            <Skeleton width="80%" height={16} />
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Skeleton width={70} height={16} />
+          <Skeleton width={90} height={16} />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const AssignmentHistorySkeleton = () => (
+  <div className="space-y-3">
+    {Array.from({ length: 10 }).map((_, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] min-h-[80px]"
+      >
+        <div className="flex items-center gap-4">
+          <Skeleton width={20} height={20} rounded="full" />
+          <div className="flex-1">
+            <Skeleton width="65%" height={20} className="mb-2" />
+            <Skeleton width="85%" height={16} />
+          </div>
+        </div>
+        <Skeleton width={100} height={16} />
+      </div>
+    ))}
+  </div>
+);
 
 export default function UserProfilePage() {
   const params = useParams();
@@ -528,12 +573,35 @@ export default function UserProfilePage() {
 
         {/* Recent Tasks */}
         <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6 mb-8">
-          <h3 className="text-xl font-semibold mb-4">Recent Tasks</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Recent Tasks</h3>
+            {/* Pagination Controls - Top */}
+            {recentTasksData?.pagination &&
+              recentTasksData.pagination.totalPages > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      setRecentTasksPage((prev) => Math.max(1, prev - 1))
+                    }
+                    disabled={!recentTasksData.pagination.hasPrevPage}
+                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setRecentTasksPage((prev) => prev + 1)}
+                    disabled={!recentTasksData.pagination.hasNextPage}
+                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+          </div>
+
           <div className="space-y-3 min-h-[400px]">
             {recentTasksLoading ? (
-              <div className="flex justify-center py-4">
-                <Spinner size="medium" />
-              </div>
+              <RecentTasksSkeleton />
             ) : recentTasksData?.tasks && recentTasksData.tasks.length > 0 ? (
               <>
                 {recentTasksData.tasks.map((task) => (
@@ -612,47 +680,52 @@ export default function UserProfilePage() {
                 No recent tasks found
               </div>
             )}
-
-            {/* Pagination Controls */}
-            {recentTasksData?.pagination &&
-              recentTasksData.pagination.totalPages > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#2A2A2A]">
-                  <div className="text-sm text-gray-400">
-                    Page {recentTasksData.pagination.page} of{" "}
-                    {recentTasksData.pagination.totalPages}(
-                    {recentTasksData.pagination.total} total tasks)
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setRecentTasksPage((prev) => Math.max(1, prev - 1))
-                      }
-                      disabled={!recentTasksData.pagination.hasPrevPage}
-                      className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setRecentTasksPage((prev) => prev + 1)}
-                      disabled={!recentTasksData.pagination.hasNextPage}
-                      className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
           </div>
+
+          {/* Page Info - Centered at bottom */}
+          {recentTasksData?.pagination &&
+            recentTasksData.pagination.totalPages > 1 && (
+              <div className="flex justify-center mt-6 pt-4 border-t border-[#2A2A2A]">
+                <div className="text-sm text-gray-400">
+                  Page {recentTasksData.pagination.page} of{" "}
+                  {recentTasksData.pagination.totalPages} (
+                  {recentTasksData.pagination.total} total tasks)
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Assignment History */}
         <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
-          <h3 className="text-xl font-semibold mb-4">Assignment History</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Assignment History</h3>
+            {/* Pagination Controls - Top */}
+            {assignmentHistoryData?.pagination &&
+              assignmentHistoryData.pagination.totalPages > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      setAssignmentHistoryPage((prev) => Math.max(1, prev - 1))
+                    }
+                    disabled={!assignmentHistoryData.pagination.hasPrevPage}
+                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setAssignmentHistoryPage((prev) => prev + 1)}
+                    disabled={!assignmentHistoryData.pagination.hasNextPage}
+                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+          </div>
+
           <div className="space-y-3 min-h-[400px]">
             {assignmentHistoryLoading ? (
-              <div className="flex justify-center py-4">
-                <Spinner size="medium" />
-              </div>
+              <AssignmentHistorySkeleton />
             ) : assignmentHistoryData?.assignments &&
               assignmentHistoryData.assignments.length > 0 ? (
               <>
@@ -710,41 +783,19 @@ export default function UserProfilePage() {
                 No assignment history found
               </div>
             )}
-
-            {/* Pagination Controls */}
-            {assignmentHistoryData?.pagination &&
-              assignmentHistoryData.pagination.totalPages > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#2A2A2A]">
-                  <div className="text-sm text-gray-400">
-                    Page {assignmentHistoryData.pagination.page} of{" "}
-                    {assignmentHistoryData.pagination.totalPages}(
-                    {assignmentHistoryData.pagination.total} total assignments)
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        setAssignmentHistoryPage((prev) =>
-                          Math.max(1, prev - 1)
-                        )
-                      }
-                      disabled={!assignmentHistoryData.pagination.hasPrevPage}
-                      className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() =>
-                        setAssignmentHistoryPage((prev) => prev + 1)
-                      }
-                      disabled={!assignmentHistoryData.pagination.hasNextPage}
-                      className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
           </div>
+
+          {/* Page Info - Centered at bottom */}
+          {assignmentHistoryData?.pagination &&
+            assignmentHistoryData.pagination.totalPages > 1 && (
+              <div className="flex justify-center mt-6 pt-4 border-t border-[#2A2A2A]">
+                <div className="text-sm text-gray-400">
+                  Page {assignmentHistoryData.pagination.page} of{" "}
+                  {assignmentHistoryData.pagination.totalPages} (
+                  {assignmentHistoryData.pagination.total} total assignments)
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </div>
