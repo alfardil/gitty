@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { fetchFileTree } from "@/lib/fetchFile";
+import { fetchFileTree } from "@/lib/utils/api/fetchFile";
 
 export async function getRepoPageData(
   owner: string,

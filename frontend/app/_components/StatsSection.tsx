@@ -1,6 +1,6 @@
 "use client";
 
-import { useStats } from "@/lib/hooks/useStats";
+import { useStats } from "@/lib/hooks/api/useStats";
 import { BarChart3, Users, Database } from "lucide-react";
 
 export function StatsSection() {

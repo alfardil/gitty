@@ -190,6 +190,8 @@ export const tasks = pgTable(
       .notNull(),
     createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
     updatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    completedAt: timestamp({ mode: "string" }),
+    assignedAt: timestamp({ mode: "string" }),
   },
   (table) => [
     foreignKey({
@@ -206,6 +208,36 @@ export const tasks = pgTable(
       columns: [table.enterpriseId],
       foreignColumns: [enterprises.id],
       name: "tasks_enterprise_id_fk",
+    }),
+  ]
+);
+
+// Track task assignment history
+export const taskAssignments = pgTable(
+  "task_assignments",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    taskId: uuid("task_id").notNull(),
+    assigneeId: uuid("assignee_id").notNull(),
+    assignedById: uuid("assigned_by_id").notNull(),
+    assignedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    unassignedAt: timestamp({ mode: "string" }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.taskId],
+      foreignColumns: [tasks.id],
+      name: "task_assignments_task_id_fk",
+    }),
+    foreignKey({
+      columns: [table.assigneeId],
+      foreignColumns: [users.id],
+      name: "task_assignments_assignee_id_fk",
+    }),
+    foreignKey({
+      columns: [table.assignedById],
+      foreignColumns: [users.id],
+      name: "task_assignments_assigned_by_id_fk",
     }),
   ]
 );

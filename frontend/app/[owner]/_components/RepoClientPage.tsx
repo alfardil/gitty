@@ -1,11 +1,11 @@
 "use client";
-import { fetchFile } from "@/lib/fetchFile";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
+import { fetchFile } from "@/lib/utils/api/fetchFile";
+import { useAuth } from "@/lib/hooks/business/useAuth";
+import { getGithubAccessTokenFromCookie } from "@/lib/utils/api/fetchRepos";
 import { Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { GitHubLoginButton } from "@/components/LoginButton";
+import { GitHubLoginButton } from "@/components/features/auth/LoginButton";
 import { DiagramSection } from "@/app/[owner]/_components/DiagramSection";
 import { FileContent } from "@/components/ui/analysis/FileContent";
 import { FileTree, buildFileTree } from "@/components/ui/analysis/FileTree";
@@ -121,7 +121,6 @@ export default function RepoClientPage({
           </div>
         </header>
         <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
-          {/* System Design Diagram */}
           <div className="mb-4">
             <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">
               System Design Diagram
@@ -132,9 +131,7 @@ export default function RepoClientPage({
             </div>
           </div>
 
-          {/* Main Content Area */}
           <div className="flex gap-6">
-            {/* Left Side: IDE-like File Explorer + Code Viewer */}
             <div className="w-full">
               <div
                 className="bg-[#23272f] mb-8 mt-8 flex flex-col relative select-none rounded-2xl border border-blue-400/20"
@@ -144,9 +141,7 @@ export default function RepoClientPage({
                   maxHeight: 800,
                 }}
               >
-                {/* IDE Content */}
                 <div className="flex h-full">
-                  {/* File Tree */}
                   <div className="w-[280px] border-r border-blue-400/10 flex flex-col">
                     <div className="bg-[#20232a] border-b border-blue-400/10 p-3 flex items-center">
                       <h2 className="text-sm font-medium text-white">
@@ -172,7 +167,6 @@ export default function RepoClientPage({
                     </div>
                   </div>
 
-                  {/* Code Viewer */}
                   <div className="flex-1 flex flex-col">
                     {selectedFile ? (
                       <>
@@ -200,7 +194,6 @@ export default function RepoClientPage({
             </div>
           </div>
 
-          {/* Right Side AI Assistant */}
           <RightSideAIAssistant
             owner={owner}
             repo={repo}

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/server/src/db";
-import { tasks, users } from "@/server/src/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  tasks,
+  users,
+  taskAssignments,
+  enterpriseUsers,
+} from "@/server/src/db/schema";
+import { eq, or, and } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
 
 export async function GET(request: NextRequest) {
@@ -29,6 +34,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Get enterpriseId from query params
+    const { searchParams } = new URL(request.url);
+    const enterpriseId = searchParams.get("enterpriseId");
+
+    // Build where clause
+    let whereClause = or(
+      eq(tasks.createdById, dbUser.id),
+      eq(tasks.assigneeId, dbUser.id)
+    );
+
+    // Add enterprise filter if provided
+    if (enterpriseId) {
+      whereClause = and(whereClause, eq(tasks.enterpriseId, enterpriseId));
+    }
+
     const userTasks = await db
       .select({
         id: tasks.id,
@@ -38,6 +58,8 @@ export async function GET(request: NextRequest) {
         priority: tasks.priority,
         dueDate: tasks.dueDate,
         assigneeId: tasks.assigneeId,
+        enterpriseId: tasks.enterpriseId,
+        completedAt: tasks.completedAt,
         tags: tasks.tags,
         position: tasks.position,
         createdAt: tasks.createdAt,
@@ -46,7 +68,7 @@ export async function GET(request: NextRequest) {
       })
       .from(tasks)
       .leftJoin(users, eq(tasks.assigneeId, users.id))
-      .where(eq(tasks.createdById, dbUser.id))
+      .where(whereClause)
       .orderBy(tasks.status, tasks.position);
 
     return NextResponse.json({ tasks: userTasks });
@@ -84,7 +106,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, priority, dueDate, tags } = body;
+    const {
+      title,
+      description,
+      priority,
+      dueDate,
+      tags,
+      assigneeId,
+      enterpriseId,
+    } = body;
 
     if (!title) {
       return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -105,6 +135,24 @@ export async function POST(request: NextRequest) {
           ).toString()
         : "1000";
 
+    // Default assignee to creator if not specified
+    const finalAssigneeId = assigneeId || dbUser.id;
+    const assignedAt = new Date().toISOString();
+
+    // Get user's enterprise if not specified
+    let finalEnterpriseId = enterpriseId;
+    if (!finalEnterpriseId) {
+      const userEnterprise = await db
+        .select({ enterpriseId: enterpriseUsers.enterpriseId })
+        .from(enterpriseUsers)
+        .where(eq(enterpriseUsers.userId, dbUser.id))
+        .limit(1);
+
+      if (userEnterprise.length > 0) {
+        finalEnterpriseId = userEnterprise[0].enterpriseId;
+      }
+    }
+
     const newTask = await db
       .insert(tasks)
       .values({
@@ -115,8 +163,19 @@ export async function POST(request: NextRequest) {
         tags: tags || [],
         position: newPosition,
         createdById: dbUser.id,
+        assigneeId: finalAssigneeId,
+        enterpriseId: finalEnterpriseId || null,
+        assignedAt: assignedAt,
       })
       .returning();
+
+    // Create assignment history record (always create since task is always assigned)
+    await db.insert(taskAssignments).values({
+      taskId: newTask[0].id,
+      assigneeId: finalAssigneeId,
+      assignedById: dbUser.id,
+      assignedAt: assignedAt,
+    });
 
     return NextResponse.json({ task: newTask[0] }, { status: 201 });
   } catch (error) {

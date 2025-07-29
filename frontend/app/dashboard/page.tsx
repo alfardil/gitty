@@ -1,15 +1,15 @@
 "use client";
 
-import { GitHubLoginButton } from "@/components/LoginButton";
+import { GitHubLoginButton } from "@/components/features/auth/LoginButton";
 import { InsightsView } from "@/app/dashboard/_components/insights/InsightsView";
 import { Sidebar } from "@/app/dashboard/_components/Sidebar";
 import { PageSpinner, Spinner } from "@/components/ui/neo/spinner";
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useRecentCommits } from "@/lib/hooks/useRecentCommits";
-import { useScopeRepos } from "@/lib/hooks/useScopeRepos";
-import { useUserOrgs } from "@/lib/hooks/useUserOrgs";
-import { useUserRepos } from "@/lib/hooks/useUserRepos";
+import { useAuth } from "@/lib/hooks/business/useAuth";
+import { useRecentCommits } from "@/lib/hooks/api/useRecentCommits";
+import { useScopeRepos } from "@/lib/hooks/api/useScopeRepos";
+import { useUserOrgs } from "@/lib/hooks/api/useUserOrgs";
+import { useUserRepos } from "@/lib/hooks/api/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -18,8 +18,8 @@ import { Settings } from "@/app/dashboard/_components/settings/Settings";
 import { Suspense } from "react";
 import DeveloperSection from "@/app/dashboard/_components/developer";
 import AdminSection from "@/app/dashboard/_components/admin/AdminSection";
-import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
-import RedeemSection from "@/app/dashboard/_components/redeem/RedeemSection";
+import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/business/useIsAdminOfAnyEnterprise";
+
 import { RoadMapSection } from "@/app/dashboard/_components/roadmap/RoadMapSection";
 
 interface Repository {
@@ -277,7 +277,7 @@ function DashboardPage() {
             </>
           )}
           {section === "roadmap" && <RoadMapSection />}
-          {section === "redeem" && <RedeemSection user={user} />}
+
           {section === "billing" && <Billing />}
           {section === "settings" && <Settings />}
           {section === "developer" && user.developer && (

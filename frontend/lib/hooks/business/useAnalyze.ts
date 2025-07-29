@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { fetchFileTree, fetchFile } from "../fetchFile";
+import { fetchFileTree, fetchFile } from "../../utils/api/fetchFile";
 
 interface StreamState {
   status:

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PlaceholdersAndVanishInput } from "../../../components/ui/ace/placeholders-and-vanish-input";
-import { useWaitlist } from "@/lib/hooks/useWaitlist";
+import { useWaitlist } from "@/lib/hooks/business/useWaitlist";
 import { motion, AnimatePresence } from "motion/react";
 
 export function WaitlistInput() {

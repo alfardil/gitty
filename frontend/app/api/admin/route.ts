@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getAdminEnterprisesService,
   getEnterpriseUsersService,
+  getUserEnterprisesService,
   ServiceError,
   ServiceResponse,
 } from "@/server/src/services/enterprise.service";
@@ -15,6 +16,11 @@ export async function GET(req: NextRequest) {
       case "getAdminEnterprises": {
         const userId = searchParams.get("userId") || "";
         result = await getAdminEnterprisesService(userId);
+        break;
+      }
+      case "getUserEnterprises": {
+        const userId = searchParams.get("userId") || "";
+        result = await getUserEnterprisesService(userId);
         break;
       }
       case "getEnterpriseUsers": {

@@ -1,20 +1,38 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Enterprise } from "@/lib/types/business/Enterprise";
+
+interface EnterpriseUser {
+  id: string;
+  githubId: string | null;
+  githubUsername: string | null;
+  avatar_url: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  subscription_plan: string | null;
+  role: string;
+}
 
 export function useAdminEnterprises(userId: string) {
-  const { data: enterprisesData, isLoading: enterprisesLoading } = useQuery({
+  const {
+    data: enterprisesData,
+    isLoading: enterprisesLoading,
+    error: enterprisesError,
+  } = useQuery({
     queryKey: ["admin-enterprises", userId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Enterprise[]> => {
       const res = await fetch(
         `/api/admin?action=getAdminEnterprises&userId=${userId}`
       );
       const data = await res.json();
-      if (data.success && data.data?.enterprises?.length > 0) {
+      if (data.success && data.data?.enterprises) {
         return data.data.enterprises;
       }
       return [];
     },
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Select the first enterprise by default
@@ -31,9 +49,13 @@ export function useAdminEnterprises(userId: string) {
     }
   }, [enterprisesData]);
 
-  const { data: usersData, isLoading: usersLoading } = useQuery({
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    error: usersError,
+  } = useQuery({
     queryKey: ["enterprise-users", selectedEnterprise],
-    queryFn: async () => {
+    queryFn: async (): Promise<EnterpriseUser[]> => {
       if (!selectedEnterprise) return [];
       const res = await fetch(
         `/api/admin?action=getEnterpriseUsers&enterpriseId=${selectedEnterprise}`
@@ -45,6 +67,8 @@ export function useAdminEnterprises(userId: string) {
       return [];
     },
     enabled: !!selectedEnterprise,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   return {
@@ -53,5 +77,7 @@ export function useAdminEnterprises(userId: string) {
     setSelectedEnterprise,
     users: usersData ?? [],
     loading: enterprisesLoading || usersLoading,
+    enterprisesError,
+    usersError,
   };
 }

@@ -10,6 +10,8 @@ interface Task {
   dueDate?: string;
   assigneeId?: string;
   assigneeName?: string;
+  enterpriseId?: string;
+  completedAt?: string;
   tags?: string[];
   position: string;
   createdAt: string;
@@ -25,8 +27,12 @@ interface TaskFormData {
 }
 
 // Fetch tasks
-const fetchTasks = async (): Promise<Task[]> => {
-  const response = await fetch("/api/tasks", {
+const fetchTasks = async (enterpriseId?: string): Promise<Task[]> => {
+  const url = enterpriseId
+    ? `/api/tasks?enterpriseId=${enterpriseId}`
+    : "/api/tasks";
+
+  const response = await fetch(url, {
     method: "GET",
   });
   if (!response.ok) {
@@ -37,7 +43,10 @@ const fetchTasks = async (): Promise<Task[]> => {
 };
 
 // Create task
-const createTask = async (taskData: TaskFormData): Promise<Task> => {
+const createTask = async (
+  taskData: TaskFormData,
+  enterpriseId?: string
+): Promise<Task> => {
   const response = await fetch("/api/tasks", {
     method: "POST",
     headers: {
@@ -45,6 +54,7 @@ const createTask = async (taskData: TaskFormData): Promise<Task> => {
     },
     body: JSON.stringify({
       ...taskData,
+      enterpriseId,
       dueDate: taskData.dueDate ? taskData.dueDate.toISOString() : null,
       tags: taskData.tags
         ? taskData.tags
@@ -147,7 +157,7 @@ const reorderTask = async ({
   }
 };
 
-export function useTasks() {
+export function useTasks(enterpriseId?: string) {
   const queryClient = useQueryClient();
 
   // Query for fetching tasks
@@ -157,17 +167,17 @@ export function useTasks() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: fetchTasks,
+    queryKey: ["tasks", enterpriseId],
+    queryFn: () => fetchTasks(enterpriseId),
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 
   // Mutation for creating tasks
   const createTaskMutation = useMutation({
-    mutationFn: createTask,
+    mutationFn: (taskData: TaskFormData) => createTask(taskData, enterpriseId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", enterpriseId] });
       toast.success("Task created successfully!");
     },
     onError: (error) => {
@@ -180,7 +190,7 @@ export function useTasks() {
   const updateTaskMutation = useMutation({
     mutationFn: updateTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", enterpriseId] });
       toast.success("Task updated successfully!");
     },
     onError: (error) => {
@@ -193,7 +203,7 @@ export function useTasks() {
   const deleteTaskMutation = useMutation({
     mutationFn: deleteTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", enterpriseId] });
       toast.success("Task deleted successfully!");
     },
     onError: (error) => {
@@ -206,7 +216,7 @@ export function useTasks() {
   const updateTaskPriorityMutation = useMutation({
     mutationFn: updateTaskPriority,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", enterpriseId] });
       toast.success("Priority updated successfully!");
     },
     onError: (error) => {
@@ -219,7 +229,7 @@ export function useTasks() {
   const reorderTaskMutation = useMutation({
     mutationFn: reorderTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", enterpriseId] });
       toast.success("Task reordered successfully!");
     },
     onError: (error) => {

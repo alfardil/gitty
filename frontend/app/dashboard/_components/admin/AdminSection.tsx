@@ -1,8 +1,20 @@
 import { Spinner } from "@/components/ui/neo/spinner";
 import React, { useEffect } from "react";
 import { useAdminEnterprises } from "./hooks/useAdminEnterprises";
-import { Enterprise } from "@/lib/types/Enterprise";
-import { User } from "@/lib/types/User";
+import { Enterprise } from "@/lib/types/business/Enterprise";
+import { User } from "@/lib/types/business/User";
+import { useRouter } from "next/navigation";
+
+interface EnterpriseUser {
+  id: string;
+  githubId: string | null;
+  githubUsername: string | null;
+  avatar_url: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  subscription_plan: string | null;
+  role: string;
+}
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,6 +29,7 @@ interface AdminSectionProps {
 }
 
 function AdminSection({ userId }: AdminSectionProps) {
+  const router = useRouter();
   const {
     enterprises,
     selectedEnterprise,
@@ -109,10 +122,15 @@ function AdminSection({ userId }: AdminSectionProps) {
       <div>
         <h3 className="text-lg font-semibold mb-2">Users in Enterprise</h3>
         <ul className="space-y-2">
-          {users.map((user: User) => (
+          {users.map((user: EnterpriseUser) => (
             <li
               key={user.id}
-              className="flex items-center space-x-4 p-2 border rounded"
+              className="flex items-center space-x-4 p-2 border rounded hover:bg-[#1A1A1A] transition-colors cursor-pointer"
+              onClick={() =>
+                router.push(
+                  `/users/${user.id}?enterpriseId=${selectedEnterprise}`
+                )
+              }
             >
               {user.avatar_url && (
                 <img
@@ -121,8 +139,8 @@ function AdminSection({ userId }: AdminSectionProps) {
                   className="w-10 h-10 rounded-full"
                 />
               )}
-              <div>
-                <div className="font-medium">
+              <div className="flex-1">
+                <div className="font-medium text-white">
                   {user.firstName && user.lastName
                     ? `${user.firstName} ${user.lastName}`
                     : user.githubUsername}
@@ -130,6 +148,9 @@ function AdminSection({ userId }: AdminSectionProps) {
                 <div className="text-sm text-gray-500">
                   {user.subscription_plan}
                 </div>
+              </div>
+              <div className="text-xs text-gray-400">
+                Click to view profile →
               </div>
             </li>
           ))}

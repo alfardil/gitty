@@ -1,7 +1,7 @@
 "use client";
 
-import { GitHubLoginButton } from "@/components/LoginButton";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { GitHubLoginButton } from "@/components/features/auth/LoginButton";
+import { useAuth } from "@/lib/hooks/business/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";

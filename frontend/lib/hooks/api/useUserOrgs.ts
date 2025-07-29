@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   fetchUserOrgs,
   getGithubAccessTokenFromCookie,
-} from "@/lib/fetchRepos";
+} from "@/lib/utils/api/fetchRepos";
 
 export function useUserOrgs(user: any) {
   const [orgs, setOrgs] = useState([]);

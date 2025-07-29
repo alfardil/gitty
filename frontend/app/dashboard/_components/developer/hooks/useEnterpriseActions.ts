@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { showApiErrorToast } from "./useToastError";
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
-import { User } from "@/lib/types/User";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { User } from "@/lib/types/business/User";
 
 function getEndOfDay(date: Date): string {
   const endOfDay = new Date(date);
@@ -11,6 +11,7 @@ function getEndOfDay(date: Date): string {
 }
 
 export function useEnterpriseActions(user: User) {
+  const queryClient = useQueryClient();
   const [enterpriseName, setEnterpriseName] = useState("");
   const [redeemCode, setRedeemCode] = useState("");
   const [memberInviteEnterpriseId, setMemberInviteEnterpriseId] = useState("");
@@ -45,6 +46,8 @@ export function useEnterpriseActions(user: User) {
     },
     onSuccess: (data) => {
       setEnterpriseName("");
+      // Invalidate admin enterprises query to refetch the updated list
+      queryClient.invalidateQueries({ queryKey: ["admin-enterprises"] });
     },
     onError: (error: any) => {
       showApiErrorToast(error.message || "Failed to create enterprise");
@@ -85,6 +88,11 @@ export function useEnterpriseActions(user: User) {
         }
       }
       return data;
+    },
+    onSuccess: () => {
+      // Invalidate admin enterprises and enterprise users queries
+      queryClient.invalidateQueries({ queryKey: ["admin-enterprises"] });
+      queryClient.invalidateQueries({ queryKey: ["enterprise-users"] });
     },
     onError: (error: any) => {
       showApiErrorToast(error.message || "Failed to redeem invite code");

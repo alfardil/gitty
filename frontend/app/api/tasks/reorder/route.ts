@@ -64,13 +64,20 @@ export async function POST(request: NextRequest) {
 
     // If this is a status change, update the task status first
     if (isStatusChange) {
-      await db
-        .update(tasks)
-        .set({
-          status: status,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(tasks.id, taskId));
+      const updateData: any = {
+        status: status,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Handle completion tracking
+      if (status === "done" && currentTask.status !== "done") {
+        updateData.completedAt = new Date().toISOString();
+      } else if (status !== "done" && currentTask.status === "done") {
+        // If task is being unmarked as done, clear completion time
+        updateData.completedAt = null;
+      }
+
+      await db.update(tasks).set(updateData).where(eq(tasks.id, taskId));
     }
 
     // Get all tasks in the target status (including the moved task)

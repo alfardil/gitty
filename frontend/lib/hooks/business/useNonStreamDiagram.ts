@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCost } from "../fetchBackend";
+import { getCost } from "../../utils/api/fetchBackend";
 import { toast } from "sonner";
 import {
   cacheDiagramAndExplanation,
@@ -7,7 +7,7 @@ import {
   getLastGeneratedDate,
   getCachedExplanation,
 } from "@/app/_actions/cache";
-import { getGithubAccessTokenFromCookie } from "../fetchRepos";
+import { getGithubAccessTokenFromCookie } from "../../utils/api/fetchRepos";
 
 interface NonStreamState {
   status: "idle" | "loading" | "complete" | "error";

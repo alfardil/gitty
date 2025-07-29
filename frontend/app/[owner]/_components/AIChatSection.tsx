@@ -1,6 +1,6 @@
 "use client";
 
-import { getGithubAccessTokenFromCookie } from "@/lib/fetchRepos";
+import { getGithubAccessTokenFromCookie } from "@/lib/utils/api/fetchRepos";
 import { FileSearch } from "lucide-react";
 import MarkChat from "./MarkChat";
 

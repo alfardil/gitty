@@ -1,6 +1,6 @@
 "use client";
 
-import { useAnalyze } from "@/lib/hooks/useAnalyze";
+import { useAnalyze } from "@/lib/hooks/business/useAnalyze";
 import { Bot } from "lucide-react";
 import {
   forwardRef,
@@ -30,7 +30,6 @@ const MarkChat = forwardRef<FunctionAnalysisChatRef, FunctionAnalysisChatProps>(
     const [question, setQuestion] = useState("");
     const { analyzeRepoWithRAG, loading, error, response } = useAnalyze();
 
-    // Ref for auto-scroll
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const handleSubmit = async (e?: React.FormEvent) => {
@@ -54,7 +53,6 @@ const MarkChat = forwardRef<FunctionAnalysisChatRef, FunctionAnalysisChatProps>(
       },
     }));
 
-    // Auto-scroll to bottom when response, error, or loading changes
     useEffect(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop =
@@ -151,9 +149,7 @@ const MarkChat = forwardRef<FunctionAnalysisChatRef, FunctionAnalysisChatProps>(
               type="submit"
               disabled={loading}
               className="p-2 rounded-full hover:bg-blue-100 transition"
-            >
-              {/* No icon, just a minimal button */}
-            </button>
+            ></button>
           </div>
         </form>
       </div>

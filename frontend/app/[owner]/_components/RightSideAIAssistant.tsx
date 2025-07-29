@@ -16,7 +16,6 @@ export const RightSideAIAssistant = ({
 
   return (
     <>
-      {/* Toggle Button */}
       {!isOpen && (
         <button
           className="fixed bottom-8 right-8 z-50 bg-black/70 backdrop-blur-md hover:scale-105 transition-all rounded-lg w-20 h-12 flex items-center justify-center border-2 border-white/20 shadow-lg"
@@ -26,7 +25,6 @@ export const RightSideAIAssistant = ({
           <span className="text-lg font-bold text-white">Mark</span>
         </button>
       )}
-      {/* Side Panel */}
       <div
         className={`fixed top-0 right-0 h-[calc(100vh-32px)] z-50 border-l border-white/10 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"

@@ -3,7 +3,7 @@ import {
   fetchUserRepos,
   fetchOrgRepos,
   getGithubAccessTokenFromCookie,
-} from "@/lib/fetchRepos";
+} from "@/lib/utils/api/fetchRepos";
 
 export function useScopeRepos(user: any, selectedScope: string) {
   const [scopeRepos, setScopeRepos] = useState<any[]>([]);

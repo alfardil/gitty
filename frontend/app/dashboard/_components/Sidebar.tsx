@@ -3,9 +3,9 @@
 import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { CreditCard, LogOut, Settings, X, Gift } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
-import { useUserUsername } from "@/lib/hooks/useUserUsername";
+import { useUserUsername } from "@/lib/hooks/api/useUserUsername";
 import { useRouter } from "next/navigation";
-import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/useIsAdminOfAnyEnterprise";
+import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/business/useIsAdminOfAnyEnterprise";
 
 const ChatGPTSidebarToggleLeft = ({ className = "" }) => {
   return (

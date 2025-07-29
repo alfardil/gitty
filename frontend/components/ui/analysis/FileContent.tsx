@@ -5,7 +5,6 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Spinner } from "../neo/spinner";
 import type { CSSProperties } from "react";
 
-// Custom style to handle line wrapping while preserving indentation
 const customStyle = {
   ...vscDarkPlus,
   'pre[class*="language-"]': {
@@ -64,7 +63,6 @@ export function FileContent({
 
   return (
     <div className="h-full flex flex-col bg-[#1E1E1E]">
-      {/* File Path Display */}
       <div className="sticky top-0 z-10 px-6 py-3 text-sm text-gray-300 border-b border-gray-700 bg-[#252526] flex items-center justify-between">
         <span className="truncate">{selectedFile}</span>
         <span className="text-xs text-gray-500 ml-2">{language}</span>

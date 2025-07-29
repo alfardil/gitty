@@ -10,9 +10,11 @@ import {
   X,
   Edit,
   Trash2,
+  ChevronDown,
 } from "lucide-react";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useTasks } from "@/lib/hooks/useTasks";
+import { useAuth } from "@/lib/hooks/business/useAuth";
+import { useTasks } from "@/lib/hooks/api/useTasks";
+import { useUserEnterprises } from "@/lib/hooks/api/useUserEnterprises";
 import { z } from "zod";
 import {
   DropdownMenu,
@@ -45,10 +47,12 @@ interface Task {
   dueDate?: string;
   assigneeId?: string;
   assigneeName?: string;
+  completedAt?: string;
   tags?: string[];
   position: string;
   createdAt: string;
   updatedAt: string;
+  isOverdue?: boolean;
 }
 
 const statusConfig = {
@@ -83,6 +87,13 @@ const priorityConfig = {
 export function RoadMapSection() {
   const { user } = useAuth();
   const {
+    enterprises,
+    selectedEnterprise,
+    setSelectedEnterprise,
+    loading: enterprisesLoading,
+  } = useUserEnterprises(user?.uuid);
+
+  const {
     tasks,
     isLoading,
     createTask: createTaskMutation,
@@ -92,7 +103,7 @@ export function RoadMapSection() {
     reorderTask: reorderTaskMutation,
     isCreating,
     isReordering,
-  } = useTasks();
+  } = useTasks(selectedEnterprise || undefined);
 
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -211,14 +222,11 @@ export function RoadMapSection() {
   };
 
   const saveAndCloseModal = async () => {
-    // Check if there are any changes to save
     if (!formData.title.trim()) {
-      // If no title, just close without saving
       closeModal();
       return;
     }
 
-    // Check if there are actual changes when editing
     if (editingTask) {
       const originalTask = {
         title: editingTask.title,
@@ -238,29 +246,23 @@ export function RoadMapSection() {
         formData.tags !== originalTask.tags;
 
       if (!hasChanges) {
-        // No changes made, just close without saving
         closeModal();
         return;
       }
     }
 
-    // Validate the form
     if (!validateForm(formData)) {
-      // If validation fails, don't close the modal
       return;
     }
 
     try {
       if (editingTask) {
-        // Update existing task
         await updateTask(editingTask.id, formData);
       } else {
-        // Create new task
         await createTask(formData);
       }
       closeModal();
     } catch (error) {
-      // If save fails, don't close the modal
       console.error("Failed to save task:", error);
     }
   };
@@ -286,8 +288,17 @@ export function RoadMapSection() {
     const y = e.clientY;
     const taskCenter = rect.top + rect.height / 2;
 
-    const position = y < taskCenter ? "above" : "below";
-    setDropPosition({ taskId: task.id, position });
+    const position: "above" | "below" = y < taskCenter ? "above" : "below";
+    const newDropPosition = { taskId: task.id, position };
+
+    // Only update state if the position has actually changed
+    if (
+      !dropPosition ||
+      dropPosition.taskId !== newDropPosition.taskId ||
+      dropPosition.position !== newDropPosition.position
+    ) {
+      setDropPosition(newDropPosition);
+    }
   };
 
   const handleTaskDragLeave = (e: React.DragEvent) => {
@@ -305,7 +316,6 @@ export function RoadMapSection() {
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    // Only clear drop target if we're leaving the drop zone entirely
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX;
     const y = e.clientY;
@@ -396,7 +406,38 @@ export function RoadMapSection() {
     return getTasksByStatus(status).length;
   };
 
-  if (isLoading) {
+  const isTaskOverdue = (task: Task): boolean => {
+    if (!task.dueDate || task.status === "done") return false;
+    return new Date(task.dueDate) < new Date();
+  };
+
+  if (isLoading || enterprisesLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+      </div>
+    );
+  }
+
+  // Show message if user has no enterprises
+  if (enterprises.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <div className="text-lg font-medium text-gray-300">
+          No Enterprises Found
+        </div>
+        <div className="text-sm text-gray-500 text-center max-w-md">
+          You need to be a member of at least one enterprise to view and manage
+          tasks.
+          <br />
+          Contact your administrator to get invited to an enterprise.
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if no enterprise is selected
+  if (!selectedEnterprise) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
@@ -406,6 +447,46 @@ export function RoadMapSection() {
 
   return (
     <div className="space-y-6">
+      {/* Enterprise Selector */}
+      {enterprises.length > 0 && (
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-300">
+              Enterprise:
+            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white hover:border-blue-400/30 transition-colors">
+                  <span className="text-sm">
+                    {enterprises.find((e) => e.id === selectedEnterprise)
+                      ?.name || "Select Enterprise"}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
+                {enterprises.map((enterprise) => (
+                  <DropdownMenuItem
+                    key={enterprise.id}
+                    onClick={() => setSelectedEnterprise(enterprise.id)}
+                    className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                      selectedEnterprise === enterprise.id
+                        ? "bg-blue-500/20 text-blue-300"
+                        : ""
+                    }`}
+                  >
+                    {enterprise.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          {enterprisesLoading && (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+          )}
+        </div>
+      )}
+
       {/* Status Summary */}
       <div className="flex gap-4 mb-6">
         {Object.entries(statusConfig).map(([status, config]) => (
@@ -470,7 +551,9 @@ export function RoadMapSection() {
                           ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 transform scale-105"
                           : isReordering
                             ? "border-yellow-400/50 bg-[#1a1d23] shadow-lg shadow-yellow-400/20"
-                            : "border-[#353a45] hover:border-blue-400/30"
+                            : isTaskOverdue(task)
+                              ? "border-red-500/30 hover:border-red-500/50 border-4"
+                              : "border-[#353a45] hover:border-blue-400/30"
                     }`}
                     draggable={!isReordering}
                     onDragStart={(e) => handleDragStart(e, task)}

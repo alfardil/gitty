@@ -1,11 +1,13 @@
 "use client";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useAuth } from "@/lib/hooks/business/useAuth";
 import { Edit3, LogOut } from "lucide-react";
 import { Spinner } from "@/components/ui/neo/spinner";
-import { useUserStats } from "@/lib/hooks/useUserStats";
+import { useUserStats } from "@/lib/hooks/api/useUserStats";
 import { useState } from "react";
 import { setUsername } from "@/app/_actions/cache";
-import { useUserUsername } from "@/lib/hooks/useUserUsername";
+import { useUserUsername } from "@/lib/hooks/api/useUserUsername";
+import { RedeemInviteForm } from "./RedeemInvite";
+import { useEnterpriseActions } from "../developer/hooks/useEnterpriseActions";
 
 export function Settings() {
   const { user, loading, logout } = useAuth();
@@ -21,6 +23,9 @@ export function Settings() {
   const { username, refetch: refetchUsername } = useUserUsername(
     user ? user.id.toString() : ""
   );
+
+  // Get enterprise actions for redeem functionality
+  const actions = useEnterpriseActions(user!);
 
   if (loading) {
     return (
@@ -129,6 +134,18 @@ export function Settings() {
             </span>
           </div>
         </div>
+
+        {/* Redeem Invite Section */}
+        <div className="w-full mb-6">
+          <RedeemInviteForm
+            redeemCode={actions.redeemCode}
+            setRedeemCode={actions.setRedeemCode}
+            handleRedeemInvite={actions.handleRedeemInvite}
+            redeemInviteLoading={actions.redeemInviteLoading}
+            redeemResult={actions.redeemResult}
+          />
+        </div>
+
         {/* Logout Button */}
         <button
           className="w-full max-w-xs py-3 rounded-full bg-[#181A1F] text-gray-200 font-semibold flex items-center justify-center gap-2 mt-8 border border-[#353a45] hover:bg-blue-700 hover:text-white transition"

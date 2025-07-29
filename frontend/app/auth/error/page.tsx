@@ -1,4 +1,4 @@
-import { GitHubLoginButton } from "@/components/LoginButton";
+import { GitHubLoginButton } from "@/components/features/auth/LoginButton";
 import { Button } from "@/components/ui/neo/button";
 import Link from "next/link";
 

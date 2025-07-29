@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getUserByGithubId } from "@/server/src/db/actions";
-import { User } from "@/lib/types/User";
+import { User } from "@/lib/types/business/User";
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();

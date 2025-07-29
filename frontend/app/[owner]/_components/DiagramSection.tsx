@@ -1,7 +1,7 @@
 "use client";
 
 import MermaidDiagram from "@/app/[owner]/_components/MermaidDiagram";
-import { useDiagram } from "@/lib/hooks/useDiagram";
+import { useDiagram } from "@/lib/hooks/business/useDiagram";
 import { useState } from "react";
 import { Switch } from "../../../components/ui/diagram/switch";
 import { GenerationProgress } from "@/components/ui/diagram/GenerationProgress";
@@ -42,7 +42,6 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
 
   return (
     <div className="w-full text-center flex flex-col items-center justify-center p-0 bg-transparent">
-      {/* controls */}
       <div className="flex flex-row gap-3 mb-8 justify-center items-center">
         <button
           onClick={handleDownload}
@@ -65,7 +64,6 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
         </div>
       </div>
 
-      {/* show the diagram */}
       {loading ? (
         <div className="w-full flex flex-col items-center">
           <GenerationProgress

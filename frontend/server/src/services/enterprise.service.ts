@@ -9,7 +9,7 @@ import {
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { enterpriseUsers, users } from "@/server/src/db/schema";
-import { Enterprise } from "@/lib/types/Enterprise";
+import { Enterprise } from "@/lib/types/business/Enterprise";
 
 export type ServiceResponse<T> =
   | { success: true; data: T }
@@ -191,6 +191,35 @@ export async function getAdminEnterprisesService(
         )
       );
     return { success: true, data: { enterprises: adminEnterprises } };
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Internal error";
+    throw new ServiceError(errorMessage, 500, "db_error");
+  }
+}
+
+export async function getUserEnterprisesService(
+  userId: string
+): Promise<ServiceResponse<{ enterprises: Enterprise[] }>> {
+  if (!userId) throw new ServiceError("Missing userId", 400, "missing_userId");
+  try {
+    const userEnterprises = await db
+      .select({
+        id: enterprises.id,
+        name: enterprises.name,
+        createdAt: enterprises.createdAt,
+        updatedAt: enterprises.updatedAt,
+      })
+      .from(enterprises)
+      .innerJoin(
+        enterpriseUsers,
+        and(
+          eq(enterpriseUsers.enterpriseId, enterprises.id),
+          eq(enterpriseUsers.userId, userId)
+        )
+      )
+      .orderBy(enterprises.createdAt);
+    return { success: true, data: { enterprises: userEnterprises } };
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Internal error";

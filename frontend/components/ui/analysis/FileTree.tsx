@@ -84,7 +84,6 @@ export function FileTree({
             {node.name}
           </span>
 
-          {/* Full-width hover effect */}
           <div className="absolute inset-0 pointer-events-none bg-blue-50/80 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
         {isFolder && isExpanded && node.children && (
@@ -103,11 +102,9 @@ export function FileTree({
   );
 }
 
-// Helper to build a nested tree from the flat file list
 export function buildFileTree(files: { path: string }[]): FileNode[] {
   const root: { [key: string]: any } = {};
 
-  // First build the nested object structure
   files.forEach((file) => {
     const parts = file.path.split("/");
     let node = root;
@@ -126,7 +123,6 @@ export function buildFileTree(files: { path: string }[]): FileNode[] {
     });
   });
 
-  // Convert the nested object into an array structure
   function convertToArray(obj: { [key: string]: any }): FileNode[] {
     return Object.entries(obj)
       .map(([name, node]) => {
@@ -146,10 +142,8 @@ export function buildFileTree(files: { path: string }[]): FileNode[] {
         }
       })
       .sort((a, b) => {
-        // Folders come before files
         if (a.type === "folder" && b.type === "file") return -1;
         if (a.type === "file" && b.type === "folder") return 1;
-        // Sort alphabetically within the same type
         return a.name.localeCompare(b.name);
       });
   }
@@ -170,7 +164,6 @@ export function FileContent({
 
   return (
     <div className="space-y-4">
-      {/* File Path Display */}
       <div className="px-6 py-3 text-sm text-gray-500 border-b border-gray-200">
         {selectedFile}
       </div>

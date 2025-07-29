@@ -1,6 +1,6 @@
 "use client";
-import { useUserStats } from "@/lib/hooks/useUserStats";
-import { useAuth } from "@/lib/hooks/useAuth";
+import { useUserStats } from "@/lib/hooks/api/useUserStats";
+import { useAuth } from "@/lib/hooks/business/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
 import Link from "next/link";
 

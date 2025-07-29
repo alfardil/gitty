@@ -1,4 +1,4 @@
-import { BarChart2, FileText, Users, Gift, Map } from "lucide-react";
+import { BarChart2, FileText, Users, Map } from "lucide-react";
 
 export const SIDEBAR_SECTIONS = [
   { key: "insights", label: "Insights", icon: BarChart2 },
@@ -6,5 +6,4 @@ export const SIDEBAR_SECTIONS = [
   { key: "roadmap", label: "RoadMap", icon: Map },
   { key: "developer", label: "Developer", icon: Users },
   { key: "admin", label: "Admin", icon: Users },
-  { key: "redeem", label: "Redeem", icon: Gift },
 ];

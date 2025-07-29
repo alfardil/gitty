@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   fetchRecentCommits,
   getGithubAccessTokenFromCookie,
-} from "@/lib/fetchRepos";
+} from "@/lib/utils/api/fetchRepos";
 
 export function useRecentCommits(user: any) {
   const [recentCommits, setRecentCommits] = useState<any[]>([]);

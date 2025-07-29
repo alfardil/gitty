@@ -2,7 +2,7 @@
 import { useEnterpriseActions } from "./hooks/useEnterpriseActions";
 import { CreateEnterprise } from "./_components/CreateEnterprise";
 import { InviteCodeForm } from "./_components/CreateInvite";
-import { User } from "@/lib/types/User";
+import { User } from "@/lib/types/business/User";
 
 export default function DeveloperSection({ user }: { user: User }) {
   const actions = useEnterpriseActions(user);

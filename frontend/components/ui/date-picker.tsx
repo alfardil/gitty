@@ -33,7 +33,6 @@ export function DatePicker({
   const [inputValue, setInputValue] = React.useState("");
   const [isTyping, setIsTyping] = React.useState(false);
 
-  // Update input value when value prop changes
   React.useEffect(() => {
     if (value && isValid(value)) {
       setInputValue(format(value, "MMM dd, yyyy"));
@@ -48,9 +47,7 @@ export function DatePicker({
     setInputValue(newValue);
     setIsTyping(true);
 
-    // Try to parse the input as a date
     if (newValue.trim()) {
-      // Try different date formats
       const formats = [
         "MMM dd, yyyy",
         "MM/dd/yyyy",
@@ -70,7 +67,6 @@ export function DatePicker({
         }
       }
 
-      // If no valid date found, clear the value
       onChange?.(undefined);
     } else {
       onChange?.(undefined);
@@ -95,7 +91,6 @@ export function DatePicker({
   };
 
   const handleInputBlur = () => {
-    // Keep typing state true if there's input but no valid date
     if (!inputValue.trim() || !value) {
       setIsTyping(false);
     }

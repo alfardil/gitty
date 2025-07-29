@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/server/src/db";
-import { tasks } from "@/server/src/db/schema";
-import { eq } from "drizzle-orm";
+import { tasks, taskAssignments } from "@/server/src/db/schema";
+import { eq, and, isNull } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
 
 export async function PATCH(
@@ -43,8 +43,16 @@ export async function PATCH(
     }
 
     body = await request.json();
-    const { status, title, description, priority, dueDate, tags, position } =
-      body;
+    const {
+      status,
+      title,
+      description,
+      priority,
+      dueDate,
+      tags,
+      position,
+      assigneeId,
+    } = body;
 
     updateData = {
       updatedAt: new Date().toISOString(),
@@ -84,6 +92,55 @@ export async function PATCH(
     if (tags !== undefined && tags !== null) updateData.tags = tags;
     if (position !== undefined && position !== null)
       updateData.position = position;
+
+    // Handle assignment tracking
+    if (assigneeId !== undefined) {
+      // Get current task to check if assignment is changing
+      const currentTask = await db
+        .select({ assigneeId: tasks.assigneeId })
+        .from(tasks)
+        .where(eq(tasks.id, id))
+        .limit(1);
+
+      if (currentTask.length > 0 && currentTask[0].assigneeId !== assigneeId) {
+        // If assignment is changing, close any existing assignment and create new one
+        if (currentTask[0].assigneeId) {
+          // Close existing assignment
+          await db
+            .update(taskAssignments)
+            .set({ unassignedAt: new Date().toISOString() })
+            .where(
+              and(
+                eq(taskAssignments.taskId, id),
+                eq(taskAssignments.assigneeId, currentTask[0].assigneeId),
+                isNull(taskAssignments.unassignedAt)
+              )
+            );
+        }
+
+        if (assigneeId) {
+          // Create new assignment record
+          await db.insert(taskAssignments).values({
+            taskId: id,
+            assigneeId: assigneeId,
+            assignedById: dbUser.id,
+            assignedAt: new Date().toISOString(),
+          });
+
+          updateData.assignedAt = new Date().toISOString();
+        }
+      }
+
+      updateData.assigneeId = assigneeId;
+    }
+
+    // Handle completion tracking
+    if (status === "done" && body.currentStatus !== "done") {
+      updateData.completedAt = new Date().toISOString();
+    } else if (status !== "done" && body.currentStatus === "done") {
+      // If task is being unmarked as done, clear completion time
+      updateData.completedAt = null;
+    }
 
     const updatedTask = await db
       .update(tasks)
