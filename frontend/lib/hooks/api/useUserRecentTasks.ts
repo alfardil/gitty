@@ -12,6 +12,9 @@ interface RecentTask {
   isCreator: boolean;
   isOverdue: boolean;
   daysOverdue: number;
+  estimatedHours?: number;
+  complexity?: number;
+  taskType?: string;
 }
 
 interface PaginationInfo {

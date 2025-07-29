@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Plus,
   Calendar,
@@ -11,10 +12,13 @@ import {
   Edit,
   Trash2,
   ChevronDown,
+  Clock,
 } from "lucide-react";
 import { useAuth } from "@/lib/hooks/business/useAuth";
 import { useTasks } from "@/lib/hooks/api/useTasks";
 import { useUserEnterprises } from "@/lib/hooks/api/useUserEnterprises";
+import { useProjects } from "@/lib/hooks/api/useProjects";
+import { toast } from "sonner";
 import { z } from "zod";
 import {
   DropdownMenu,
@@ -53,6 +57,9 @@ interface Task {
   createdAt: string;
   updatedAt: string;
   isOverdue?: boolean;
+  estimatedHours?: number;
+  complexity?: number;
+  taskType?: string;
 }
 
 const statusConfig = {
@@ -86,12 +93,27 @@ const priorityConfig = {
 
 export function RoadMapSection() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get("projectId");
+
   const {
     enterprises,
     selectedEnterprise,
     setSelectedEnterprise,
     loading: enterprisesLoading,
   } = useUserEnterprises(user?.uuid);
+
+  const { projects } = useProjects(selectedEnterprise || undefined);
+
+  // Add project selection state
+  const [selectedProject, setSelectedProject] = useState<string | null>(
+    projectId || null
+  );
+
+  // Update selected project when projectId changes
+  React.useEffect(() => {
+    setSelectedProject(projectId || null);
+  }, [projectId]);
 
   const {
     tasks,
@@ -103,7 +125,7 @@ export function RoadMapSection() {
     reorderTask: reorderTaskMutation,
     isCreating,
     isReordering,
-  } = useTasks(selectedEnterprise || undefined);
+  } = useTasks(selectedEnterprise || undefined, selectedProject || undefined);
 
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -188,6 +210,12 @@ export function RoadMapSection() {
     e.preventDefault();
 
     if (!validateForm(formData)) return;
+
+    // Ensure a project is selected before creating/updating tasks
+    if (!selectedProject) {
+      toast.error("Please select a project before creating tasks");
+      return;
+    }
 
     if (editingTask) {
       updateTask(editingTask.id, formData);
@@ -447,9 +475,9 @@ export function RoadMapSection() {
 
   return (
     <div className="space-y-6">
-      {/* Enterprise Selector */}
-      {enterprises.length > 0 && (
-        <div className="flex items-center justify-between mb-6">
+      {/* Enterprise and Project Selectors */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-300">
               Enterprise:
@@ -465,255 +493,377 @@ export function RoadMapSection() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
-                {enterprises.map((enterprise) => (
-                  <DropdownMenuItem
-                    key={enterprise.id}
-                    onClick={() => setSelectedEnterprise(enterprise.id)}
-                    className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
-                      selectedEnterprise === enterprise.id
-                        ? "bg-blue-500/20 text-blue-300"
-                        : ""
-                    }`}
-                  >
-                    {enterprise.name}
-                  </DropdownMenuItem>
-                ))}
+                {enterprises.length > 0 ? (
+                  enterprises.map((enterprise) => (
+                    <DropdownMenuItem
+                      key={enterprise.id}
+                      onClick={() => {
+                        setSelectedEnterprise(enterprise.id);
+                        setSelectedProject(null); // Reset project when enterprise changes
+                      }}
+                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                        selectedEnterprise === enterprise.id
+                          ? "bg-blue-500/20 text-blue-300"
+                          : ""
+                      }`}
+                    >
+                      {enterprise.name}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-gray-400 text-sm">
+                    No enterprises available
+                  </div>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          {enterprisesLoading && (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-          )}
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-300">Project:</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-2 px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white hover:border-green-400/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!selectedEnterprise}
+                >
+                  <span className="text-sm">
+                    {projects.find((p) => p.id === selectedProject)?.name ||
+                      "Select Project"}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#2d313a] border border-green-400/20 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
+                {selectedEnterprise && projects.length > 0 ? (
+                  projects.map((project) => (
+                    <DropdownMenuItem
+                      key={project.id}
+                      onClick={() => setSelectedProject(project.id)}
+                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                        selectedProject === project.id
+                          ? "bg-green-500/20 text-green-300"
+                          : ""
+                      }`}
+                    >
+                      {project.name}
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-gray-400 text-sm">
+                    {!selectedEnterprise
+                      ? "Select enterprise first"
+                      : "No projects available"}
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+        {enterprisesLoading && (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+        )}
+      </div>
+
+      {/* Show message if no project is selected */}
+      {!selectedProject && (
+        <div className="flex flex-col items-center justify-center h-64 space-y-4">
+          <div className="text-lg font-medium text-gray-300">
+            Select a Project
+          </div>
+          <div className="text-sm text-gray-500 text-center max-w-md">
+            Please select a project to view and manage tasks in the roadmap.
+          </div>
         </div>
       )}
 
-      {/* Status Summary */}
-      <div className="flex gap-4 mb-6">
-        {Object.entries(statusConfig).map(([status, config]) => (
-          <div key={status} className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${config.color}`}></div>
-            <span className="text-sm text-gray-300">
-              {config.label} {getStatusCount(status as Task["status"])}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Object.entries(statusConfig).map(([status, config]) => (
-          <div
-            key={status}
-            className={`bg-[#23272f] rounded-lg border p-4 min-h-[600px] transition-all duration-200 ${
-              dropTarget === status &&
-              draggedTask &&
-              draggedTask.status !== status
-                ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20"
-                : "border-[#353a45]"
-            }`}
-            onDragOver={(e) => handleDragOver(e, status as Task["status"])}
-            onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, status as Task["status"])}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className={`font-semibold ${config.textColor}`}>
-                {config.label}
-              </h3>
-              <span className="text-sm text-gray-400">
-                {getStatusCount(status as Task["status"])}
-              </span>
+      {/* Show roadmap content only when project is selected */}
+      {selectedProject && (
+        <>
+          {/* Status Summary and New Task Button */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex gap-4">
+              {Object.entries(statusConfig).map(([status, config]) => (
+                <div key={status} className="flex items-center gap-2">
+                  <div className={`w-3 h-3 rounded-full ${config.color}`}></div>
+                  <span className="text-sm text-gray-300">
+                    {config.label} {getStatusCount(status as Task["status"])}
+                  </span>
+                </div>
+              ))}
             </div>
+            <button
+              onClick={() => setShowNewTaskModal(true)}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              New Task
+            </button>
+          </div>
 
-            <div className="space-y-3">
-              {/* Drop indicator */}
-              {dropTarget === status &&
-                draggedTask &&
-                draggedTask.status !== status && (
-                  <div className="h-2 bg-blue-400/30 rounded border-2 border-dashed border-blue-400/50 transition-all duration-200 animate-pulse" />
-                )}
-              {getTasksByStatus(status as Task["status"]).map((task) => (
-                <React.Fragment key={task.id}>
-                  {/* Drop indicator above task */}
-                  {dropPosition?.taskId === task.id &&
-                    dropPosition.position === "above" &&
+          {/* Kanban Board */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Object.entries(statusConfig).map(([status, config]) => (
+              <div
+                key={status}
+                className={`bg-[#23272f] rounded-lg border p-4 min-h-[600px] transition-all duration-200 ${
+                  dropTarget === status &&
+                  draggedTask &&
+                  draggedTask.status !== status
+                    ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20"
+                    : "border-[#353a45]"
+                }`}
+                onDragOver={(e) => handleDragOver(e, status as Task["status"])}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, status as Task["status"])}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className={`font-semibold ${config.textColor}`}>
+                    {config.label}
+                  </h3>
+                  <span className="text-sm text-gray-400">
+                    {getStatusCount(status as Task["status"])}
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Drop indicator */}
+                  {dropTarget === status &&
                     draggedTask &&
-                    draggedTask.id !== task.id && (
+                    draggedTask.status !== status && (
                       <div className="h-2 bg-blue-400/30 rounded border-2 border-dashed border-blue-400/50 transition-all duration-200 animate-pulse" />
                     )}
+                  {getTasksByStatus(status as Task["status"]).map((task) => (
+                    <React.Fragment key={task.id}>
+                      {/* Drop indicator above task */}
+                      {dropPosition?.taskId === task.id &&
+                        dropPosition.position === "above" &&
+                        draggedTask &&
+                        draggedTask.id !== task.id && (
+                          <div className="h-2 bg-blue-400/30 rounded border-2 border-dashed border-blue-400/50 transition-all duration-200 animate-pulse" />
+                        )}
 
-                  <div
-                    className={`bg-[#2d313a] rounded-lg p-4 border cursor-move transition-all duration-200 ${
-                      draggedTask?.id === task.id
-                        ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 opacity-50 scale-105 rotate-1"
-                        : dropPosition?.taskId === task.id &&
-                            draggedTask &&
-                            draggedTask.id !== task.id
-                          ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 transform scale-105"
-                          : isReordering
-                            ? "border-yellow-400/50 bg-[#1a1d23] shadow-lg shadow-yellow-400/20"
-                            : isTaskOverdue(task)
-                              ? "border-red-500/30 hover:border-red-500/50 border-4"
-                              : "border-[#353a45] hover:border-blue-400/30"
-                    }`}
-                    draggable={!isReordering}
-                    onDragStart={(e) => handleDragStart(e, task)}
-                    onDragOver={(e) => handleTaskDragOver(e, task)}
-                    onDragLeave={handleTaskDragLeave}
-                    onDrop={(e) => handleTaskDrop(e, task)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium text-white text-sm line-clamp-2 flex-1 mr-2">
-                        {task.title}
-                      </h4>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button className="text-gray-400 hover:text-white p-1">
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
-                          <DropdownMenuItem
-                            onClick={() => openEditModal(task)}
-                            className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => deleteTask(task.id)}
-                            className="text-red-400 hover:text-red-300 hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            className={`px-2 py-1 rounded text-xs font-medium ${priorityConfig[task.priority].color} ${priorityConfig[task.priority].textColor} hover:opacity-80 transition-opacity cursor-pointer`}
-                          >
-                            {priorityConfig[task.priority].label}
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
-                          <DropdownMenuItem
-                            onClick={() => updateTaskPriority(task.id, "low")}
-                            className="text-white hover:bg-green-500/20 focus:bg-green-500/20 bg-green-400/10 cursor-pointer"
-                          >
-                            Low
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              updateTaskPriority(task.id, "medium")
-                            }
-                            className="text-white hover:bg-yellow-500/20 focus:bg-yellow-500/20 bg-yellow-400/10 cursor-pointer"
-                          >
-                            Medium
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => updateTaskPriority(task.id, "high")}
-                            className="text-white hover:bg-red-500/20 focus:bg-red-500/20 bg-red-400/10 cursor-pointer"
-                          >
-                            High
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-
-                    {task.description && (
-                      <p className="text-xs text-gray-400 mb-3 line-clamp-2">
-                        {task.description}
-                      </p>
-                    )}
-
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      {task.dueDate && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          <span>
-                            {new Date(task.dueDate).toLocaleString("en-US", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "2-digit",
-                              hour12: true,
-                            })}
-                          </span>
+                      <div
+                        className={`bg-[#2d313a] rounded-lg p-4 border cursor-move transition-all duration-200 ${
+                          draggedTask?.id === task.id
+                            ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 opacity-50 scale-105 rotate-1"
+                            : dropPosition?.taskId === task.id &&
+                                draggedTask &&
+                                draggedTask.id !== task.id
+                              ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 transform scale-105"
+                              : isReordering
+                                ? "border-yellow-400/50 bg-[#1a1d23] shadow-lg shadow-yellow-400/20"
+                                : isTaskOverdue(task)
+                                  ? "border-red-500/30 hover:border-red-500/50 border-4"
+                                  : "border-[#353a45] hover:border-blue-400/30"
+                        }`}
+                        draggable={!isReordering}
+                        onDragStart={(e) => handleDragStart(e, task)}
+                        onDragOver={(e) => handleTaskDragOver(e, task)}
+                        onDragLeave={handleTaskDragLeave}
+                        onDrop={(e) => handleTaskDrop(e, task)}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-medium text-white text-sm line-clamp-2 flex-1 mr-2">
+                            {task.title}
+                          </h4>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="text-gray-400 hover:text-white p-1">
+                                <MoreVertical className="w-4 h-4" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
+                              <DropdownMenuItem
+                                onClick={() => openEditModal(task)}
+                                className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                              >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => deleteTask(task.id)}
+                                className="text-red-400 hover:text-red-300 hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
-                      )}
-                      {task.assigneeName && (
-                        <div className="flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          <span>{task.assigneeName}</span>
-                        </div>
-                      )}
-                    </div>
 
-                    {task.tags && task.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {task.tags.slice(0, 2).map((tag, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {task.tags.length > 2 && (
-                          <span className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded">
-                            +{task.tags.length - 2}
-                          </span>
+                        <div className="flex items-center gap-2 mb-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button
+                                className={`px-2 py-1 rounded text-xs font-medium ${priorityConfig[task.priority].color} ${priorityConfig[task.priority].textColor} hover:opacity-80 transition-opacity cursor-pointer`}
+                              >
+                                {priorityConfig[task.priority].label}
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateTaskPriority(task.id, "low")
+                                }
+                                className="text-white hover:bg-green-500/20 focus:bg-green-500/20 bg-green-400/10 cursor-pointer"
+                              >
+                                Low
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateTaskPriority(task.id, "medium")
+                                }
+                                className="text-white hover:bg-yellow-500/20 focus:bg-yellow-500/20 bg-yellow-400/10 cursor-pointer"
+                              >
+                                Medium
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateTaskPriority(task.id, "high")
+                                }
+                                className="text-white hover:bg-red-500/20 focus:bg-red-500/20 bg-red-400/10 cursor-pointer"
+                              >
+                                High
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+
+                        {task.description && (
+                          <p className="text-xs text-gray-400 mb-3 line-clamp-2">
+                            {task.description}
+                          </p>
+                        )}
+
+                        {/* Task metadata */}
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {task.estimatedHours ? (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded">
+                              <Clock className="w-3 h-3" />
+                              <span>{task.estimatedHours}h</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
+                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
+                              <span>Analyzing...</span>
+                            </div>
+                          )}
+                          {task.complexity ? (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded">
+                              <span>⚡</span>
+                              <span>{task.complexity}/5</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
+                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
+                              <span>Analyzing...</span>
+                            </div>
+                          )}
+                          {task.taskType ? (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded">
+                              <span>📋</span>
+                              <span className="capitalize">
+                                {task.taskType.replace("_", " ")}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
+                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
+                              <span>Analyzing...</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs text-gray-400">
+                          {task.dueDate && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>
+                                {new Date(task.dueDate).toLocaleString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  }
+                                )}
+                              </span>
+                            </div>
+                          )}
+                          {task.assigneeName && (
+                            <div className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              <span>{task.assigneeName}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {task.tags.slice(0, 2).map((tag, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                            {task.tags.length > 2 && (
+                              <span className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded">
+                                +{task.tags.length - 2}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Drop indicator below task */}
-                  {dropPosition?.taskId === task.id &&
-                    dropPosition.position === "below" &&
+                      {/* Drop indicator below task */}
+                      {dropPosition?.taskId === task.id &&
+                        dropPosition.position === "below" &&
+                        draggedTask &&
+                        draggedTask.id !== task.id && (
+                          <div className="h-2 bg-blue-400/30 rounded border-2 border-dashed border-blue-400/50 transition-all duration-200 animate-pulse" />
+                        )}
+                    </React.Fragment>
+                  ))}
+
+                  {/* Empty state indicator when dragging */}
+                  {getTasksByStatus(status as Task["status"]).length === 0 &&
+                    dropTarget === status &&
                     draggedTask &&
-                    draggedTask.id !== task.id && (
-                      <div className="h-2 bg-blue-400/30 rounded border-2 border-dashed border-blue-400/50 transition-all duration-200 animate-pulse" />
+                    draggedTask.status !== status && (
+                      <div className="flex items-center justify-center h-32 border-2 border-dashed border-blue-400/50 rounded-lg bg-blue-400/10">
+                        <span className="text-blue-400 text-sm font-medium">
+                          Drop here
+                        </span>
+                      </div>
                     )}
-                </React.Fragment>
-              ))}
 
-              {/* Empty state indicator when dragging */}
-              {getTasksByStatus(status as Task["status"]).length === 0 &&
-                dropTarget === status &&
-                draggedTask &&
-                draggedTask.status !== status && (
-                  <div className="flex items-center justify-center h-32 border-2 border-dashed border-blue-400/50 rounded-lg bg-blue-400/10">
-                    <span className="text-blue-400 text-sm font-medium">
-                      Drop here
+                  <button
+                    onClick={() => setShowNewTaskModal(true)}
+                    disabled={isCreating}
+                    className="w-full p-3 border-2 border-dashed border-[#353a45] rounded-lg text-gray-400 hover:border-blue-400/30 hover:text-blue-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCreating ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+                    ) : (
+                      <Plus className="w-4 h-4" />
+                    )}
+                    <span className="text-sm">
+                      {isCreating ? "Creating..." : "New task"}
                     </span>
-                  </div>
-                )}
-
-              <button
-                onClick={() => setShowNewTaskModal(true)}
-                disabled={isCreating}
-                className="w-full p-3 border-2 border-dashed border-[#353a45] rounded-lg text-gray-400 hover:border-blue-400/30 hover:text-blue-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCreating ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-                <span className="text-sm">
-                  {isCreating ? "Creating..." : "New task"}
-                </span>
-              </button>
-            </div>
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       {/* Task Modal */}
       {showNewTaskModal && (

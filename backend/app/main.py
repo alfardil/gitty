@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import generate, chat
+from app.routers import generate, chat, task_analysis
 
 app = FastAPI()
 app.include_router(generate.router)
 app.include_router(chat.router)
+app.include_router(task_analysis.router)
 
 origins = ["http://localhost:3000", "https://gitty.alfardil.com"]
 

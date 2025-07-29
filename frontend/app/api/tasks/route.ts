@@ -9,6 +9,7 @@ import {
 } from "@/server/src/db/schema";
 import { eq, or, and } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
+import { analyzeTaskInBackground } from "@/server/src/services/task-analysis.service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,9 +35,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get enterpriseId from query params
+    // Get enterpriseId and projectId from query params
     const { searchParams } = new URL(request.url);
     const enterpriseId = searchParams.get("enterpriseId");
+    const projectId = searchParams.get("projectId");
 
     // Build where clause
     let whereClause = or(
@@ -47,6 +49,11 @@ export async function GET(request: NextRequest) {
     // Add enterprise filter if provided
     if (enterpriseId) {
       whereClause = and(whereClause, eq(tasks.enterpriseId, enterpriseId));
+    }
+
+    // Add project filter if provided - this is required for roadmap view
+    if (projectId) {
+      whereClause = and(whereClause, eq(tasks.projectId, projectId));
     }
 
     const userTasks = await db
@@ -64,6 +71,9 @@ export async function GET(request: NextRequest) {
         position: tasks.position,
         createdAt: tasks.createdAt,
         updatedAt: tasks.updatedAt,
+        estimatedHours: tasks.estimatedHours,
+        complexity: tasks.complexity,
+        taskType: tasks.taskType,
         assigneeName: users.firstName,
       })
       .from(tasks)
@@ -114,6 +124,10 @@ export async function POST(request: NextRequest) {
       tags,
       assigneeId,
       enterpriseId,
+      projectId,
+      estimatedHours,
+      complexity,
+      taskType,
     } = body;
 
     if (!title) {
@@ -165,7 +179,12 @@ export async function POST(request: NextRequest) {
         createdById: dbUser.id,
         assigneeId: finalAssigneeId,
         enterpriseId: finalEnterpriseId || null,
+        projectId: projectId || null,
         assignedAt: assignedAt,
+        // Don't set these fields - they'll be filled by AI analysis
+        estimatedHours: null,
+        complexity: 3, // Default complexity
+        taskType: null,
       })
       .returning();
 
@@ -175,6 +194,11 @@ export async function POST(request: NextRequest) {
       assigneeId: finalAssigneeId,
       assignedById: dbUser.id,
       assignedAt: assignedAt,
+    });
+
+    // Start background AI analysis
+    analyzeTaskInBackground(newTask[0].id).catch((error) => {
+      console.error("Background task analysis failed:", error);
     });
 
     return NextResponse.json({ task: newTask[0] }, { status: 201 });

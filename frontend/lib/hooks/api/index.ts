@@ -10,3 +10,6 @@ export { useUserUsername } from "./useUserUsername";
 export { useRecentCommits } from "./useRecentCommits";
 export { useScopeRepos } from "./useScopeRepos";
 export { useStats } from "./useStats";
+export { useProjects } from "./useProjects";
+export { useTeamPerformanceAnalytics } from "./useTeamPerformanceAnalytics";
+export { useProjectUsers } from "./useProjectUsers";

@@ -75,7 +75,7 @@ export default function UserProfilePage() {
   const userId = params.id as string;
   const enterpriseId = searchParams.get("enterpriseId");
 
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: isAdminLoading } =
     useIsAdminOfAnyEnterprise(currentUser?.uuid);
   const {
@@ -100,7 +100,7 @@ export default function UserProfilePage() {
     );
 
   // Show loading while checking admin status
-  if (isAdminLoading) {
+  if (isAdminLoading || authLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <Spinner size="large" />
@@ -260,40 +260,48 @@ export default function UserProfilePage() {
           </div>
 
           {/* User Info Header */}
-          <div className="flex items-center gap-6">
-            {profileUser.avatarUrl && (
-              <img
-                src={profileUser.avatarUrl}
-                alt="Avatar"
-                className="w-20 h-20 rounded-full border-2 border-[#2A2A2A]"
-              />
-            )}
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
+          <div className="flex items-start gap-6">
+            <div className="flex-shrink-0">
+              {profileUser.avatarUrl ? (
+                <img
+                  src={profileUser.avatarUrl}
+                  alt="Avatar"
+                  className="w-24 h-24 rounded-full border-3 border-[#2A2A2A] shadow-lg"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full border-3 border-[#2A2A2A] bg-[#1A1A1A] flex items-center justify-center shadow-lg">
+                  <User className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-3 text-white">
                 {profileUser.firstName && profileUser.lastName
                   ? `${profileUser.firstName} ${profileUser.lastName}`
                   : profileUser.githubUsername || "Unknown User"}
               </h1>
-              <div className="flex items-center gap-6 text-gray-400">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-400">
                 {profileUser.githubUsername && (
-                  <div className="flex items-center gap-2">
-                    <Github className="w-4 h-4" />
-                    <span>@{profileUser.githubUsername}</span>
+                  <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                    <Github className="w-4 h-4 text-blue-400" />
+                    <span className="font-medium">
+                      @{profileUser.githubUsername}
+                    </span>
                   </div>
                 )}
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  <span>{profileUser.email}</span>
+                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                  <Mail className="w-4 h-4 text-green-400" />
+                  <span className="font-medium">{profileUser.email}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>
+                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                  <Calendar className="w-4 h-4 text-purple-400" />
+                  <span className="font-medium">
                     Joined {format(new Date(profileUser.joinedAt), "MMM yyyy")}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span className="uppercase">
+                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                  <User className="w-4 h-4 text-yellow-400" />
+                  <span className="font-medium uppercase">
                     {profileUser.subscriptionPlan}
                   </span>
                 </div>
@@ -303,15 +311,17 @@ export default function UserProfilePage() {
 
           {/* Enterprise Filter Indicator */}
           {profile.enterpriseContext && (
-            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <div className="flex items-center gap-2 text-blue-300">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-sm font-medium">
-                  Viewing insights for:{" "}
-                  <span className="text-blue-200 font-semibold">
-                    {profile.enterpriseContext.enterpriseName}
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse"></div>
+                <div>
+                  <span className="text-sm font-medium text-blue-300">
+                    Viewing insights for enterprise:
                   </span>
-                </span>
+                  <div className="text-lg font-semibold text-blue-200">
+                    {profile.enterpriseContext.enterpriseName}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -321,57 +331,71 @@ export default function UserProfilePage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Total Tasks</h3>
-              <Target className="w-5 h-5 text-blue-400" />
+              <h3 className="text-lg font-semibold text-white">Total Tasks</h3>
+              <div className="p-2 bg-blue-500/20 rounded-lg">
+                <Target className="w-5 h-5 text-blue-400" />
+              </div>
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-4xl font-bold text-white mb-2">
               {statistics.totalTasks}
             </div>
-            <div className="text-sm text-gray-400 mt-2">
+            <div className="text-sm text-gray-400">
               {statistics.assignedTasks} assigned, {statistics.createdTasks}{" "}
               created
             </div>
           </div>
 
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Completion Rate</h3>
-              <TrendingUp className="w-5 h-5 text-green-400" />
+              <h3 className="text-lg font-semibold text-white">
+                Completion Rate
+              </h3>
+              <div className="p-2 bg-green-500/20 rounded-lg">
+                <TrendingUp className="w-5 h-5 text-green-400" />
+              </div>
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-4xl font-bold text-white mb-2">
               {statistics.completionRate}%
             </div>
-            <div className="text-sm text-gray-400 mt-2">
+            <div className="text-sm text-gray-400">
               {statistics.completedTasks} of {statistics.totalTasks} completed
             </div>
           </div>
 
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Avg. Completion</h3>
-              <Clock className="w-5 h-5 text-yellow-400" />
+              <h3 className="text-lg font-semibold text-white">
+                Avg. Completion
+              </h3>
+              <div className="p-2 bg-yellow-500/20 rounded-lg">
+                <Clock className="w-5 h-5 text-yellow-400" />
+              </div>
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-4xl font-bold text-white mb-2">
               {statistics.averageCompletionTime
                 ? `${statistics.averageCompletionTime}d`
                 : "N/A"}
             </div>
-            <div className="text-sm text-gray-400 mt-2">
+            <div className="text-sm text-gray-400">
               Average days to complete
             </div>
           </div>
 
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Overdue Tasks</h3>
-              <AlertCircle className="w-5 h-5 text-red-400" />
+              <h3 className="text-lg font-semibold text-white">
+                Overdue Tasks
+              </h3>
+              <div className="p-2 bg-red-500/20 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-400" />
+              </div>
             </div>
-            <div className="text-3xl font-bold text-white">
+            <div className="text-4xl font-bold text-white mb-2">
               {statistics.overdueTasks}
             </div>
-            <div className="text-sm text-gray-400 mt-2">
+            <div className="text-sm text-gray-400">
               {statistics.overdueTasks > 0
                 ? `${statistics.overdueTasks} task${statistics.overdueTasks === 1 ? "" : "s"} past due`
                 : "All tasks on schedule"}
@@ -381,18 +405,26 @@ export default function UserProfilePage() {
 
         {/* Overdue Tasks Alert */}
         {statistics.overdueTasks > 0 && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertCircle className="w-6 h-6 text-red-400" />
-              <h3 className="text-xl font-semibold text-red-400">
-                Overdue Tasks Alert
-              </h3>
+          <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-6 mb-8 backdrop-blur-sm">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-red-500/20 rounded-full">
+                <AlertCircle className="w-6 h-6 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-red-400">
+                  Overdue Tasks Alert
+                </h3>
+                <p className="text-red-300 text-sm">
+                  Immediate attention required
+                </p>
+              </div>
             </div>
-            <p className="text-gray-300 mb-4">
+            <p className="text-gray-300 mb-4 leading-relaxed">
               {statistics.overdueTasks} task
               {statistics.overdueTasks === 1 ? "" : "s"}{" "}
               {statistics.overdueTasks === 1 ? "is" : "are"} currently overdue.
-              Please review and update the status of these tasks.
+              Please review and update the status of these tasks to maintain
+              project timelines.
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <Clock className="w-4 h-4" />
@@ -405,64 +437,69 @@ export default function UserProfilePage() {
 
         {/* Task Status Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+            <h3 className="text-xl font-semibold mb-6 text-white">
               Task Status Breakdown
             </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="space-y-5">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span>Completed</span>
+                  <div className="p-2 bg-green-500/20 rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  </div>
+                  <span className="font-medium text-white">Completed</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.completedTasks}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.completedTasks / statistics.totalTasks) *
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-yellow-400" />
-                  <span>In Progress</span>
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <Clock className="w-5 h-5 text-yellow-400" />
+                  </div>
+                  <span className="font-medium text-white">In Progress</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.inProgressTasks}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.inProgressTasks / statistics.totalTasks) *
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-orange-400" />
-                  <span>Pending Approval</span>
+                  <div className="p-2 bg-orange-500/20 rounded-lg">
+                    <AlertCircle className="w-5 h-5 text-orange-400" />
+                  </div>
+                  <span className="font-medium text-white">
+                    Pending Approval
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.pendingApprovalTasks}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.pendingApprovalTasks /
@@ -470,48 +507,52 @@ export default function UserProfilePage() {
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <Target className="w-5 h-5 text-gray-400" />
-                  <span>Not Started</span>
+                  <div className="p-2 bg-gray-500/20 rounded-lg">
+                    <Target className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <span className="font-medium text-white">Not Started</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.notStartedTasks}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.notStartedTasks / statistics.totalTasks) *
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">Priority Breakdown</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+            <h3 className="text-xl font-semibold mb-6 text-white">
+              Priority Breakdown
+            </h3>
+            <div className="space-y-5">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                  <span>High Priority</span>
+                  <div className="p-2 bg-red-500/20 rounded-lg">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                  </div>
+                  <span className="font-medium text-white">High Priority</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.priorityBreakdown.high}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.high /
@@ -519,21 +560,24 @@ export default function UserProfilePage() {
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                  <span>Medium Priority</span>
+                  <div className="p-2 bg-yellow-500/20 rounded-lg">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                  </div>
+                  <span className="font-medium text-white">
+                    Medium Priority
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.priorityBreakdown.medium}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.medium /
@@ -541,21 +585,22 @@ export default function UserProfilePage() {
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  <span>Low Priority</span>
+                  <div className="p-2 bg-green-500/20 rounded-lg">
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  </div>
+                  <span className="font-medium text-white">Low Priority</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-bold">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold text-white">
                     {statistics.priorityBreakdown.low}
                   </span>
-                  <span className="text-gray-400">
-                    (
+                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.low /
@@ -563,7 +608,7 @@ export default function UserProfilePage() {
                             100
                         )
                       : 0}
-                    %)
+                    %
                   </span>
                 </div>
               </div>
@@ -629,6 +674,24 @@ export default function UserProfilePage() {
                               {task.isOverdue
                                 ? ` • Overdue ${formatOverdueDays(task.daysOverdue)}`
                                 : ` • Due ${format(new Date(task.dueDate), "MMM d, yyyy")}`}
+                            </span>
+                          )}
+                        </div>
+                        {/* Task metadata */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {task.estimatedHours && (
+                            <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">
+                              {task.estimatedHours}h
+                            </span>
+                          )}
+                          {task.complexity && (
+                            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                              {task.complexity}/5
+                            </span>
+                          )}
+                          {task.taskType && (
+                            <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded capitalize">
+                              {task.taskType.replace("_", " ")}
                             </span>
                           )}
                         </div>

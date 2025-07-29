@@ -184,6 +184,7 @@ export const tasks = pgTable(
     assigneeId: uuid("assignee_id"),
     createdById: uuid("created_by_id").notNull(),
     enterpriseId: uuid("enterprise_id"),
+    projectId: uuid("project_id"), // Link tasks to projects
     tags: text().array(),
     position: decimal("position", { precision: 10, scale: 2 })
       .default("0")
@@ -192,6 +193,27 @@ export const tasks = pgTable(
     updatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
     completedAt: timestamp({ mode: "string" }),
     assignedAt: timestamp({ mode: "string" }),
+
+    // Future AI/analytics features - currently unused
+    // These fields will be used for:
+    // - Time estimation accuracy (estimatedHours, actualHours, originalEstimate)
+    // - Task complexity analysis (complexity, taskType)
+    // - Dependency management (dependencies, blockers)
+    // - Quality metrics (reworkCount, approvalCount)
+    // - Scope management (scopeChanges)
+    // - Timeline tracking (startedAt, lastStatusChangeAt)
+    startedAt: timestamp({ mode: "string" }),
+    estimatedHours: decimal("estimated_hours", { precision: 8, scale: 2 }),
+    actualHours: decimal("actual_hours", { precision: 8, scale: 2 }),
+    complexity: integer("complexity").default(3),
+    taskType: varchar("task_type", { length: 50 }),
+    dependencies: uuid("dependencies").array(),
+    blockers: uuid("blockers").array(),
+    reworkCount: integer("rework_count").default(0),
+    approvalCount: integer("approval_count").default(0),
+    lastStatusChangeAt: timestamp({ mode: "string" }),
+    originalEstimate: decimal("original_estimate", { precision: 8, scale: 2 }),
+    scopeChanges: integer("scope_changes").default(0),
   },
   (table) => [
     foreignKey({
@@ -208,6 +230,11 @@ export const tasks = pgTable(
       columns: [table.enterpriseId],
       foreignColumns: [enterprises.id],
       name: "tasks_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [projects.id],
+      name: "tasks_project_id_fk",
     }),
   ]
 );
@@ -238,6 +265,122 @@ export const taskAssignments = pgTable(
       columns: [table.assignedById],
       foreignColumns: [users.id],
       name: "task_assignments_assigned_by_id_fk",
+    }),
+  ]
+);
+
+// Track task status changes for timeline analysis
+export const taskStatusHistory = pgTable(
+  "task_status_history",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    taskId: uuid("task_id").notNull(),
+    fromStatus: taskStatus("from_status"),
+    toStatus: taskStatus("to_status").notNull(),
+    changedById: uuid("changed_by_id").notNull(),
+    changedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    notes: text(), // Optional notes about the status change
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.taskId],
+      foreignColumns: [tasks.id],
+      name: "task_status_history_task_id_fk",
+    }),
+    foreignKey({
+      columns: [table.changedById],
+      foreignColumns: [users.id],
+      name: "task_status_history_changed_by_id_fk",
+    }),
+  ]
+);
+
+// Track time spent on tasks for velocity calculations
+export const taskTimeEntries = pgTable(
+  "task_time_entries",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    taskId: uuid("task_id").notNull(),
+    userId: uuid("user_id").notNull(),
+    startedAt: timestamp({ mode: "string" }).notNull(),
+    endedAt: timestamp({ mode: "string" }),
+    hours: decimal("hours", { precision: 8, scale: 2 }),
+    description: text(), // What was worked on during this time
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.taskId],
+      foreignColumns: [tasks.id],
+      name: "task_time_entries_task_id_fk",
+    }),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "task_time_entries_user_id_fk",
+    }),
+  ]
+);
+
+// Projects table for grouping related tasks
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    description: text(),
+    enterpriseId: uuid("enterprise_id").notNull(),
+    createdById: uuid("created_by_id").notNull(),
+    memberIds: uuid("member_ids").array(), // Direct reference to project members
+    status: varchar("status", { length: 50 }).default("active").notNull(), // active, completed, paused, cancelled
+    startDate: timestamp({ mode: "string" }),
+    targetEndDate: timestamp({ mode: "string" }),
+    actualEndDate: timestamp({ mode: "string" }),
+    estimatedTotalHours: decimal("estimated_total_hours", {
+      precision: 10,
+      scale: 2,
+    }),
+    actualTotalHours: decimal("actual_total_hours", {
+      precision: 10,
+      scale: 2,
+    }),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "projects_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.createdById],
+      foreignColumns: [users.id],
+      name: "projects_created_by_id_fk",
+    }),
+  ]
+);
+
+// Project members table
+export const projectMembers = pgTable(
+  "project_members",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    projectId: uuid("project_id").notNull(),
+    userId: uuid("user_id").notNull(),
+    role: varchar("role", { length: 50 }).default("member").notNull(), // owner, lead, member
+    joinedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    leftAt: timestamp({ mode: "string" }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [projects.id],
+      name: "project_members_project_id_fk",
+    }),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "project_members_user_id_fk",
     }),
   ]
 );

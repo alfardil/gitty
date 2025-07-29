@@ -77,6 +77,16 @@ export async function POST(request: NextRequest) {
         updateData.completedAt = null;
       }
 
+      // Handle startedAt tracking when task moves to in_progress
+      if (status === "in_progress" && currentTask.status !== "in_progress") {
+        updateData.startedAt = new Date().toISOString();
+      }
+
+      // Handle lastStatusChangeAt tracking
+      if (status !== currentTask.status) {
+        updateData.lastStatusChangeAt = new Date().toISOString();
+      }
+
       await db.update(tasks).set(updateData).where(eq(tasks.id, taskId));
     }
 

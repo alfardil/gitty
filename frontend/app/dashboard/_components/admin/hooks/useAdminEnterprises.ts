@@ -6,14 +6,14 @@ interface EnterpriseUser {
   id: string;
   githubId: string | null;
   githubUsername: string | null;
-  avatar_url: string | null;
+  avatarUrl: string | null;
   firstName: string | null;
   lastName: string | null;
   subscription_plan: string | null;
   role: string;
 }
 
-export function useAdminEnterprises(userId: string) {
+export function useAdminEnterprises(userId: string, projectId?: string) {
   const {
     data: enterprisesData,
     isLoading: enterprisesLoading,
@@ -54,12 +54,13 @@ export function useAdminEnterprises(userId: string) {
     isLoading: usersLoading,
     error: usersError,
   } = useQuery({
-    queryKey: ["enterprise-users", selectedEnterprise],
+    queryKey: ["enterprise-users", selectedEnterprise, projectId],
     queryFn: async (): Promise<EnterpriseUser[]> => {
       if (!selectedEnterprise) return [];
-      const res = await fetch(
-        `/api/admin?action=getEnterpriseUsers&enterpriseId=${selectedEnterprise}`
-      );
+      const params = new URLSearchParams({ enterpriseId: selectedEnterprise });
+      if (projectId) params.append("projectId", projectId);
+
+      const res = await fetch(`/api/admin?action=getEnterpriseUsers&${params}`);
       const data = await res.json();
       if (data.success && data.data?.users) {
         return data.data.users;

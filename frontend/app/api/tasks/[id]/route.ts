@@ -52,6 +52,10 @@ export async function PATCH(
       tags,
       position,
       assigneeId,
+      projectId,
+      estimatedHours,
+      complexity,
+      taskType,
     } = body;
 
     updateData = {
@@ -92,6 +96,14 @@ export async function PATCH(
     if (tags !== undefined && tags !== null) updateData.tags = tags;
     if (position !== undefined && position !== null)
       updateData.position = position;
+    if (projectId !== undefined && projectId !== null)
+      updateData.projectId = projectId;
+    if (estimatedHours !== undefined && estimatedHours !== null)
+      updateData.estimatedHours = estimatedHours;
+    if (complexity !== undefined && complexity !== null)
+      updateData.complexity = complexity;
+    if (taskType !== undefined && taskType !== null)
+      updateData.taskType = taskType;
 
     // Handle assignment tracking
     if (assigneeId !== undefined) {
@@ -140,6 +152,16 @@ export async function PATCH(
     } else if (status !== "done" && body.currentStatus === "done") {
       // If task is being unmarked as done, clear completion time
       updateData.completedAt = null;
+    }
+
+    // Handle startedAt tracking when task moves to in_progress
+    if (status === "in_progress" && body.currentStatus !== "in_progress") {
+      updateData.startedAt = new Date().toISOString();
+    }
+
+    // Handle lastStatusChangeAt tracking
+    if (status !== body.currentStatus) {
+      updateData.lastStatusChangeAt = new Date().toISOString();
     }
 
     const updatedTask = await db
