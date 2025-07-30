@@ -6,6 +6,8 @@ import {
   users,
   taskAssignments,
   enterpriseUsers,
+  projectMembers,
+  projects,
 } from "@/server/src/db/schema";
 import { eq, or, and } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
@@ -41,19 +43,66 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get("projectId");
 
     // Build where clause
-    let whereClause = or(
-      eq(tasks.createdById, dbUser.id),
-      eq(tasks.assigneeId, dbUser.id)
-    );
+    let whereClause;
+
+    // If projectId is provided, show all tasks in that project for users with access
+    if (projectId) {
+      // First check if user has access to this project
+      const projectAccess = await db
+        .select()
+        .from(projectMembers)
+        .where(
+          and(
+            eq(projectMembers.projectId, projectId),
+            eq(projectMembers.userId, dbUser.id)
+          )
+        )
+        .limit(1);
+
+      // Also check if user is admin of the enterprise that owns this project
+      const project = await db
+        .select({ enterpriseId: projects.enterpriseId })
+        .from(projects)
+        .where(eq(projects.id, projectId))
+        .limit(1);
+
+      let hasAccess = false;
+      if (project.length > 0) {
+        const enterpriseAdminCheck = await db
+          .select()
+          .from(enterpriseUsers)
+          .where(
+            and(
+              eq(enterpriseUsers.enterpriseId, project[0].enterpriseId),
+              eq(enterpriseUsers.userId, dbUser.id),
+              eq(enterpriseUsers.role, "admin")
+            )
+          )
+          .limit(1);
+
+        hasAccess = projectAccess.length > 0 || enterpriseAdminCheck.length > 0;
+      }
+
+      if (!hasAccess) {
+        return NextResponse.json(
+          { error: "You don't have access to this project" },
+          { status: 403 }
+        );
+      }
+
+      // Show all tasks in the project
+      whereClause = eq(tasks.projectId, projectId);
+    } else {
+      // Fallback to showing only user's tasks when no project is specified
+      whereClause = or(
+        eq(tasks.createdById, dbUser.id),
+        eq(tasks.assigneeId, dbUser.id)
+      );
+    }
 
     // Add enterprise filter if provided
     if (enterpriseId) {
       whereClause = and(whereClause, eq(tasks.enterpriseId, enterpriseId));
-    }
-
-    // Add project filter if provided - this is required for roadmap view
-    if (projectId) {
-      whereClause = and(whereClause, eq(tasks.projectId, projectId));
     }
 
     const userTasks = await db

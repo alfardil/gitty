@@ -38,6 +38,7 @@ interface TaskFormData {
   priority: "low" | "medium" | "high";
   dueDate?: Date;
   tags?: string;
+  assigneeId?: string;
 }
 
 // Fetch tasks
@@ -83,6 +84,7 @@ const createTask = async (
             .map((tag) => tag.trim())
             .filter(Boolean)
         : [],
+      assigneeId: taskData.assigneeId || null,
     }),
   });
   if (!response.ok) {
@@ -113,6 +115,7 @@ const updateTask = async ({
             .map((tag) => tag.trim())
             .filter(Boolean)
         : [],
+      assigneeId: taskData.assigneeId || null,
     }),
   });
   if (!response.ok) {

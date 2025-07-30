@@ -4,3 +4,4 @@ export { useDiagram } from "./useDiagram";
 export { useNonStreamDiagram } from "./useNonStreamDiagram";
 export { useWaitlist } from "./useWaitlist";
 export { useIsAdminOfAnyEnterprise } from "./useIsAdminOfAnyEnterprise";
+export { useProjectSelection } from "./useProjectSelection";

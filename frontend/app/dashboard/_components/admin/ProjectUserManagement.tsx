@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useProjectUsers } from "@/lib/hooks/api/useProjectUsers";
+import { useProjectUserManagement } from "@/lib/hooks/api/useProjectUserManagement";
+import type { ProjectUser } from "@/lib/hooks/api/useProjectUserManagement";
 import { Spinner } from "@/components/ui/neo/spinner";
 import { toast } from "sonner";
 import {
@@ -57,7 +58,7 @@ export function ProjectUserManagement({
     removeUser,
     isAssigning,
     isRemoving,
-  } = useProjectUsers(projectId);
+  } = useProjectUserManagement(projectId);
 
   const [formData, setFormData] = useState<AssignUserFormData>({
     userId: "",
@@ -101,7 +102,8 @@ export function ProjectUserManagement({
     removeUser(userId);
   };
 
-  const getUserDisplayName = (user: any) => {
+  const getUserDisplayName = (user: ProjectUser | undefined) => {
+    if (!user) return "Unknown User";
     if (user.firstName && user.lastName) {
       return `${user.firstName} ${user.lastName}`;
     }
@@ -530,10 +532,12 @@ export function ProjectUserManagement({
                             {getUserDisplayName(user)}
                           </h5>
                           <span
-                            className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(user.role)} flex-shrink-0`}
+                            className={`px-2 py-1 text-xs rounded-full border ${getRoleBadgeColor(user.role || "member")} flex-shrink-0`}
                           >
-                            {getRoleIcon(user.role)}
-                            <span className="ml-1 capitalize">{user.role}</span>
+                            {getRoleIcon(user.role || "member")}
+                            <span className="ml-1 capitalize">
+                              {user.role || "member"}
+                            </span>
                           </span>
                         </div>
 
@@ -546,7 +550,12 @@ export function ProjectUserManagement({
                             <Calendar className="w-3 h-3 flex-shrink-0" />
                             <span className="truncate">
                               Joined{" "}
-                              {format(new Date(user.assignedAt), "MMM d, yyyy")}
+                              {user.assignedAt
+                                ? format(
+                                    new Date(user.assignedAt),
+                                    "MMM d, yyyy"
+                                  )
+                                : "Unknown"}
                             </span>
                           </div>
                           <div className="flex items-center gap-1 min-w-0">

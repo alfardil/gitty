@@ -18,6 +18,9 @@ import { useAuth } from "@/lib/hooks/business/useAuth";
 import { useTasks } from "@/lib/hooks/api/useTasks";
 import { useUserEnterprises } from "@/lib/hooks/api/useUserEnterprises";
 import { useProjects } from "@/lib/hooks/api/useProjects";
+import { useProjectUsers } from "@/lib/hooks/api/useProjectUsers";
+import { useProjectSelection } from "@/lib/hooks/business/useProjectSelection";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -38,6 +41,7 @@ const taskSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
   dueDate: z.date().optional(),
   tags: z.string().optional(),
+  assigneeId: z.string().optional(),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -95,6 +99,7 @@ export function RoadMapSection() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const projectId = searchParams.get("projectId");
+  const queryClient = useQueryClient();
 
   const {
     enterprises,
@@ -104,16 +109,22 @@ export function RoadMapSection() {
   } = useUserEnterprises(user?.uuid);
 
   const { projects } = useProjects(selectedEnterprise || undefined);
+  const {
+    selectedProject,
+    setSelectedProject,
+    isLoading: projectSelectionLoading,
+  } = useProjectSelection();
 
-  // Add project selection state
-  const [selectedProject, setSelectedProject] = useState<string | null>(
-    projectId || null
-  );
+  // Fetch project users for assignee selection
+  const { data: projectUsersData, isLoading: projectUsersLoading } =
+    useProjectUsers(selectedProject || undefined);
 
-  // Update selected project when projectId changes
+  // Update selected project when projectId changes from URL
   React.useEffect(() => {
-    setSelectedProject(projectId || null);
-  }, [projectId]);
+    if (projectId && projectId !== selectedProject) {
+      setSelectedProject(projectId);
+    }
+  }, [projectId, selectedProject, setSelectedProject]);
 
   const {
     tasks,
@@ -141,8 +152,10 @@ export function RoadMapSection() {
     priority: "medium",
     dueDate: undefined,
     tags: "",
+    assigneeId: "",
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [expandedTags, setExpandedTags] = useState<Set<string>>(new Set());
 
   const createTask = async (taskData: TaskFormData) => {
     createTaskMutation(taskData, {
@@ -154,6 +167,7 @@ export function RoadMapSection() {
           priority: "medium",
           dueDate: undefined,
           tags: "",
+          assigneeId: "",
         });
         setFormErrors({});
       },
@@ -165,6 +179,79 @@ export function RoadMapSection() {
     newPriority: Task["priority"]
   ) => {
     updateTaskPriorityMutation({ taskId, newPriority });
+  };
+
+  // Mutation for updating task assignee only (with optimistic update)
+  const updateTaskAssigneeMutation = useMutation({
+    mutationFn: async ({
+      taskId,
+      assigneeId,
+    }: {
+      taskId: string;
+      assigneeId: string | null;
+    }) => {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ assigneeId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update task assignee");
+      }
+
+      return response.json();
+    },
+    onMutate: async ({ taskId, assigneeId }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({
+        queryKey: ["tasks", selectedEnterprise, selectedProject],
+      });
+
+      // Snapshot the previous value
+      const previousTasks = queryClient.getQueryData<Task[]>([
+        "tasks",
+        selectedEnterprise,
+        selectedProject,
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<Task[]>(
+        ["tasks", selectedEnterprise, selectedProject],
+        (old) =>
+          old?.map((task) =>
+            task.id === taskId
+              ? { ...task, assigneeId: assigneeId || undefined }
+              : task
+          ) || []
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousTasks };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousTasks) {
+        queryClient.setQueryData(
+          ["tasks", selectedEnterprise, selectedProject],
+          context.previousTasks
+        );
+      }
+      toast.error("Failed to update task assignee. Please try again.");
+    },
+    onSuccess: () => {
+      // Don't invalidate queries - the optimistic update is sufficient
+      // Only invalidate if we need to sync with server data
+    },
+  });
+
+  const updateTaskAssignee = async (
+    taskId: string,
+    assigneeId: string | null
+  ) => {
+    updateTaskAssigneeMutation.mutate({ taskId, assigneeId });
   };
 
   const updateTask = async (taskId: string, taskData: TaskFormData) => {
@@ -179,6 +266,7 @@ export function RoadMapSection() {
             priority: "medium",
             dueDate: undefined,
             tags: "",
+            assigneeId: "",
           });
           setFormErrors({});
         },
@@ -232,6 +320,7 @@ export function RoadMapSection() {
       priority: task.priority,
       dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
       tags: task.tags?.join(", ") || "",
+      assigneeId: task.assigneeId || "",
     });
     setShowNewTaskModal(true);
   };
@@ -245,6 +334,7 @@ export function RoadMapSection() {
       priority: "medium",
       dueDate: undefined,
       tags: "",
+      assigneeId: "",
     });
     setFormErrors({});
   };
@@ -264,6 +354,7 @@ export function RoadMapSection() {
           ? new Date(editingTask.dueDate)
           : undefined,
         tags: editingTask.tags?.join(", ") || "",
+        assigneeId: editingTask.assigneeId || "",
       };
 
       const hasChanges =
@@ -271,7 +362,8 @@ export function RoadMapSection() {
         formData.description !== originalTask.description ||
         formData.priority !== originalTask.priority ||
         formData.dueDate?.getTime() !== originalTask.dueDate?.getTime() ||
-        formData.tags !== originalTask.tags;
+        formData.tags !== originalTask.tags ||
+        formData.assigneeId !== originalTask.assigneeId;
 
       if (!hasChanges) {
         closeModal();
@@ -439,7 +531,12 @@ export function RoadMapSection() {
     return new Date(task.dueDate) < new Date();
   };
 
-  if (isLoading || enterprisesLoading) {
+  if (
+    isLoading ||
+    enterprisesLoading ||
+    projectSelectionLoading ||
+    projectUsersLoading
+  ) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
@@ -795,17 +892,89 @@ export function RoadMapSection() {
                               </span>
                             </div>
                           )}
-                          {task.assigneeName && (
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              <span>{task.assigneeName}</span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="flex items-center gap-1 hover:bg-[#353a45] rounded px-1 py-0.5 transition-colors">
+                                  <User className="w-3 h-3" />
+                                  <span className="text-xs">
+                                    {task.assigneeId
+                                      ? projectUsersData?.data?.assignedUsers.find(
+                                          (user) => user.id === task.assigneeId
+                                        )?.firstName ||
+                                        projectUsersData?.data?.assignedUsers.find(
+                                          (user) => user.id === task.assigneeId
+                                        )?.githubUsername ||
+                                        task.assigneeName ||
+                                        "Unknown User"
+                                      : "Unassigned"}
+                                  </span>
+                                  <ChevronDown className="w-2 h-2 text-gray-500" />
+                                </button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-60 overflow-y-auto min-w-[200px]">
+                                <DropdownMenuItem
+                                  onClick={() =>
+                                    updateTaskAssignee(task.id, null)
+                                  }
+                                  className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
+                                      <User className="w-3 h-3 text-gray-300" />
+                                    </div>
+                                    <span>Unassigned</span>
+                                  </div>
+                                </DropdownMenuItem>
+                                {projectUsersData?.data?.assignedUsers.map(
+                                  (user) => (
+                                    <DropdownMenuItem
+                                      key={user.id}
+                                      onClick={() =>
+                                        updateTaskAssignee(task.id, user.id)
+                                      }
+                                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                                        task.assigneeId === user.id
+                                          ? "bg-blue-500/20 text-blue-300"
+                                          : ""
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        {user.avatarUrl ? (
+                                          <img
+                                            src={user.avatarUrl}
+                                            alt={
+                                              user.firstName ||
+                                              user.githubUsername ||
+                                              "User"
+                                            }
+                                            className="w-5 h-5 rounded-full"
+                                          />
+                                        ) : (
+                                          <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
+                                            <User className="w-3 h-3 text-gray-300" />
+                                          </div>
+                                        )}
+                                        <span className="text-sm">
+                                          {user.firstName
+                                            ? `${user.firstName} ${user.lastName || ""}`
+                                            : user.githubUsername || user.email}
+                                        </span>
+                                      </div>
+                                    </DropdownMenuItem>
+                                  )
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
 
                         {task.tags && task.tags.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {task.tags.slice(0, 2).map((tag, index) => (
+                            {(expandedTags.has(task.id)
+                              ? task.tags
+                              : task.tags.slice(0, 2)
+                            ).map((tag, index) => (
                               <span
                                 key={index}
                                 className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded"
@@ -813,10 +982,32 @@ export function RoadMapSection() {
                                 {tag}
                               </span>
                             ))}
-                            {task.tags.length > 2 && (
-                              <span className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded">
-                                +{task.tags.length - 2}
-                              </span>
+                            {task.tags.length > 2 &&
+                              !expandedTags.has(task.id) && (
+                                <button
+                                  onClick={() =>
+                                    setExpandedTags(
+                                      (prev) => new Set([...prev, task.id])
+                                    )
+                                  }
+                                  className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded hover:bg-[#404550] transition-colors cursor-pointer"
+                                >
+                                  +{task.tags.length - 2}
+                                </button>
+                              )}
+                            {expandedTags.has(task.id) && (
+                              <button
+                                onClick={() =>
+                                  setExpandedTags((prev) => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(task.id);
+                                    return newSet;
+                                  })
+                                }
+                                className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded hover:bg-[#404550] transition-colors cursor-pointer"
+                              >
+                                Show less
+                              </button>
                             )}
                           </div>
                         )}
@@ -994,6 +1185,82 @@ export function RoadMapSection() {
                   className="w-full px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Outreach, School-specific tags"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Assignee
+                </label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between"
+                    >
+                      <span className="text-sm">
+                        {formData.assigneeId
+                          ? projectUsersData?.data?.assignedUsers.find(
+                              (user) => user.id === formData.assigneeId
+                            )?.firstName ||
+                            projectUsersData?.data?.assignedUsers.find(
+                              (user) => user.id === formData.assigneeId
+                            )?.githubUsername ||
+                            "Unknown User"
+                          : "Unassigned"}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-60 overflow-y-auto">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setFormData({ ...formData, assigneeId: "" })
+                      }
+                      className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
+                          <User className="w-3 h-3 text-gray-300" />
+                        </div>
+                        <span>Unassigned</span>
+                      </div>
+                    </DropdownMenuItem>
+                    {projectUsersData?.data?.assignedUsers.map((user) => (
+                      <DropdownMenuItem
+                        key={user.id}
+                        onClick={() =>
+                          setFormData({ ...formData, assigneeId: user.id })
+                        }
+                        className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                          formData.assigneeId === user.id
+                            ? "bg-blue-500/20 text-blue-300"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {user.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt={
+                                user.firstName || user.githubUsername || "User"
+                              }
+                              className="w-5 h-5 rounded-full"
+                            />
+                          ) : (
+                            <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
+                              <User className="w-3 h-3 text-gray-300" />
+                            </div>
+                          )}
+                          <span className="text-sm">
+                            {user.firstName
+                              ? `${user.firstName} ${user.lastName || ""}`
+                              : user.githubUsername || user.email}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               <div className="flex gap-3 pt-4">

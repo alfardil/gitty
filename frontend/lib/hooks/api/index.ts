@@ -13,3 +13,4 @@ export { useStats } from "./useStats";
 export { useProjects } from "./useProjects";
 export { useTeamPerformanceAnalytics } from "./useTeamPerformanceAnalytics";
 export { useProjectUsers } from "./useProjectUsers";
+export { useProjectUserManagement } from "./useProjectUserManagement";
