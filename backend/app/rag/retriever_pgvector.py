@@ -13,15 +13,17 @@ import openai
 from app.db.db import get_pool
 
 
-async def similar_chunks(query: str, k: int = 5):
+async def similar_chunks(query: str, repo_hash: str, k: int = 5):
     """
     Retrieves the top-k most semantically similar chunks from the `repo_chunks` table.
 
     Uses OpenAI's embedding API to convert the query into a vector, then performs a similarity
     search using pgvector's `<->` operator (approximate cosine distance) against stored embeddings.
+    Results are filtered to only include chunks from the specified repository.
 
     Args:
         query (str): The user query or prompt for which similar chunks are retrieved.
+        repo_hash (str): The repository hash to filter results to (prevents cross-project contamination).
         k (int, optional): The number of top results to return. Defaults to 5.
 
     Returns:
@@ -50,10 +52,12 @@ async def similar_chunks(query: str, k: int = 5):
                    chunk,
                    embedding <-> $1 AS distance
             FROM repo_chunks
+            WHERE repo_hash = $3
             ORDER BY embedding <-> $1
             LIMIT $2;
             """,
             q_emb,
             k,
+            repo_hash,
         )
     return rows

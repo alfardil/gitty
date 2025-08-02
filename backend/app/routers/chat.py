@@ -19,7 +19,7 @@ import tiktoken
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from app.rag.embedder_pgvector import embed_repo_pgvector
+from app.rag.embedder_pgvector import embed_repo_pgvector, repo_hash
 from app.rag.retriever_pgvector import similar_chunks
 from app.services.o4_mini_service import OpenAIo4Service
 from app.prompts import CHAT_PROMPT
@@ -213,7 +213,11 @@ async def rag_chat(rag_request: RAGChatRequest):
                 yield f"data: {json.dumps({'status': 'embedded', 'message': embed_result})}\n\n"
                 await asyncio.sleep(0.1)
                 yield f"data: {json.dumps({'status': 'retrieving', 'message': 'Retrieving relevant chunks...'})}\n\n"
-                relevant_rows = await similar_chunks(rag_request.question)
+                # Calculate repository hash to filter results to current project only
+                current_repo_hash = repo_hash(rag_request.files)
+                relevant_rows = await similar_chunks(
+                    rag_request.question, current_repo_hash
+                )
                 # 1. Selected file content (highest priority)
                 selected_file_content = next(
                     (
