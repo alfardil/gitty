@@ -19,6 +19,7 @@ import { Suspense } from "react";
 import DeveloperSection from "@/app/dashboard/_components/developer";
 import AdminSection from "@/app/dashboard/_components/admin/AdminSection";
 import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/business/useIsAdminOfAnyEnterprise";
+import { useSidebarState } from "@/lib/hooks/ui/useSidebarState";
 
 import { RoadMapSection } from "@/app/dashboard/_components/roadmap/RoadMapSection";
 
@@ -40,8 +41,8 @@ function DashboardPage() {
   const { user, loading, logout } = useAuth();
   const section = searchParams.get("section") || "insights";
   const [selectedScope, setSelectedScope] = useState<string>("Personal");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarMobile, setSidebarMobile] = useState(false);
+  const { sidebarOpen, setSidebarOpen, sidebarMobile, setSidebarMobile } =
+    useSidebarState();
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const { data: isAdminOfAnyEnterprise } = useIsAdminOfAnyEnterprise(
