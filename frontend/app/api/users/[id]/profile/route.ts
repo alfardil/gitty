@@ -171,10 +171,10 @@ export async function GET(
       .groupBy(sql`DATE(${tasks.completedAt})`)
       .orderBy(sql`DATE(${tasks.completedAt})`);
 
-    // Calculate completion rate
+    // Calculate completion rate - based on assigned tasks only
     const stats = taskStats[0];
     const completionRate =
-      stats.total > 0 ? (stats.completed / stats.total) * 100 : 0;
+      stats.assigned > 0 ? (stats.completed / stats.assigned) * 100 : 0;
 
     // Calculate average completion time (for completed tasks) - filtered by enterprise
     const avgCompletionTime = await db
@@ -209,7 +209,7 @@ export async function GET(
         subscriptionPlan: user.subscriptionPlan,
       },
       statistics: {
-        totalTasks: Number(stats.total),
+        totalTasks: Number(stats.assigned), // Show assigned tasks as total for consistency
         completedTasks: Number(stats.completed),
         inProgressTasks: Number(stats.inProgress),
         notStartedTasks: Number(stats.notStarted),

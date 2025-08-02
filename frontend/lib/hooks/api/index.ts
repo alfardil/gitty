@@ -14,3 +14,6 @@ export { useProjects } from "./useProjects";
 export { useTeamPerformanceAnalytics } from "./useTeamPerformanceAnalytics";
 export { useProjectUsers } from "./useProjectUsers";
 export { useProjectUserManagement } from "./useProjectUserManagement";
+export { useTaskAnalysisStream } from "./useTaskAnalysisStream";
+export { useUserInsights } from "./useUserInsights";
+export { useUserInsightsStream } from "./useUserInsightsStream";

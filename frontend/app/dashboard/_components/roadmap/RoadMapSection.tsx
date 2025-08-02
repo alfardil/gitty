@@ -20,9 +20,11 @@ import { useUserEnterprises } from "@/lib/hooks/api/useUserEnterprises";
 import { useProjects } from "@/lib/hooks/api/useProjects";
 import { useProjectUsers } from "@/lib/hooks/api/useProjectUsers";
 import { useProjectSelection } from "@/lib/hooks/business/useProjectSelection";
+import { useTaskAnalysisStream } from "@/lib/hooks/api/useTaskAnalysisStream";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { z } from "zod";
+import ReactMarkdown from "react-markdown";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,6 +120,12 @@ export function RoadMapSection() {
   // Fetch project users for assignee selection
   const { data: projectUsersData, isLoading: projectUsersLoading } =
     useProjectUsers(selectedProject || undefined);
+
+  // Set up SSE for real-time task analysis updates
+  useTaskAnalysisStream(
+    selectedEnterprise || undefined,
+    selectedProject || undefined
+  );
 
   // Update selected project when projectId changes from URL
   React.useEffect(() => {
@@ -531,6 +539,10 @@ export function RoadMapSection() {
     return new Date(task.dueDate) < new Date();
   };
 
+  const isTaskBeingAnalyzed = (task: Task): boolean => {
+    return !task.estimatedHours || !task.complexity || !task.taskType;
+  };
+
   if (
     isLoading ||
     enterprisesLoading ||
@@ -829,9 +841,54 @@ export function RoadMapSection() {
                         </div>
 
                         {task.description && (
-                          <p className="text-xs text-gray-400 mb-3 line-clamp-2">
-                            {task.description}
-                          </p>
+                          <div className="text-xs text-gray-400 mb-3 line-clamp-2">
+                            <ReactMarkdown
+                              components={
+                                {
+                                  code({
+                                    node,
+                                    inline,
+                                    className,
+                                    children,
+                                    ...props
+                                  }: any) {
+                                    const match = /language-(\w+)/.exec(
+                                      className || ""
+                                    );
+                                    return !inline && match ? (
+                                      <pre className="bg-[#1a1d23] p-1 rounded text-xs overflow-x-auto">
+                                        <code
+                                          className={`language-${match[1]} text-xs`}
+                                          {...props}
+                                        >
+                                          {children}
+                                        </code>
+                                      </pre>
+                                    ) : (
+                                      <code
+                                        className="bg-[#1a1d23] px-1 py-0.5 rounded text-xs font-mono"
+                                        {...props}
+                                      >
+                                        {children}
+                                      </code>
+                                    );
+                                  },
+                                  pre: ({ children }: any) => (
+                                    <div className="bg-[#1a1d23] p-1 rounded text-xs overflow-x-auto">
+                                      {children}
+                                    </div>
+                                  ),
+                                  p: ({ children }: any) => (
+                                    <span className="text-xs text-gray-400">
+                                      {children}
+                                    </span>
+                                  ),
+                                } as any
+                              }
+                            >
+                              {task.description}
+                            </ReactMarkdown>
+                          </div>
                         )}
 
                         {/* Task metadata */}
@@ -1110,8 +1167,9 @@ export function RoadMapSection() {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
+                  className="w-full px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm resize-none"
+                  rows={6}
+                  style={{ whiteSpace: "pre-wrap" }}
                 />
               </div>
 

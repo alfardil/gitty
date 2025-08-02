@@ -88,7 +88,7 @@ async function fallbackAnalysis(
   }
 
   // Determine complexity (1-5 scale)
-  let complexity = 3; // Default medium
+  let complexity = 3; // Default medium for fallback analysis
   if (priority === "high") complexity = 4;
   if (priority === "low") complexity = 2;
 

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/server/src/db";
-import { tasks, taskAssignments } from "@/server/src/db/schema";
+import {
+  tasks,
+  taskAssignments,
+  taskStatusHistory,
+  taskTimeEntries,
+} from "@/server/src/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
 
@@ -215,6 +220,17 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // First, delete all related records to avoid foreign key constraint violations
+    // Delete task time entries
+    await db.delete(taskTimeEntries).where(eq(taskTimeEntries.taskId, id));
+
+    // Delete task status history
+    await db.delete(taskStatusHistory).where(eq(taskStatusHistory.taskId, id));
+
+    // Delete task assignments
+    await db.delete(taskAssignments).where(eq(taskAssignments.taskId, id));
+
+    // Finally, delete the task itself
     const deletedTask = await db
       .delete(tasks)
       .where(eq(tasks.id, id))

@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
         assignedAt: assignedAt,
         // Don't set these fields - they'll be filled by AI analysis
         estimatedHours: null,
-        complexity: 3, // Default complexity
+        complexity: null, // Let AI analysis determine complexity
         taskType: null,
       })
       .returning();

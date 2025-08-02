@@ -10,6 +10,7 @@ import { QualityMetricsDashboard } from "./QualityMetricsDashboard";
 import { TimeTrackingDashboard } from "./TimeTrackingDashboard";
 import { DependencyVisualization } from "./DependencyVisualization";
 import { ProjectUserManagement } from "./ProjectUserManagement";
+import { ComingSoonSection } from "./ComingSoonSection";
 import { toast } from "sonner";
 import { Target } from "lucide-react";
 
@@ -99,31 +100,6 @@ function AdminSection({ userId }: AdminSectionProps) {
       actions.setAdminInviteEnterpriseId(selectedEnterprise);
     }
   }, [selectedEnterprise]);
-
-  const handleAnalyzeTasks = async () => {
-    if (!selectedEnterprise) {
-      toast.error("Please select an enterprise first");
-      return;
-    }
-
-    setAnalyzingTasks(true);
-    try {
-      const response = await fetch(
-        `/api/admin?action=analyzeExistingTasks&enterpriseId=${selectedEnterprise}`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success(data.message);
-      } else {
-        toast.error(data.error || "Failed to start task analysis");
-      }
-    } catch (error) {
-      toast.error("Failed to start task analysis");
-    } finally {
-      setAnalyzingTasks(false);
-    }
-  };
 
   // Handle tab changes and update URL
   const handleTabChange = (
@@ -302,101 +278,94 @@ function AdminSection({ userId }: AdminSectionProps) {
         </div>
       )}
 
-      {/* AI Analysis Section */}
-      {selectedEnterprise && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-1">
-                AI Task Analysis
-              </h3>
-              <p className="text-sm text-gray-400">
-                Enhance task data with AI-powered estimates and insights
-              </p>
-            </div>
-            <button
-              onClick={handleAnalyzeTasks}
-              disabled={analyzingTasks}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-3 shadow-lg hover:shadow-xl disabled:opacity-50"
-            >
-              {analyzingTasks ? (
-                <>
-                  <Spinner size="small" />
-                  <span>Analyzing Tasks...</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xl">🤖</span>
-                  <span>Analyze Existing Tasks</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
       {/* Tab Navigation */}
       <div className="mb-6">
-        <div className="flex space-x-1 bg-[#1A1A1A] p-1 rounded-lg overflow-x-auto">
-          <button
-            onClick={() => handleTabChange("users")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "users"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Users
-          </button>
-          <button
-            onClick={() => handleTabChange("analytics")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "analytics"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Analytics
-          </button>
-          <button
-            onClick={() => handleTabChange("quality")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "quality"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Quality
-          </button>
-          <button
-            onClick={() => handleTabChange("time")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "time"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Time Tracking
-          </button>
-          <button
-            onClick={() => handleTabChange("dependencies")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "dependencies"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Dependencies
-          </button>
-          <button
-            onClick={() => handleTabChange("project-users")}
-            className={`flex-shrink-0 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "project-users"
-                ? "bg-[#2A2A2A] text-white"
-                : "text-gray-400 hover:text-white"
-            }`}
-          >
-            Project Users
-          </button>
+        <div className="relative bg-[#1A1A1A] p-1 rounded-lg overflow-hidden">
+          {/* Sliding Background */}
+          <div
+            className="absolute top-1 bottom-1 bg-[#2A2A2A] rounded-md transition-all duration-300 ease-in-out"
+            style={{
+              width: "calc(100% / 6 - 0.125rem)",
+              transform: `translateX(${
+                activeTab === "users"
+                  ? "0"
+                  : activeTab === "analytics"
+                    ? "calc(100% + 0.125rem)"
+                    : activeTab === "quality"
+                      ? "calc(200% + 0.25rem)"
+                      : activeTab === "time"
+                        ? "calc(300% + 0.375rem)"
+                        : activeTab === "dependencies"
+                          ? "calc(400% + 0.5rem)"
+                          : activeTab === "project-users"
+                            ? "calc(500% + 0.625rem)"
+                            : "0"
+              })`,
+            }}
+          />
+
+          <div className="grid grid-cols-6 gap-1">
+            <button
+              onClick={() => handleTabChange("users")}
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
+            >
+              <span
+                className={
+                  activeTab === "users"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
+                }
+              >
+                Users
+              </span>
+            </button>
+            <button
+              onClick={() => handleTabChange("analytics")}
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
+            >
+              <span
+                className={
+                  activeTab === "analytics"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
+                }
+              >
+                Analytics
+              </span>
+            </button>
+            <button
+              disabled
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
+            >
+              <span className="text-gray-500">Quality</span>
+            </button>
+            <button
+              disabled
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
+            >
+              <span className="text-gray-500">Time Tracking</span>
+            </button>
+            <button
+              disabled
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
+            >
+              <span className="text-gray-500">Dependencies</span>
+            </button>
+            <button
+              onClick={() => handleTabChange("project-users")}
+              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
+            >
+              <span
+                className={
+                  activeTab === "project-users"
+                    ? "text-white"
+                    : "text-gray-400 hover:text-white"
+                }
+              >
+                Project Users
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -455,11 +424,16 @@ function AdminSection({ userId }: AdminSectionProps) {
                 <li
                   key={user.id}
                   className="flex items-center space-x-4 p-2 border rounded hover:bg-[#1A1A1A] transition-colors cursor-pointer"
-                  onClick={() =>
-                    router.push(
-                      `/users/${user.id}?enterpriseId=${selectedEnterprise}${selectedProject ? `&projectId=${selectedProject}` : ""}`
-                    )
-                  }
+                  onClick={(e) => {
+                    const url = `/users/${user.id}?enterpriseId=${selectedEnterprise}${selectedProject ? `&projectId=${selectedProject}` : ""}`;
+
+                    // If command/ctrl key is pressed, open in new tab
+                    if (e.metaKey || e.ctrlKey) {
+                      window.open(url, "_blank");
+                    } else {
+                      router.push(url);
+                    }
+                  }}
                 >
                   {user.avatarUrl && (
                     <img
@@ -496,25 +470,49 @@ function AdminSection({ userId }: AdminSectionProps) {
       )}
 
       {activeTab === "quality" && selectedEnterprise && selectedProject && (
-        <QualityMetricsDashboard
-          enterpriseId={selectedEnterprise}
-          projectId={selectedProject}
+        <ComingSoonSection
+          title="Quality Metrics Dashboard"
+          description="Monitor code quality, review processes, and quality assurance metrics"
+          features={[
+            "Code review analytics",
+            "Quality score tracking",
+            "Review time metrics",
+            "Quality trend analysis",
+            "Automated quality checks",
+            "Quality improvement recommendations",
+          ]}
         />
       )}
 
       {activeTab === "time" && selectedEnterprise && selectedProject && (
-        <TimeTrackingDashboard
-          enterpriseId={selectedEnterprise}
-          projectId={selectedProject}
+        <ComingSoonSection
+          title="Time Tracking Dashboard"
+          description="Monitor estimation accuracy and time analytics"
+          features={[
+            "Time estimation accuracy",
+            "Actual vs estimated hours",
+            "Time tracking analytics",
+            "Team velocity metrics",
+            "Time trend analysis",
+            "Estimation improvement insights",
+          ]}
         />
       )}
 
       {activeTab === "dependencies" &&
         selectedEnterprise &&
         selectedProject && (
-          <DependencyVisualization
-            enterpriseId={selectedEnterprise}
-            projectId={selectedProject}
+          <ComingSoonSection
+            title="Dependency Visualization"
+            description="Visualize task dependencies and identify bottlenecks"
+            features={[
+              "Task dependency graphs",
+              "Bottleneck identification",
+              "Circular dependency detection",
+              "Critical path analysis",
+              "Dependency impact assessment",
+              "Automated dependency suggestions",
+            ]}
           />
         )}
 

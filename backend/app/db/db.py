@@ -2,6 +2,7 @@
 
 import os
 import asyncpg
+from fastapi import APIRouter
 from pgvector.asyncpg import register_vector
 
 DB_URI = os.environ["DATABASE_URL"]

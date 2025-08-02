@@ -195,6 +195,7 @@ export function useTasks(enterpriseId?: string, projectId?: string) {
     queryFn: () => fetchTasks(enterpriseId, projectId),
     staleTime: 30000, // Consider data fresh for 30 seconds
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    // No polling needed - using SSE for real-time updates instead
   });
 
   // Mutation for creating tasks
@@ -206,6 +207,7 @@ export function useTasks(enterpriseId?: string, projectId?: string) {
         queryKey: ["tasks", enterpriseId, projectId],
       });
       toast.success("Task created successfully!");
+      // SSE will handle real-time updates for task analysis
     },
     onError: (error) => {
       console.error("Error creating task:", error);

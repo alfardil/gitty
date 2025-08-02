@@ -24,6 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { AIInsightsSection } from "./_components/AIInsightsSection";
 
 // Skeleton components for loading states
 const RecentTasksSkeleton = () => (
@@ -31,7 +32,7 @@ const RecentTasksSkeleton = () => (
     {Array.from({ length: 5 }).map((_, index) => (
       <div
         key={index}
-        className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] min-h-[80px]"
+        className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 min-h-[80px]"
       >
         <div className="flex items-center gap-4">
           <Skeleton width={20} height={20} rounded="full" />
@@ -54,7 +55,7 @@ const AssignmentHistorySkeleton = () => (
     {Array.from({ length: 10 }).map((_, index) => (
       <div
         key={index}
-        className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] min-h-[80px]"
+        className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 min-h-[80px]"
       >
         <div className="flex items-center gap-4">
           <Skeleton width={20} height={20} rounded="full" />
@@ -102,7 +103,7 @@ export default function UserProfilePage() {
   // Show loading while checking admin status
   if (isAdminLoading || authLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#181A20] flex items-center justify-center">
         <Spinner size="large" />
       </div>
     );
@@ -111,12 +112,12 @@ export default function UserProfilePage() {
   // Check if user is authenticated
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#181A20] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-100 mb-4">
             Authentication Required
           </h1>
-          <p className="text-gray-400 mb-4">
+          <p className="text-gray-300 mb-4">
             Please log in to access this page.
           </p>
           <Link
@@ -133,10 +134,12 @@ export default function UserProfilePage() {
   // Early access check for non-admin users
   if (isAdmin === false) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#181A20] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">Access Denied</h1>
-          <p className="text-gray-400 mb-4">
+          <h1 className="text-2xl font-bold text-gray-100 mb-4">
+            Access Denied
+          </h1>
+          <p className="text-gray-300 mb-4">
             You don&apos;t have permission to view user profiles. Only
             enterprise admins can access this feature.
           </p>
@@ -154,7 +157,7 @@ export default function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#181A20] flex items-center justify-center">
         <Spinner size="large" />
       </div>
     );
@@ -169,12 +172,12 @@ export default function UserProfilePage() {
         error.message?.includes("Unauthorized"));
 
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-screen bg-[#181A20] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1 className="text-2xl font-bold text-gray-100 mb-4">
             {isAuthError ? "Access Denied" : "Error Loading Profile"}
           </h1>
-          <p className="text-gray-400 mb-4">
+          <p className="text-gray-300 mb-4">
             {isAuthError
               ? "You don&apos;t have permission to view this user&apos;s profile. Only enterprise admins can access user profiles."
               : "Unable to load user profile data."}
@@ -245,9 +248,9 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#181A20] text-gray-100">
       {/* Header */}
-      <div className="border-b border-[#1A1A1A] bg-[#0F0F0F]">
+      <div className="border-b border-blue-400/20 bg-[#23272f]">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4 mb-6">
             <Link
@@ -269,8 +272,8 @@ export default function UserProfilePage() {
                   className="w-24 h-24 rounded-full border-3 border-[#2A2A2A] shadow-lg"
                 />
               ) : (
-                <div className="w-24 h-24 rounded-full border-3 border-[#2A2A2A] bg-[#1A1A1A] flex items-center justify-center shadow-lg">
-                  <User className="w-12 h-12 text-gray-400" />
+                <div className="w-24 h-24 rounded-full border-3 border-blue-400/20 bg-[#2A2A2A] flex items-center justify-center shadow-lg">
+                  <User className="w-12 h-12 text-gray-300" />
                 </div>
               )}
             </div>
@@ -280,26 +283,26 @@ export default function UserProfilePage() {
                   ? `${profileUser.firstName} ${profileUser.lastName}`
                   : profileUser.githubUsername || "Unknown User"}
               </h1>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-400">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-300">
                 {profileUser.githubUsername && (
-                  <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                  <div className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-lg border border-blue-400/20">
                     <Github className="w-4 h-4 text-blue-400" />
                     <span className="font-medium">
                       @{profileUser.githubUsername}
                     </span>
                   </div>
                 )}
-                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                <div className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-lg border border-blue-400/20">
                   <Mail className="w-4 h-4 text-green-400" />
                   <span className="font-medium">{profileUser.email}</span>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                <div className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-lg border border-blue-400/20">
                   <Calendar className="w-4 h-4 text-purple-400" />
                   <span className="font-medium">
                     Joined {format(new Date(profileUser.joinedAt), "MMM yyyy")}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]">
+                <div className="flex items-center gap-3 p-3 bg-[#2A2A2A] rounded-lg border border-blue-400/20">
                   <User className="w-4 h-4 text-yellow-400" />
                   <span className="font-medium uppercase">
                     {profileUser.subscriptionPlan}
@@ -331,76 +334,87 @@ export default function UserProfilePage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Total Tasks</h3>
+              <h3 className="text-lg font-semibold text-gray-100">
+                Total Tasks
+              </h3>
               <div className="p-2 bg-blue-500/20 rounded-lg">
                 <Target className="w-5 h-5 text-blue-400" />
               </div>
             </div>
-            <div className="text-4xl font-bold text-white mb-2">
+            <div className="text-4xl font-bold text-gray-100 mb-2">
               {statistics.totalTasks}
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-300">
               {statistics.assignedTasks} assigned, {statistics.createdTasks}{" "}
               created
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-gray-100">
                 Completion Rate
               </h3>
               <div className="p-2 bg-green-500/20 rounded-lg">
                 <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
             </div>
-            <div className="text-4xl font-bold text-white mb-2">
+            <div className="text-4xl font-bold text-gray-100 mb-2">
               {statistics.completionRate}%
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-300">
               {statistics.completedTasks} of {statistics.totalTasks} completed
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-gray-100">
                 Avg. Completion
               </h3>
               <div className="p-2 bg-yellow-500/20 rounded-lg">
                 <Clock className="w-5 h-5 text-yellow-400" />
               </div>
             </div>
-            <div className="text-4xl font-bold text-white mb-2">
+            <div className="text-4xl font-bold text-gray-100 mb-2">
               {statistics.averageCompletionTime
                 ? `${statistics.averageCompletionTime}d`
                 : "N/A"}
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-300">
               Average days to complete
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
+              <h3 className="text-lg font-semibold text-gray-100">
                 Overdue Tasks
               </h3>
               <div className="p-2 bg-red-500/20 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-red-400" />
               </div>
             </div>
-            <div className="text-4xl font-bold text-white mb-2">
+            <div className="text-4xl font-bold text-gray-100 mb-2">
               {statistics.overdueTasks}
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-300">
               {statistics.overdueTasks > 0
                 ? `${statistics.overdueTasks} task${statistics.overdueTasks === 1 ? "" : "s"} past due`
                 : "All tasks on schedule"}
             </div>
           </div>
+        </div>
+
+        {/* AI Insights Section */}
+        <div className="mb-8">
+          <AIInsightsSection
+            userId={userId}
+            enterpriseId={enterpriseId || undefined}
+            projectId={searchParams.get("projectId") || undefined}
+          />
         </div>
 
         {/* Overdue Tasks Alert */}
@@ -437,23 +451,23 @@ export default function UserProfilePage() {
 
         {/* Task Status Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
-            <h3 className="text-xl font-semibold mb-6 text-white">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
+            <h3 className="text-xl font-semibold mb-6 text-gray-100">
               Task Status Breakdown
             </h3>
             <div className="space-y-5">
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-green-500/20 rounded-lg">
                     <CheckCircle className="w-5 h-5 text-green-400" />
                   </div>
-                  <span className="font-medium text-white">Completed</span>
+                  <span className="font-medium text-gray-100">Completed</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.completedTasks}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.completedTasks / statistics.totalTasks) *
@@ -464,18 +478,18 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
                     <Clock className="w-5 h-5 text-yellow-400" />
                   </div>
-                  <span className="font-medium text-white">In Progress</span>
+                  <span className="font-medium text-gray-100">In Progress</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.inProgressTasks}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.inProgressTasks / statistics.totalTasks) *
@@ -486,20 +500,20 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-orange-500/20 rounded-lg">
                     <AlertCircle className="w-5 h-5 text-orange-400" />
                   </div>
-                  <span className="font-medium text-white">
+                  <span className="font-medium text-gray-100">
                     Pending Approval
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.pendingApprovalTasks}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.pendingApprovalTasks /
@@ -511,18 +525,18 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-gray-500/20 rounded-lg">
                     <Target className="w-5 h-5 text-gray-400" />
                   </div>
-                  <span className="font-medium text-white">Not Started</span>
+                  <span className="font-medium text-gray-100">Not Started</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.notStartedTasks}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.totalTasks > 0
                       ? Math.round(
                           (statistics.notStartedTasks / statistics.totalTasks) *
@@ -536,23 +550,25 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#3A3A3A] transition-all duration-300 shadow-lg">
-            <h3 className="text-xl font-semibold mb-6 text-white">
+          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
+            <h3 className="text-xl font-semibold mb-6 text-gray-100">
               Priority Breakdown
             </h3>
             <div className="space-y-5">
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-red-500/20 rounded-lg">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                   </div>
-                  <span className="font-medium text-white">High Priority</span>
+                  <span className="font-medium text-gray-100">
+                    High Priority
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.priorityBreakdown.high}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.high /
@@ -564,20 +580,20 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                   </div>
-                  <span className="font-medium text-white">
+                  <span className="font-medium text-gray-100">
                     Medium Priority
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.priorityBreakdown.medium}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.medium /
@@ -589,18 +605,20 @@ export default function UserProfilePage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]">
+              <div className="flex items-center justify-between p-4 bg-[#23272f] rounded-lg border border-blue-400/20">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-green-500/20 rounded-lg">
                     <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                   </div>
-                  <span className="font-medium text-white">Low Priority</span>
+                  <span className="font-medium text-gray-100">
+                    Low Priority
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-white">
+                  <span className="text-2xl font-bold text-gray-100">
                     {statistics.priorityBreakdown.low}
                   </span>
-                  <span className="text-sm text-gray-400 bg-[#1A1A1A] px-2 py-1 rounded">
+                  <span className="text-sm text-gray-300 bg-[#2A2A2A] px-2 py-1 rounded">
                     {statistics.assignedTasks > 0
                       ? Math.round(
                           (statistics.priorityBreakdown.low /
@@ -617,7 +635,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* Recent Tasks */}
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6 mb-8">
+        <div className="bg-[#23272f] border border-blue-400/20 rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Recent Tasks</h3>
             {/* Pagination Controls - Top */}
@@ -652,10 +670,10 @@ export default function UserProfilePage() {
                 {recentTasksData.tasks.map((task) => (
                   <div
                     key={task.id}
-                    className={`flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border ${
+                    className={`flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border ${
                       task.isOverdue
                         ? "border-red-500/50 bg-red-500/5"
-                        : "border-[#2A2A2A]"
+                        : "border-blue-400/20"
                     }`}
                   >
                     <div className="flex items-center gap-4">
@@ -722,7 +740,7 @@ export default function UserProfilePage() {
                 }).map((_, index) => (
                   <div
                     key={`empty-${index}`}
-                    className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] opacity-20"
+                    className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 opacity-20"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
@@ -748,8 +766,8 @@ export default function UserProfilePage() {
           {/* Page Info - Centered at bottom */}
           {recentTasksData?.pagination &&
             recentTasksData.pagination.totalPages > 1 && (
-              <div className="flex justify-center mt-6 pt-4 border-t border-[#2A2A2A]">
-                <div className="text-sm text-gray-400">
+              <div className="flex justify-center mt-6 pt-4 border-t border-blue-400/20">
+                <div className="text-sm text-gray-300">
                   Page {recentTasksData.pagination.page} of{" "}
                   {recentTasksData.pagination.totalPages} (
                   {recentTasksData.pagination.total} total tasks)
@@ -759,7 +777,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* Assignment History */}
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg p-6">
+        <div className="bg-[#23272f] border border-blue-400/20 rounded-lg p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Assignment History</h3>
             {/* Pagination Controls - Top */}
@@ -795,7 +813,7 @@ export default function UserProfilePage() {
                 {assignmentHistoryData.assignments.map((assignment) => (
                   <div
                     key={assignment.id}
-                    className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A]"
+                    className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20"
                   >
                     <div className="flex items-center gap-4">
                       <Zap className="w-5 h-5 text-blue-400" />
@@ -828,7 +846,7 @@ export default function UserProfilePage() {
                 }).map((_, index) => (
                   <div
                     key={`empty-assignment-${index}`}
-                    className="flex items-center justify-between p-4 bg-[#0F0F0F] rounded-lg border border-[#2A2A2A] opacity-20"
+                    className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 opacity-20"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
@@ -851,8 +869,8 @@ export default function UserProfilePage() {
           {/* Page Info - Centered at bottom */}
           {assignmentHistoryData?.pagination &&
             assignmentHistoryData.pagination.totalPages > 1 && (
-              <div className="flex justify-center mt-6 pt-4 border-t border-[#2A2A2A]">
-                <div className="text-sm text-gray-400">
+              <div className="flex justify-center mt-6 pt-4 border-t border-blue-400/20">
+                <div className="text-sm text-gray-300">
                   Page {assignmentHistoryData.pagination.page} of{" "}
                   {assignmentHistoryData.pagination.totalPages} (
                   {assignmentHistoryData.pagination.total} total assignments)

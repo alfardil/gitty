@@ -214,9 +214,9 @@ export async function GET(request: NextRequest) {
         const averageTaskVelocity = totalTasks > 0 ? totalTasks / 12 : 0;
         const averageTaskComplexity =
           allTasks.length > 0
-            ? allTasks.reduce((sum, task) => sum + (task.complexity || 3), 0) /
-              allTasks.length
-            : 3;
+            ? allTasks.reduce((sum, task) => sum + (task.complexity || 0), 0) /
+              allTasks.filter((task) => task.complexity !== null).length
+            : 0;
 
         const userPerformance = allUsers.map((user) => {
           const userTasks = allTasks.filter(
@@ -238,10 +238,10 @@ export async function GET(request: NextRequest) {
           const userAverageComplexity =
             userTasks.length > 0
               ? userTasks.reduce(
-                  (sum, task) => sum + (task.complexity || 3),
+                  (sum, task) => sum + (task.complexity || 0),
                   0
-                ) / userTasks.length
-              : 3;
+                ) / userTasks.filter((task) => task.complexity !== null).length
+              : 0;
 
           return {
             userId: user.id,

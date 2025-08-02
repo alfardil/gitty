@@ -205,7 +205,7 @@ export const tasks = pgTable(
     startedAt: timestamp({ mode: "string" }),
     estimatedHours: decimal("estimated_hours", { precision: 8, scale: 2 }),
     actualHours: decimal("actual_hours", { precision: 8, scale: 2 }),
-    complexity: integer("complexity").default(3),
+    complexity: integer("complexity"),
     taskType: varchar("task_type", { length: 50 }),
     dependencies: uuid("dependencies").array(),
     blockers: uuid("blockers").array(),
@@ -381,6 +381,50 @@ export const projectMembers = pgTable(
       columns: [table.userId],
       foreignColumns: [users.id],
       name: "project_members_user_id_fk",
+    }),
+  ]
+);
+
+// Performance insights storage
+export const performanceInsights = pgTable(
+  "performance_insights",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    userId: uuid("user_id").notNull(),
+    enterpriseId: uuid("enterprise_id").notNull(),
+    projectId: uuid("project_id"),
+    overallScore: decimal("overallScore", {
+      precision: 5,
+      scale: 2,
+    }).notNull(),
+    performanceGrade: varchar("performanceGrade", { length: 10 }).notNull(),
+    criticalIssues: text().array().notNull(),
+    strengths: text().array().notNull(),
+    recommendations: text().array().notNull(),
+    detailedAnalysis: text().notNull(), // JSON string of detailed analysis
+    generatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    generatedBy: uuid("generated_by").notNull(), // Admin who generated the insight
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [users.id],
+      name: "performance_insights_user_id_fk",
+    }),
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "performance_insights_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.projectId],
+      foreignColumns: [projects.id],
+      name: "performance_insights_project_id_fk",
+    }),
+    foreignKey({
+      columns: [table.generatedBy],
+      foreignColumns: [users.id],
+      name: "performance_insights_generated_by_fk",
     }),
   ]
 );

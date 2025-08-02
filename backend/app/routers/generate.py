@@ -50,6 +50,8 @@ o4_service = OpenAIo4Service()
 
 @router.get("")
 async def test():
+    """Test endpoint for LLM."""
+
     system_prompt: str = """
     You are a friendly chatbot. For now, simply return the data you recieve.
     """

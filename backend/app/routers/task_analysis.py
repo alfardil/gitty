@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import Optional, List
 import json
+import asyncio
 
 router = APIRouter(prefix="/task-analysis", tags=["task-analysis"])
 
@@ -207,3 +209,172 @@ async def _fallback_analysis(task_data: dict) -> TaskAnalysisResponse:
         confidence=min(1.0, confidence),
         reasoning="Analysis completed using fallback heuristics due to GPT service unavailability.",
     )
+
+
+@router.post("/stream-analyze")
+async def stream_analyze_task(request: TaskAnalysisRequest):
+    """
+    Stream task analysis in real-time using Server-Sent Events.
+    """
+    try:
+        # Prepare the task data for analysis
+        task_data = {
+            "title": request.title,
+            "description": request.description or "",
+            "priority": request.priority,
+            "due_date": request.due_date,
+            "tags": request.tags or [],
+        }
+
+        async def event_generator():
+            try:
+                # Send initial status
+                yield f"data: {json.dumps({'status': 'starting', 'message': 'Starting task analysis...'})}\n\n"
+                await asyncio.sleep(0.1)
+
+                # Send analysis step
+                yield f"data: {json.dumps({'status': 'analyzing', 'message': 'Analyzing task complexity and requirements...'})}\n\n"
+                await asyncio.sleep(0.1)
+
+                # Create the prompt for GPT analysis
+                prompt = f"""
+                Analyze the following software development task and provide estimates for:
+                1. Estimated hours (realistic development time)
+                2. Complexity (1-5 scale, where 1=very easy, 5=very complex)
+                3. Task type (bug_fix, feature, refactor, testing, documentation, or other)
+                4. Confidence level (0.0-1.0)
+                5. Brief reasoning for your estimates
+
+                Task Information:
+                - Title: {task_data['title']}
+                - Description: {task_data['description']}
+                - Priority: {task_data['priority']}
+                - Due Date: {task_data['due_date'] or 'Not specified'}
+                - Tags: {', '.join(task_data['tags']) if task_data['tags'] else 'None'}
+
+                Please respond with a JSON object in this exact format:
+                {{
+                    "estimated_hours": <number>,
+                    "complexity": <1-5>,
+                    "task_type": "<bug_fix|feature|refactor|testing|documentation|other>",
+                    "confidence": <0.0-1.0>,
+                    "reasoning": "<brief explanation of your estimates>"
+                }}
+
+                Guidelines:
+                - Estimated hours should be realistic for a developer
+                - Complexity should consider technical difficulty, scope, and dependencies
+                - Task type should be based on the primary purpose of the work
+                - Confidence should reflect how clear the task requirements are
+                - Reasoning should be concise but informative
+                """
+
+                # Send GPT processing step
+                yield f"data: {json.dumps({'status': 'gpt_processing', 'message': 'Processing with AI model...'})}\n\n"
+                await asyncio.sleep(0.1)
+
+                # Call GPT service
+                from ..services.o4_mini_service import OpenAIo4Service
+
+                try:
+                    gpt_service = OpenAIo4Service()
+                    gpt_response = gpt_service.call_o4_api(
+                        system_prompt="You are an expert software development task analyzer. Analyze the given task and provide estimates in the exact JSON format requested.",
+                        data={"prompt": prompt},
+                    )
+
+                    # Send processing complete
+                    yield f"data: {json.dumps({'status': 'processing_complete', 'message': 'AI analysis complete, validating results...'})}\n\n"
+                    await asyncio.sleep(0.1)
+
+                    # Parse and validate the response
+                    analysis_result = json.loads(gpt_response)
+
+                    # Validate the response structure
+                    required_fields = [
+                        "estimated_hours",
+                        "complexity",
+                        "task_type",
+                        "confidence",
+                        "reasoning",
+                    ]
+                    for field in required_fields:
+                        if field not in analysis_result:
+                            raise ValueError(f"Missing required field: {field}")
+
+                    # Validate and sanitize the values
+                    estimated_hours = float(analysis_result["estimated_hours"])
+                    complexity = int(analysis_result["complexity"])
+                    task_type = str(analysis_result["task_type"])
+                    confidence = float(analysis_result["confidence"])
+                    reasoning = str(analysis_result["reasoning"])
+
+                    # Validate ranges
+                    if not (0 < estimated_hours <= 100):
+                        estimated_hours = 4.0
+                    if not (1 <= complexity <= 5):
+                        complexity = 3
+                    if task_type not in [
+                        "bug_fix",
+                        "feature",
+                        "refactor",
+                        "testing",
+                        "documentation",
+                        "other",
+                    ]:
+                        task_type = "other"
+                    if not (0.0 <= confidence <= 1.0):
+                        confidence = 0.7
+
+                    # Send final results
+                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                        'estimated_hours': estimated_hours,
+                        'complexity': complexity,
+                        'task_type': task_type,
+                        'confidence': confidence,
+                        'reasoning': reasoning,
+                    }})}\n\n"
+
+                except json.JSONDecodeError:
+                    # Fallback to heuristics
+                    yield f"data: {json.dumps({'status': 'fallback', 'message': 'Using fallback analysis...'})}\n\n"
+                    await asyncio.sleep(0.1)
+
+                    fallback_result = await _fallback_analysis(task_data)
+                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                        'estimated_hours': fallback_result.estimated_hours,
+                        'complexity': fallback_result.complexity,
+                        'task_type': fallback_result.task_type,
+                        'confidence': fallback_result.confidence,
+                        'reasoning': fallback_result.reasoning,
+                    }})}\n\n"
+
+                except Exception as e:
+                    # Fallback to heuristics
+                    yield f"data: {json.dumps({'status': 'fallback', 'message': f'AI analysis failed, using fallback: {str(e)}'})}\n\n"
+                    await asyncio.sleep(0.1)
+
+                    fallback_result = await _fallback_analysis(task_data)
+                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                        'estimated_hours': fallback_result.estimated_hours,
+                        'complexity': fallback_result.complexity,
+                        'task_type': fallback_result.task_type,
+                        'confidence': fallback_result.confidence,
+                        'reasoning': fallback_result.reasoning,
+                    }})}\n\n"
+
+            except Exception as e:
+                yield f"data: {json.dumps({'status': 'error', 'message': str(e)})}\n\n"
+
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Stream analysis failed: {str(e)}")

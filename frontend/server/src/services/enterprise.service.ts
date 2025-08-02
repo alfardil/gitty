@@ -396,7 +396,7 @@ export async function getTeamPerformanceAnalyticsService(
           ? (Number(user.completedTasks) / Number(user.totalTasks)) * 100
           : 0,
       taskVelocity: Number(user.completedTasks) / 30, // Tasks per month
-      averageTaskComplexity: 3, // Default value - complexity field exists but not yet implemented in UI
+      averageTaskComplexity: 0, // Default value - complexity field exists but not yet implemented in UI
       tasksCompleted: Number(user.completedTasks),
       tasksInProgress: Number(user.inProgressTasks),
       tasksOverdue: Number(user.overdueTasks),
@@ -501,7 +501,7 @@ export async function getTeamPerformanceAnalyticsService(
       teamMetrics: {
         averageCompletionRate: completionRate,
         averageTaskVelocity: taskVelocity,
-        averageTaskComplexity: Number(metrics.averageComplexity) || 3,
+        averageTaskComplexity: Number(metrics.averageComplexity) || 0,
         totalTasksCompleted: Number(metrics.completedTasks),
         totalTasksInProgress: Number(metrics.inProgressTasks),
         totalTasksOverdue: Number(metrics.overdueTasks),
