@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import {
-  upsertUser,
-  createSession,
-  isUserDeveloper,
-} from "@/server/src/db/actions";
+import { upsertUser, createSession } from "@/server/src/db/actions";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -73,20 +69,20 @@ export async function GET(request: NextRequest) {
       joinedAt: userData.created_at ? new Date(userData.created_at) : undefined,
     });
 
-    // Check if user is admin before proceeding
-    const isDeveloper = await isUserDeveloper(String(userData.id));
-    if (!isDeveloper) {
-      // Clear any existing cookies
-      cookieStore.delete("github_user");
-      cookieStore.delete("github_access_token");
-      cookieStore.delete("session_id");
-      cookieStore.delete("github_oauth_state");
+    // // Check if user is admin before proceeding
+    // const isDeveloper = await isUserDeveloper(String(userData.id));
+    // if (!isDeveloper) {
+    //   // Clear any existing cookies
+    //   cookieStore.delete("github_user");
+    //   cookieStore.delete("github_access_token");
+    //   cookieStore.delete("session_id");
+    //   cookieStore.delete("github_oauth_state");
 
-      return NextResponse.redirect(new URL("/auth/access-denied", request.url));
-    }
+    //   return NextResponse.redirect(new URL("/auth/access-denied", request.url));
+    // }
 
     // Create a session in the database if they are an admin
-    if (upsertResult && upsertResult.user && isDeveloper) {
+    if (upsertResult && upsertResult.user) {
       const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 1 week
       const sessionResult = await createSession({
         userId: upsertResult.user.id,

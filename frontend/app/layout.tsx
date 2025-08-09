@@ -15,9 +15,9 @@ const sen = Sen({
 });
 
 export const metadata: Metadata = {
-  title: "Gitty",
+  title: "Devboard",
   description:
-    "This is Gitty, a web app that takes any public GitHub repository and converts it into an educational shortform video that onboards the user to the project's system design, tech stack, and other relevant information for onboarding.",
+    "This is Devboard, a web app that takes any public GitHub repository and converts it into an educational shortform video that onboards the user to the project's system design, tech stack, and other relevant information for onboarding.",
 };
 
 export default function RootLayout({

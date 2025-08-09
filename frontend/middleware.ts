@@ -16,8 +16,9 @@ export function middleware(request: NextRequest) {
 
   const hasUser = request.cookies.get("github_user");
   const hasToken = request.cookies.get("github_access_token");
+  const hasSession = request.cookies.get("session_id");
 
-  if (!hasUser || !hasToken) {
+  if (!hasUser || !hasToken || !hasSession) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 

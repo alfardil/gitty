@@ -149,12 +149,37 @@ export async function getSessionById({ id }: { id: string }) {
   return session[0] || null;
 }
 
+export async function validateSession({ sessionId }: { sessionId: string }) {
+  const session = await db
+    .select()
+    .from(sessionsTable)
+    .where(
+      and(
+        eq(sessionsTable.id, sessionId),
+        sql`${sessionsTable.expiresAt} > NOW()`,
+        sql`${sessionsTable.deletedAt} IS NULL`
+      )
+    )
+    .limit(1);
+
+  return session[0] || null;
+}
+
 export async function deleteSession({ id }: { id: string }) {
   await db.delete(sessionsTable).where(eq(sessionsTable.id, id));
 }
 
 export async function deleteSessionsByUserId({ userId }: { userId: string }) {
   await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId));
+}
+
+export async function cleanupExpiredSessions() {
+  const result = await db
+    .delete(sessionsTable)
+    .where(sql`${sessionsTable.expiresAt} <= NOW()`)
+    .returning({ id: sessionsTable.id });
+
+  return result.length;
 }
 
 export async function getRowCount(): Promise<number> {

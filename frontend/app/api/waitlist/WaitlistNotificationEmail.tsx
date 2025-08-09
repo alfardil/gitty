@@ -16,7 +16,7 @@ interface WaitlistNotificationEmailProps {
 
 const logoUrl =
   process.env.NODE_ENV === "production"
-    ? "https://gitty.alfardil.com/gittylogo.png"
+    ? "https://devboard.ai/gittylogo.png"
     : "http://localhost:3000/gittylogo.png";
 
 export const WaitlistNotificationEmail = ({
