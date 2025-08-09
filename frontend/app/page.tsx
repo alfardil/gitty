@@ -58,7 +58,7 @@ export default function LandingPage() {
       </section>
       <StatsSection />
       <DemoVideo />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */}
       <WaitlistSection />
     </div>
   );
