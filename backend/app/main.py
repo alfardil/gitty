@@ -9,7 +9,7 @@ app.include_router(task_analysis.router)
 app.include_router(user_insights.router)
 app.include_router(status.router)
 
-origins = ["http://localhost:3000", "https://gitty.alfardil.com"]
+origins = ["http://localhost:3000", "https://devboard.ai"]
 
 # CORS
 app.add_middleware(
