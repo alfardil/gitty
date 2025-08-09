@@ -2,6 +2,7 @@
 import { useEnterpriseActions } from "./hooks/useEnterpriseActions";
 import { CreateEnterprise } from "./_components/CreateEnterprise";
 import { InviteCodeForm } from "./_components/CreateInvite";
+import { UserMigration } from "./_components/UserMigration";
 import { User } from "@/lib/types/business/User";
 
 export default function DeveloperSection({ user }: { user: User }) {
@@ -45,6 +46,7 @@ export default function DeveloperSection({ user }: { user: User }) {
         generateAdminInviteLoading={actions.generateAdminInviteLoading}
         inviteResult={actions.adminInviteResult}
       />
+      <UserMigration />
     </div>
   );
 }

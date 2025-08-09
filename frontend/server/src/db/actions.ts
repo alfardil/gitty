@@ -8,6 +8,7 @@ import {
   enterpriseUsers,
   enterpriseInviteCodes,
   enterpriseRole,
+  projects,
 } from "./schema";
 import { eq, sql, and } from "drizzle-orm";
 import { db } from ".";
@@ -48,6 +49,10 @@ export async function upsertUser({
         bio,
       })
       .where(eq(usersTable.githubId, githubId));
+
+    // For existing users, ensure they have personal enterprise and project
+    await ensurePersonalEnterpriseAndProject(existing[0].id, githubUsername);
+
     return { updated: true, user: existing[0] };
   } else {
     const inserted = await db
@@ -64,6 +69,10 @@ export async function upsertUser({
         developer: false,
       })
       .returning();
+
+    // For new users, automatically create personal enterprise and project
+    await ensurePersonalEnterpriseAndProject(inserted[0].id, githubUsername);
+
     return { created: true, user: inserted[0] };
   }
 }
@@ -211,6 +220,108 @@ export async function createEnterprise({
     role: "admin",
   });
   return enterprise;
+}
+
+export async function createPersonalEnterprise(
+  userId: string,
+  githubUsername?: string
+) {
+  const personalName = githubUsername
+    ? `${githubUsername}'s Personal`
+    : "Personal";
+  return await createEnterprise({
+    name: personalName,
+    ownerUserId: userId,
+  });
+}
+
+export async function createPersonalProject(
+  enterpriseId: string,
+  userId: string
+) {
+  const inserted = await db
+    .insert(projects)
+    .values({
+      name: "Personal Project",
+      description: "Default personal project for organizing tasks",
+      enterpriseId,
+      createdById: userId,
+      memberIds: [userId],
+    })
+    .returning();
+  return inserted[0];
+}
+
+export async function ensurePersonalEnterpriseAndProject(
+  userId: string,
+  githubUsername?: string
+) {
+  // Check if user already has any enterprise
+  const existingEnterprises = await db
+    .select()
+    .from(enterpriseUsers)
+    .where(eq(enterpriseUsers.userId, userId))
+    .limit(1);
+
+  if (existingEnterprises.length > 0) {
+    // User already has enterprises, no need to create personal ones
+    return null;
+  }
+
+  // Create personal enterprise
+  const personalEnterprise = await createPersonalEnterprise(
+    userId,
+    githubUsername
+  );
+
+  // Create personal project within that enterprise
+  const personalProject = await createPersonalProject(
+    personalEnterprise.id,
+    userId
+  );
+
+  return {
+    enterprise: personalEnterprise,
+    project: personalProject,
+  };
+}
+
+export async function migrateAllUsersToPersonalEnterprises() {
+  // Get all users who don't have any enterprise
+  const usersWithoutEnterprises = await db
+    .select({
+      id: usersTable.id,
+      githubUsername: usersTable.githubUsername,
+    })
+    .from(usersTable)
+    .leftJoin(enterpriseUsers, eq(usersTable.id, enterpriseUsers.userId))
+    .where(sql`${enterpriseUsers.userId} IS NULL`);
+
+  const results = [];
+  for (const user of usersWithoutEnterprises) {
+    try {
+      const result = await ensurePersonalEnterpriseAndProject(
+        user.id,
+        user.githubUsername || undefined
+      );
+      results.push({
+        userId: user.id,
+        success: true,
+        result,
+      });
+    } catch (error) {
+      results.push({
+        userId: user.id,
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  return {
+    total: usersWithoutEnterprises.length,
+    results,
+  };
 }
 
 export async function generateEnterpriseInviteCode({
