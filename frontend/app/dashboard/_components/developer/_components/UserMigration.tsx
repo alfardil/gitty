@@ -65,7 +65,7 @@ export function UserMigration() {
         </div>
         <p className="text-gray-300 mb-6">
           Automatically assign personal enterprises and projects to users who
-          don't have any. This ensures all users can access the roadmap and
+          don&apos;t have any. This ensures all users can access the roadmap and
           personal project features.
         </p>
 
@@ -158,19 +158,20 @@ export function UserMigration() {
         <ul className="space-y-2 text-gray-300 text-sm">
           <li className="flex items-start gap-2">
             <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-            <span>Finds users who don't belong to any enterprise</span>
+            <span>Finds users who don&apos;t belong to any enterprise</span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
             <span>
-              Creates a personal enterprise for each user (named "
-              {`{username}'s Personal`}")
+              Creates a personal enterprise for each user (named &quot;
+              {`{username}'s Personal`}&quot;)
             </span>
           </li>
           <li className="flex items-start gap-2">
             <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
             <span>
-              Creates a default "Personal Project" within the enterprise
+              Creates a default &quot;Personal Project&quot; within the
+              enterprise
             </span>
           </li>
           <li className="flex items-start gap-2">
