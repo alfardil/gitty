@@ -1,7 +1,7 @@
 .PHONY: dev frontend backend
 
 dev:
-	concurrently "cd frontend && pnpm i && pnpm run dev" "cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload"
+	concurrently "make frontend" "make backend"
 
 frontend: 
 	cd frontend && pnpm i && pnpm run dev
