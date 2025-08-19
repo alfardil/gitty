@@ -3,7 +3,6 @@ import { db } from "@/server/src/db";
 import {
   users,
   tasks,
-  taskAssignments,
   enterpriseUsers,
   enterprises,
 } from "@/server/src/db/schema";

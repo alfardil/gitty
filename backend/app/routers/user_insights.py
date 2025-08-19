@@ -45,7 +45,7 @@ class UserInsightsResponse(BaseModel):
 @router.post("/analyze", response_model=UserInsightsResponse)
 async def analyze_user_performance(request: UserInsightsRequest):
     """
-    Generate AI-powered insights on user performance with strict, critical analysis.
+    Generate AI-powered insights on user performance with realistic, balanced analysis.
     Only accessible by enterprise admins.
     """
     try:
@@ -55,15 +55,20 @@ async def analyze_user_performance(request: UserInsightsRequest):
         # Gather comprehensive user data
         user_data = await _gather_user_data(request.userId, request.enterpriseId)
 
-        # Create a comprehensive prompt for strict AI analysis
-        prompt = _create_analysis_prompt(user_data)
+        # Get the user's current performance grade
+        current_grade = await _get_user_current_grade(
+            request.userId, request.enterpriseId
+        )
+
+        # Create a comprehensive prompt for balanced AI analysis
+        prompt = _create_analysis_prompt(user_data, current_grade)
 
         # Call AI service for analysis
         from ..services.o4_mini_service import OpenAIo4Service
 
         gpt_service = OpenAIo4Service()
         ai_response = gpt_service.call_o4_api(
-            system_prompt="You are a strict, critical performance analyst. You must be extremely harsh and unforgiving in your assessment. Focus on weaknesses, failures, and areas of concern. Be direct and brutally honest. Never sugar-coat issues. If performance is poor, say it clearly. If there are problems, highlight them aggressively.",
+            system_prompt="You are a professional performance analyst providing balanced, realistic feedback on software developer performance. Be honest and constructive in your assessment, highlighting both strengths and areas for improvement. Provide actionable insights that help the developer grow while acknowledging their contributions.",
             data={"prompt": prompt},
         )
 
@@ -83,6 +88,19 @@ async def analyze_user_performance(request: UserInsightsRequest):
         for field in required_fields:
             if field not in analysis_result:
                 raise ValueError(f"Missing required field: {field}")
+
+        # Calculate the adjusted grade based on the analysis
+        adjusted_grade = await _calculate_adjusted_grade(current_grade, analysis_result)
+        analysis_result["performanceGrade"] = adjusted_grade
+
+        # Debug logging to ensure correct grade assignment
+        print(
+            f"Debug - Original AI Grade: {analysis_result.get('performanceGrade', 'N/A')}"
+        )
+        print(f"Debug - Overall Score: {analysis_result.get('overallScore', 'N/A')}")
+        print(f"Debug - Current Grade: {current_grade}")
+        print(f"Debug - Adjusted Grade: {adjusted_grade}")
+        print(f"Debug - Final Grade: {analysis_result['performanceGrade']}")
 
         # Add timestamp
         analysis_result["generatedAt"] = datetime.utcnow().isoformat()
@@ -174,17 +192,23 @@ async def stream_analyze_user_performance(request: UserInsightsRequest):
             yield f"data: {json.dumps({'type': 'status', 'message': 'Data collected, analyzing performance...'})}\n\n"
             await asyncio.sleep(0.1)
 
-            # Create a comprehensive prompt for strict AI analysis
-            prompt = _create_analysis_prompt(user_data)
+            # Get the user's current performance grade
+            current_grade = await _get_user_current_grade(
+                request.userId, request.enterpriseId
+            )
+
+            # Create a comprehensive prompt for balanced AI analysis
+            prompt = _create_analysis_prompt(user_data, current_grade)
 
             yield f"data: {json.dumps({'type': 'status', 'message': 'Generating AI insights...'})}\n\n"
             await asyncio.sleep(0.1)
 
             # Call AI service for analysis
+            from ..services.o4_mini_service import OpenAIo4Service
 
             gpt_service = OpenAIo4Service()
             ai_response = gpt_service.call_o4_api_stream(
-                system_prompt="You are a professional performance analyst speaking to an enterprise manager. Be extremely critical and harsh about the employee's performance - highlight all weaknesses, failures, and areas of concern. Be direct and brutally honest about the employee's shortcomings. However, be respectful and professional when addressing the manager. Focus on what the employee is doing wrong and provide actionable insights for the manager to address performance issues.",
+                system_prompt="You are a professional performance analyst providing balanced, realistic feedback on software developer performance. Be honest and constructive in your assessment, highlighting both strengths and areas for improvement. Provide actionable insights that help the developer grow while acknowledging their contributions.",
                 data={"prompt": prompt},
             )
 
@@ -193,78 +217,30 @@ async def stream_analyze_user_performance(request: UserInsightsRequest):
 
             # Handle streaming AI response
             full_response = ""
-            chunk_count = 0
             async for chunk in ai_response:
-                chunk_count += 1
                 if chunk:
                     full_response += chunk
-                    # Stream partial response to frontend
-                    yield f"data: {json.dumps({'type': 'partial', 'content': chunk})}\n\n"
+                    yield f"data: {json.dumps({'type': 'chunk', 'data': chunk})}\n\n"
 
-            if not full_response or full_response.strip() == "":
-                analysis_result = {
-                    "overallScore": 45,
-                    "performanceGrade": "D",
-                    "criticalIssues": [
-                        "AI analysis service returned empty response",
-                        "Unable to generate automated insights",
-                        "Performance assessment incomplete",
-                    ],
-                    "strengths": ["Data collection completed successfully"],
-                    "recommendations": [
-                        "Review user data manually",
-                        "Check AI service configuration",
-                        "Contact system administrator",
-                    ],
-                    "detailedAnalysis": {
-                        "completionRate": "Analysis service unavailable",
-                        "timeliness": "Manual review required",
-                        "quality": "Unable to assess",
-                        "efficiency": "Service unavailable",
-                        "reliability": "Manual review needed",
-                    },
-                }
-            else:
-                # Parse the AI response
-                try:
-                    analysis_result = json.loads(full_response)
-                except json.JSONDecodeError as e:
-                    analysis_result = {
-                        "overallScore": 45,
-                        "performanceGrade": "D",
-                        "criticalIssues": [
-                            "AI service returned invalid JSON response",
-                            "Unable to parse automated insights",
-                            "Performance assessment incomplete",
-                        ],
-                        "strengths": ["Data collection completed successfully"],
-                        "recommendations": [
-                            "Review user data manually",
-                            "Check AI service configuration",
-                            "Contact system administrator",
-                        ],
-                        "detailedAnalysis": {
-                            "completionRate": "Analysis service unavailable",
-                            "timeliness": "Manual review required",
-                            "quality": "Unable to assess",
-                            "efficiency": "Service unavailable",
-                            "reliability": "Manual review needed",
-                        },
-                    }
+            # Parse the complete response
+            analysis_result = json.loads(full_response)
 
-            # Validate response structure
-            required_fields = [
-                "overallScore",
-                "performanceGrade",
-                "criticalIssues",
-                "strengths",
-                "recommendations",
-                "detailedAnalysis",
-            ]
+            # Calculate the adjusted grade based on the analysis
+            adjusted_grade = await _calculate_adjusted_grade(
+                current_grade, analysis_result
+            )
+            analysis_result["performanceGrade"] = adjusted_grade
 
-            for field in required_fields:
-                if field not in analysis_result:
-                    raise ValueError(f"Missing required field: {field}")
+            # Debug logging to ensure correct grade assignment
+            print(
+                f"Debug - Original AI Grade: {analysis_result.get('performanceGrade', 'N/A')}"
+            )
+            print(
+                f"Debug - Overall Score: {analysis_result.get('overallScore', 'N/A')}"
+            )
+            print(f"Debug - Current Grade: {current_grade}")
+            print(f"Debug - Adjusted Grade: {adjusted_grade}")
+            print(f"Debug - Final Grade: {analysis_result['performanceGrade']}")
 
             # Add timestamp
             analysis_result["generatedAt"] = datetime.utcnow().isoformat()
@@ -283,8 +259,8 @@ async def stream_analyze_user_performance(request: UserInsightsRequest):
         except Exception as e:
             # Provide fallback analysis for any other errors
             fallback_result = {
-                "overallScore": 45,
-                "performanceGrade": "D",
+                "overallScore": 75,
+                "performanceGrade": "B",
                 "criticalIssues": [
                     f"Analysis failed: {str(e)}",
                     "Unable to generate automated insights",
@@ -412,24 +388,6 @@ async def _gather_user_data(
         """
         time_tracking = await pool.fetchrow(time_tracking_query, *params)
 
-        # Get assignment history (last 10 assignments)
-        assignment_history_query = f"""
-            SELECT 
-                t.title as task_title,
-                ta."assignedAt",
-                ta."unassignedAt",
-                t.status,
-                t."completedAt",
-                t."dueDate",
-                CASE WHEN t."dueDate" < NOW() AND t.status != 'done' THEN true ELSE false END as is_overdue
-            FROM task_assignments ta
-            JOIN tasks t ON ta."task_id" = t.id
-            WHERE ta."assignee_id" = $1 {enterprise_filter.replace('$2', '$2')}
-            ORDER BY ta."assignedAt" DESC
-            LIMIT 10
-        """
-        assignment_history = await pool.fetch(assignment_history_query, *params)
-
         # Get priority breakdown
         priority_breakdown_query = f"""
             SELECT 
@@ -511,27 +469,6 @@ async def _gather_user_data(
         elif recent_completion_rate < completion_rate - 5:
             trending = "declining"
 
-        # Format assignment history
-        formatted_history = []
-        for assignment in assignment_history:
-            formatted_history.append(
-                {
-                    "task": assignment["task_title"],
-                    "assignedAt": (
-                        assignment["assignedAt"].isoformat()
-                        if assignment["assignedAt"]
-                        else None
-                    ),
-                    "completedAt": (
-                        assignment["completedAt"].isoformat()
-                        if assignment["completedAt"]
-                        else None
-                    ),
-                    "status": assignment["status"],
-                    "isOverdue": assignment["is_overdue"],
-                }
-            )
-
         # Format breakdowns
         priority_data = {row["priority"]: row["count"] for row in priority_breakdown}
         status_data = {row["status"]: row["count"] for row in status_breakdown}
@@ -581,7 +518,7 @@ async def _gather_user_data(
                 "averageHoursPerTask": round(avg_hours_per_task, 1),
                 "estimatedVsActualAccuracy": round(estimation_accuracy, 2),
             },
-            "assignmentHistory": formatted_history,
+            "assignmentHistory": [],
             "breakdowns": {
                 "priority": priority_data,
                 "status": status_data,
@@ -760,57 +697,177 @@ async def _get_all_performance_insights(
     ]
 
 
-def _create_analysis_prompt(user_data: Dict[str, Any]) -> str:
+async def _get_user_current_grade(
+    user_id: str, enterprise_id: Optional[str] = None
+) -> str:
     """
-    Create a comprehensive prompt for strict AI analysis.
+    Get the user's current performance grade. If no grade exists, start with 'A'.
+    """
+    pool = await get_pool()
+
+    if enterprise_id:
+        row = await pool.fetchrow(
+            """
+            SELECT "performanceGrade" FROM performance_insights 
+            WHERE user_id = $1 AND enterprise_id = $2
+            ORDER BY "generatedAt" DESC 
+            LIMIT 1
+            """,
+            user_id,
+            enterprise_id,
+        )
+    else:
+        row = await pool.fetchrow(
+            """
+            SELECT "performanceGrade" FROM performance_insights 
+            WHERE user_id = $1
+            ORDER BY "generatedAt" DESC 
+            LIMIT 1
+            """,
+            user_id,
+        )
+
+    # If no previous grade exists, start with 'A'
+    return row["performanceGrade"] if row else "A"
+
+
+async def _calculate_adjusted_grade(
+    current_grade: str, analysis_result: Dict[str, Any]
+) -> str:
+    """
+    Calculate the adjusted grade based on the analysis result.
+    Start with the current grade and adjust based on performance indicators.
+    Users start at A and are only downgraded for genuinely poor performance.
+    """
+    grade_order = ["F", "D", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+"]
+
+    try:
+        current_index = grade_order.index(current_grade)
+    except ValueError:
+        current_index = 9  # Default to 'A' if grade not found
+
+    # Get the overall score to determine grade adjustment
+    overall_score = analysis_result.get("overallScore", 75)
+
+    # More generous grading logic - only downgrade for genuinely poor performance
+    # For users with good performance metrics, ensure they get appropriate grades
+    if overall_score >= 95:
+        grade_adjustment = 2  # Move up to A+
+    elif overall_score >= 85:
+        grade_adjustment = 1  # Move up to A+
+    elif overall_score >= 75:
+        grade_adjustment = 0  # Stay at A
+    elif overall_score >= 65:
+        grade_adjustment = -1  # Move down to A-
+    elif overall_score >= 55:
+        grade_adjustment = -2  # Move down to B+
+    elif overall_score >= 45:
+        grade_adjustment = -3  # Move down to B
+    elif overall_score >= 35:
+        grade_adjustment = -4  # Move down to B-
+    elif overall_score >= 25:
+        grade_adjustment = -5  # Move down to C+
+    elif overall_score >= 15:
+        grade_adjustment = -6  # Move down to C
+    else:
+        grade_adjustment = -7  # Move down to C- or lower
+
+    # Calculate new index
+    new_index = max(0, min(len(grade_order) - 1, current_index + grade_adjustment))
+
+    # Additional safeguard: If user has good performance metrics, ensure minimum grade
+    # Check if user has 100% completion rate and no overdue tasks
+    user_data = analysis_result.get("userData", {})
+    completion_rate = user_data.get("completionRate", 0)
+    overdue_tasks = user_data.get("overdueTasks", 0)
+
+    # If user has excellent performance metrics, ensure they get at least a B
+    if completion_rate >= 90 and overdue_tasks == 0 and overall_score >= 70:
+        min_grade_index = 7  # B grade
+        new_index = max(new_index, min_grade_index)
+
+    final_grade = grade_order[new_index]
+
+    # Debug logging
+    print(
+        f"Debug - Score: {overall_score}, Current Grade: {current_grade}, Adjustment: {grade_adjustment}, Final Grade: {final_grade}"
+    )
+
+    return final_grade
+
+
+def _create_analysis_prompt(user_data: Dict[str, Any], current_grade: str) -> str:
+    """
+    Create a comprehensive prompt for balanced AI analysis.
     """
     # Convert any Decimal objects to regular numbers for JSON serialization
     user_data = _convert_decimals_to_numbers(user_data)
 
     return f"""
-    You are a strict, critical performance analyst evaluating a software developer's performance. 
-    You must be extremely harsh and unforgiving in your assessment. Focus on weaknesses, failures, and areas of concern.
+    You are a professional performance analyst evaluating a software developer's performance. 
+    Your current performance grade is: {current_grade}.
     
-    Analyze the following user data and provide a brutally honest assessment:
+    Analyze the following user data and provide a balanced assessment:
     
     USER DATA:
     {json.dumps(user_data, indent=2)}
     
     REQUIREMENTS:
-    1. Overall Score: Rate from 0-100 (be extremely strict, rarely give above 70)
-    2. Performance Grade: A+, A, A-, B+, B, B-, C+, C, C-, D, F (be harsh)
-    3. Critical Issues: List 3-5 major problems (be aggressive about finding issues)
-    4. Strengths: List 1-2 minor positives (minimize these)
-    5. Recommendations: List 3-5 actionable improvements (be demanding)
-    6. Detailed Analysis: Provide harsh analysis of each metric
+    1. Overall Score: Rate from 0-100 (be realistic and fair, consider the data available)
+    2. Performance Grade: A+, A, A-, B+, B, B-, C+, C, C-, D, F (be fair and constructive)
+    3. Critical Issues: List 3-5 areas for improvement (be constructive, not overly critical)
+    4. Strengths: List 2-3 genuine strengths (acknowledge good performance)
+    5. Recommendations: List 3-5 actionable improvements (be helpful and constructive)
+    6. Detailed Analysis: Provide balanced analysis of each metric
+    
+    GRADING CRITERIA:
+    - A+ (95-100): Exceptional performance with outstanding metrics
+    - A (85-94): Excellent performance with strong metrics
+    - A- (75-84): Very good performance with solid metrics
+    - B+ (65-74): Good performance with minor areas for improvement
+    - B (55-64): Satisfactory performance with some areas for improvement
+    - B- (45-54): Below average performance with significant issues
+    - C+ (35-44): Poor performance with major issues
+    - C (25-34): Very poor performance
+    - C- (15-24): Extremely poor performance
+    - D (5-14): Failing performance
+    - F (0-4): Completely unacceptable performance
+    
+    PERFORMANCE EVALUATION RULES:
+    - Users with 100% completion rate and no overdue tasks should receive A- or higher
+    - Users with 90%+ completion rate should receive B+ or higher
+    - Users with 80%+ completion rate should receive B or higher
+    - Only downgrade for actual poor performance, not data limitations
+    - Consider task complexity and role when evaluating performance
     
     ANALYSIS GUIDELINES:
-    - Completion rate below 80% is unacceptable
-    - Any overdue tasks are a major red flag
-    - Average completion time should be under 3 days
-    - Rework count above 2 is concerning
-    - Scope changes indicate poor planning
-    - Time estimation accuracy below 90% is poor
-    - Recent performance trends are critical indicators
-    - Priority distribution should be balanced
-    - Task type performance shows specialization gaps
-    - Focus on what they're doing wrong, not what they're doing right
+    - Overall Score should reflect actual performance, not data availability
+    - Performance Grade should align with the grading criteria above
+    - Critical Issues should be constructive and actionable
+    - Strengths should be genuine and not minimized
+    - Recommendations should be helpful and achievable
+    - Detailed Analysis should be balanced and fair
+    - Do not penalize users for:
+      * Having limited task volume (this may be normal for new users or specific roles)
+      * Not using time tracking features (this is optional)
+      * Not having peer reviews (this depends on team structure)
+      * Having few tasks (quality over quantity)
     
     Respond with JSON in this exact format:
     {{
         "overallScore": <0-100>,
         "performanceGrade": "<A+|A|A-|B+|B|B-|C+|C|C-|D|F>",
-        "criticalIssues": ["<harsh issue 1>", "<harsh issue 2>", "<harsh issue 3>"],
-        "strengths": ["<minor positive 1>", "<minor positive 2>"],
-        "recommendations": ["<demanding improvement 1>", "<demanding improvement 2>", "<demanding improvement 3>"],
+        "criticalIssues": ["<constructive issue 1>", "<constructive issue 2>", "<constructive issue 3>"],
+        "strengths": ["<genuine strength 1>", "<genuine strength 2>", "<genuine strength 3>"],
+        "recommendations": ["<helpful improvement 1>", "<helpful improvement 2>", "<helpful improvement 3>"],
         "detailedAnalysis": {{
-            "completionRate": "<harsh analysis>",
-            "timeliness": "<harsh analysis>", 
-            "quality": "<harsh analysis>",
-            "efficiency": "<harsh analysis>",
-            "reliability": "<harsh analysis>"
+            "completionRate": "<balanced analysis>",
+            "timeliness": "<balanced analysis>", 
+            "quality": "<balanced analysis>",
+            "efficiency": "<balanced analysis>",
+            "reliability": "<balanced analysis>"
         }}
     }}
     
-    Remember: Be extremely critical and unforgiving. This is for admin review only.
+    Remember: Be fair, constructive, and realistic. Focus on actual performance, not data availability.
     """

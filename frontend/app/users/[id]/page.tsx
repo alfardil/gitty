@@ -3,7 +3,6 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { useUserProfile } from "@/lib/hooks/api/useUserProfile";
 import { useUserRecentTasks } from "@/lib/hooks/api/useUserRecentTasks";
-import { useUserAssignmentHistory } from "@/lib/hooks/api/useUserAssignmentHistory";
 import { useIsAdminOfAnyEnterprise } from "@/lib/hooks/business/useIsAdminOfAnyEnterprise";
 import { useAuth } from "@/lib/hooks/business/useAuth";
 import { Spinner } from "@/components/ui/neo/spinner";
@@ -21,7 +20,6 @@ import {
   Github,
   ArrowLeft,
   Target,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { AIInsightsSection } from "./_components/AIInsightsSection";
@@ -50,26 +48,6 @@ const RecentTasksSkeleton = () => (
   </div>
 );
 
-const AssignmentHistorySkeleton = () => (
-  <div className="space-y-3">
-    {Array.from({ length: 10 }).map((_, index) => (
-      <div
-        key={index}
-        className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 min-h-[80px]"
-      >
-        <div className="flex items-center gap-4">
-          <Skeleton width={20} height={20} rounded="full" />
-          <div className="flex-1">
-            <Skeleton width="65%" height={20} className="mb-2" />
-            <Skeleton width="85%" height={16} />
-          </div>
-        </div>
-        <Skeleton width={100} height={16} />
-      </div>
-    ))}
-  </div>
-);
-
 export default function UserProfilePage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -87,18 +65,10 @@ export default function UserProfilePage() {
 
   // Pagination state
   const [recentTasksPage, setRecentTasksPage] = useState(1);
-  const [assignmentHistoryPage, setAssignmentHistoryPage] = useState(1);
 
   // Paginated data queries
   const { data: recentTasksData, isLoading: recentTasksLoading } =
     useUserRecentTasks(userId, recentTasksPage, 5, enterpriseId || undefined);
-  const { data: assignmentHistoryData, isLoading: assignmentHistoryLoading } =
-    useUserAssignmentHistory(
-      userId,
-      assignmentHistoryPage,
-      10,
-      enterpriseId || undefined
-    );
 
   // Show loading while checking admin status
   if (isAdminLoading || authLoading) {
@@ -388,22 +358,50 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border border-blue-400/20 rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg">
+          <div
+            className={`bg-gradient-to-br from-[#2A2A2A] to-[#23272f] border rounded-xl p-6 hover:border-blue-400/40 transition-all duration-300 shadow-lg ${
+              statistics.overdueTasks > 0
+                ? "border-red-500/40 from-red-500/10 to-red-500/5"
+                : "border-blue-400/20"
+            }`}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-100">
+              <h3
+                className={`text-lg font-semibold ${
+                  statistics.overdueTasks > 0 ? "text-red-400" : "text-gray-100"
+                }`}
+              >
                 Overdue Tasks
               </h3>
-              <div className="p-2 bg-red-500/20 rounded-lg">
-                <AlertCircle className="w-5 h-5 text-red-400" />
+              <div
+                className={`p-2 rounded-lg ${
+                  statistics.overdueTasks > 0
+                    ? "bg-red-500/30"
+                    : "bg-red-500/20"
+                }`}
+              >
+                <AlertCircle
+                  className={`w-5 h-5 ${
+                    statistics.overdueTasks > 0
+                      ? "text-red-300"
+                      : "text-red-400"
+                  }`}
+                />
               </div>
             </div>
-            <div className="text-4xl font-bold text-gray-100 mb-2">
+            <div
+              className={`text-4xl font-bold mb-2 ${
+                statistics.overdueTasks > 0 ? "text-red-400" : "text-gray-100"
+              }`}
+            >
               {statistics.overdueTasks}
             </div>
             <div className="text-sm text-gray-300">
-              {statistics.overdueTasks > 0
-                ? `${statistics.overdueTasks} task${statistics.overdueTasks === 1 ? "" : "s"} past due`
-                : "All tasks on schedule"}
+              {statistics.overdueTasks > 1
+                ? `${statistics.overdueTasks} tasks past due`
+                : statistics.overdueTasks === 1
+                  ? "1 task past due"
+                  : "All tasks on schedule"}
             </div>
           </div>
         </div>
@@ -416,38 +414,6 @@ export default function UserProfilePage() {
             projectId={searchParams.get("projectId") || undefined}
           />
         </div>
-
-        {/* Overdue Tasks Alert */}
-        {statistics.overdueTasks > 0 && (
-          <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-6 mb-8 backdrop-blur-sm">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 bg-red-500/20 rounded-full">
-                <AlertCircle className="w-6 h-6 text-red-400" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-red-400">
-                  Overdue Tasks Alert
-                </h3>
-                <p className="text-red-300 text-sm">
-                  Immediate attention required
-                </p>
-              </div>
-            </div>
-            <p className="text-gray-300 mb-4 leading-relaxed">
-              {statistics.overdueTasks} task
-              {statistics.overdueTasks === 1 ? "" : "s"}{" "}
-              {statistics.overdueTasks === 1 ? "is" : "are"} currently overdue.
-              Please review and update the status of these tasks to maintain
-              project timelines.
-            </p>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <Clock className="w-4 h-4" />
-              <span>
-                Last updated: {format(new Date(), "MMM d, yyyy 'at' h:mm a")}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Task Status Breakdown */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -771,109 +737,6 @@ export default function UserProfilePage() {
                   Page {recentTasksData.pagination.page} of{" "}
                   {recentTasksData.pagination.totalPages} (
                   {recentTasksData.pagination.total} total tasks)
-                </div>
-              </div>
-            )}
-        </div>
-
-        {/* Assignment History */}
-        <div className="bg-[#23272f] border border-blue-400/20 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Assignment History</h3>
-            {/* Pagination Controls - Top */}
-            {assignmentHistoryData?.pagination &&
-              assignmentHistoryData.pagination.totalPages > 1 && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() =>
-                      setAssignmentHistoryPage((prev) => Math.max(1, prev - 1))
-                    }
-                    disabled={!assignmentHistoryData.pagination.hasPrevPage}
-                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setAssignmentHistoryPage((prev) => prev + 1)}
-                    disabled={!assignmentHistoryData.pagination.hasNextPage}
-                    className="px-3 py-1 text-sm bg-[#2A2A2A] text-white rounded hover:bg-[#3A3A3A] disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-          </div>
-
-          <div className="space-y-3 min-h-[400px]">
-            {assignmentHistoryLoading ? (
-              <AssignmentHistorySkeleton />
-            ) : assignmentHistoryData?.assignments &&
-              assignmentHistoryData.assignments.length > 0 ? (
-              <>
-                {assignmentHistoryData.assignments.map((assignment) => (
-                  <div
-                    key={assignment.id}
-                    className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Zap className="w-5 h-5 text-blue-400" />
-                      <div>
-                        <div className="font-medium">
-                          {assignment.taskTitle}
-                        </div>
-                        <div className="text-sm text-gray-400">
-                          Assigned{" "}
-                          {format(
-                            new Date(assignment.assignedAt),
-                            "MMM d, yyyy"
-                          )}
-                          {assignment.unassignedAt &&
-                            ` • Unassigned ${format(new Date(assignment.unassignedAt), "MMM d, yyyy")}`}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-400">
-                      by {assignment.assignedBy}
-                    </div>
-                  </div>
-                ))}
-                {/* Fill remaining space with empty slots to maintain consistent height */}
-                {Array.from({
-                  length: Math.max(
-                    0,
-                    10 - assignmentHistoryData.assignments.length
-                  ),
-                }).map((_, index) => (
-                  <div
-                    key={`empty-assignment-${index}`}
-                    className="flex items-center justify-between p-4 bg-[#2A2A2A] rounded-lg border border-blue-400/20 opacity-20"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-5 h-5 bg-gray-700 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-700 rounded w-1/2"></div>
-                      </div>
-                    </div>
-                    <div className="w-16 h-4 bg-gray-700 rounded"></div>
-                  </div>
-                ))}
-              </>
-            ) : (
-              <div className="text-center text-gray-400 py-8">
-                No assignment history found
-              </div>
-            )}
-          </div>
-
-          {/* Page Info - Centered at bottom */}
-          {assignmentHistoryData?.pagination &&
-            assignmentHistoryData.pagination.totalPages > 1 && (
-              <div className="flex justify-center mt-6 pt-4 border-t border-blue-400/20">
-                <div className="text-sm text-gray-300">
-                  Page {assignmentHistoryData.pagination.page} of{" "}
-                  {assignmentHistoryData.pagination.totalPages} (
-                  {assignmentHistoryData.pagination.total} total assignments)
                 </div>
               </div>
             )}

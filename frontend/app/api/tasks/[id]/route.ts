@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { db } from "@/server/src/db";
-import {
-  tasks,
-  taskAssignments,
-  taskStatusHistory,
-  taskTimeEntries,
-} from "@/server/src/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { tasks, users, taskTimeEntries } from "@/server/src/db/schema";
+import { eq, and, isNull, isNotNull } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { getUserByGithubId } from "@/server/src/db/actions";
 
 export async function PATCH(
@@ -120,31 +115,11 @@ export async function PATCH(
         .limit(1);
 
       if (currentTask.length > 0 && currentTask[0].assigneeId !== assigneeId) {
-        // If assignment is changing, close any existing assignment and create new one
-        if (currentTask[0].assigneeId) {
-          // Close existing assignment
-          await db
-            .update(taskAssignments)
-            .set({ unassignedAt: new Date().toISOString() })
-            .where(
-              and(
-                eq(taskAssignments.taskId, id),
-                eq(taskAssignments.assigneeId, currentTask[0].assigneeId),
-                isNull(taskAssignments.unassignedAt)
-              )
-            );
-        }
-
+        // If assignment is changing, update the assignedAt timestamp
         if (assigneeId) {
-          // Create new assignment record
-          await db.insert(taskAssignments).values({
-            taskId: id,
-            assigneeId: assigneeId,
-            assignedById: dbUser.id,
-            assignedAt: new Date().toISOString(),
-          });
-
           updateData.assignedAt = new Date().toISOString();
+        } else {
+          updateData.assignedAt = null;
         }
       }
 
@@ -223,12 +198,6 @@ export async function DELETE(
     // First, delete all related records to avoid foreign key constraint violations
     // Delete task time entries
     await db.delete(taskTimeEntries).where(eq(taskTimeEntries.taskId, id));
-
-    // Delete task status history
-    await db.delete(taskStatusHistory).where(eq(taskStatusHistory.taskId, id));
-
-    // Delete task assignments
-    await db.delete(taskAssignments).where(eq(taskAssignments.taskId, id));
 
     // Finally, delete the task itself
     const deletedTask = await db

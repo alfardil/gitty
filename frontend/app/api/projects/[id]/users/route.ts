@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { db } from "@/server/src/db";
 import {
-  projects,
   users,
-  enterpriseUsers,
+  projects,
   projectMembers,
+  enterpriseUsers,
+  enterprises,
   tasks,
-  taskAssignments,
   taskTimeEntries,
 } from "@/server/src/db/schema";
 import { eq, and, sql } from "drizzle-orm";
@@ -385,20 +385,10 @@ export async function DELETE(
         );
 
       // 3. Mark task assignments as unassigned for this user in this project
-      await tx
-        .update(taskAssignments)
-        .set({
-          unassignedAt: new Date().toISOString(),
-        })
-        .where(
-          and(
-            sql`${taskAssignments.taskId} IN (
-              SELECT id FROM tasks WHERE project_id = ${projectId}
-            )`,
-            eq(taskAssignments.assigneeId, userId),
-            sql`${taskAssignments.unassignedAt} IS NULL`
-          )
-        );
+      // This part of the logic is no longer needed as taskAssignments table is removed.
+      // The original code had a subquery to find task IDs, but that's not possible
+      // without the taskAssignments table.
+      // For now, we'll just remove the taskAssignments.unassignedAt update.
 
       // 4. Clean up task time entries for this user in this project
       await tx.delete(taskTimeEntries).where(

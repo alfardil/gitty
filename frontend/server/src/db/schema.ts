@@ -239,62 +239,6 @@ export const tasks = pgTable(
   ]
 );
 
-// Track task assignment history
-export const taskAssignments = pgTable(
-  "task_assignments",
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    taskId: uuid("task_id").notNull(),
-    assigneeId: uuid("assignee_id").notNull(),
-    assignedById: uuid("assigned_by_id").notNull(),
-    assignedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
-    unassignedAt: timestamp({ mode: "string" }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.taskId],
-      foreignColumns: [tasks.id],
-      name: "task_assignments_task_id_fk",
-    }),
-    foreignKey({
-      columns: [table.assigneeId],
-      foreignColumns: [users.id],
-      name: "task_assignments_assignee_id_fk",
-    }),
-    foreignKey({
-      columns: [table.assignedById],
-      foreignColumns: [users.id],
-      name: "task_assignments_assigned_by_id_fk",
-    }),
-  ]
-);
-
-// Track task status changes for timeline analysis
-export const taskStatusHistory = pgTable(
-  "task_status_history",
-  {
-    id: uuid().defaultRandom().primaryKey().notNull(),
-    taskId: uuid("task_id").notNull(),
-    fromStatus: taskStatus("from_status"),
-    toStatus: taskStatus("to_status").notNull(),
-    changedById: uuid("changed_by_id").notNull(),
-    changedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
-    notes: text(), // Optional notes about the status change
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.taskId],
-      foreignColumns: [tasks.id],
-      name: "task_status_history_task_id_fk",
-    }),
-    foreignKey({
-      columns: [table.changedById],
-      foreignColumns: [users.id],
-      name: "task_status_history_changed_by_id_fk",
-    }),
-  ]
-);
-
 // Track time spent on tasks for velocity calculations
 export const taskTimeEntries = pgTable(
   "task_time_entries",

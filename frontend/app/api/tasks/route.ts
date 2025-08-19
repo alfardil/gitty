@@ -4,12 +4,11 @@ import { db } from "@/server/src/db";
 import {
   tasks,
   users,
-  taskAssignments,
   enterpriseUsers,
   projectMembers,
   projects,
 } from "@/server/src/db/schema";
-import { eq, or, and } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { getUserByGithubId } from "@/server/src/db/actions";
 import { analyzeTaskInBackground } from "@/server/src/services/task-analysis.service";
 
@@ -236,14 +235,6 @@ export async function POST(request: NextRequest) {
         taskType: null,
       })
       .returning();
-
-    // Create assignment history record (always create since task is always assigned)
-    await db.insert(taskAssignments).values({
-      taskId: newTask[0].id,
-      assigneeId: finalAssigneeId,
-      assignedById: dbUser.id,
-      assignedAt: assignedAt,
-    });
 
     // Start background AI analysis
     analyzeTaskInBackground(newTask[0].id).catch((error) => {

@@ -55,7 +55,7 @@ async def analyze_task(request: TaskAnalysisRequest):
         - Due Date: {task_data['due_date'] or 'Not specified'}
         - Tags: {', '.join(task_data['tags']) if task_data['tags'] else 'None'}
 
-        Please respond with a JSON object in this exact format:
+        CRITICAL: You must respond with ONLY a valid JSON object in this exact format, with no additional text or explanation:
         {{
             "estimated_hours": <number>,
             "complexity": <1-5>,
@@ -65,11 +65,12 @@ async def analyze_task(request: TaskAnalysisRequest):
         }}
 
         Guidelines:
-        - Estimated hours should be realistic for a developer
-        - Complexity should consider technical difficulty, scope, and dependencies
-        - Task type should be based on the primary purpose of the work
-        - Confidence should reflect how clear the task requirements are
+        - Estimated hours should be realistic for a developer (0.5 to 100 hours)
+        - Complexity must be an integer between 1 and 5 (1=very easy, 5=very complex)
+        - Task type must be one of: bug_fix, feature, refactor, testing, documentation, other
+        - Confidence must be a decimal between 0.0 and 1.0
         - Reasoning should be concise but informative
+        - Do not include any text before or after the JSON object
         """
 
         # Call your existing GPT implementation
@@ -79,12 +80,25 @@ async def analyze_task(request: TaskAnalysisRequest):
             # Create GPT service instance and call it
             gpt_service = OpenAIo4Service()
             gpt_response = gpt_service.call_o4_api(
-                system_prompt="You are an expert software development task analyzer. Analyze the given task and provide estimates in the exact JSON format requested.",
+                system_prompt="You are an expert software development task analyzer. You must respond with ONLY a valid JSON object in the exact format requested. Do not include any explanatory text, markdown formatting, or additional content outside the JSON object.",
                 data={"prompt": prompt},
             )
 
+            # Debug: Log the raw response
+            print(f"DEBUG: Raw GPT response: {gpt_response}")
+
+            # Clean the response - remove any markdown formatting or extra text
+            cleaned_response = gpt_response.strip()
+            if cleaned_response.startswith("```json"):
+                cleaned_response = cleaned_response[7:]
+            if cleaned_response.endswith("```"):
+                cleaned_response = cleaned_response[:-3]
+            cleaned_response = cleaned_response.strip()
+
+            print(f"DEBUG: Cleaned response: {cleaned_response}")
+
             # Parse the JSON response
-            analysis_result = json.loads(gpt_response)
+            analysis_result = json.loads(cleaned_response)
 
             # Validate the response structure
             required_fields = [
@@ -105,10 +119,20 @@ async def analyze_task(request: TaskAnalysisRequest):
             confidence = float(analysis_result["confidence"])
             reasoning = str(analysis_result["reasoning"])
 
+            # Debug: Log the parsed values
+            print(f"DEBUG: Parsed complexity: {complexity}")
+            print(f"DEBUG: Parsed estimated_hours: {estimated_hours}")
+            print(f"DEBUG: Parsed task_type: {task_type}")
+            print(f"DEBUG: Parsed confidence: {confidence}")
+
             # Validate ranges
             if not (0 < estimated_hours <= 100):
+                print(
+                    f"DEBUG: Invalid estimated_hours {estimated_hours}, using fallback 4.0"
+                )
                 estimated_hours = 4.0  # Default fallback
             if not (1 <= complexity <= 5):
+                print(f"DEBUG: Invalid complexity {complexity}, using fallback 3")
                 complexity = 3  # Default fallback
             if task_type not in [
                 "bug_fix",
@@ -130,12 +154,15 @@ async def analyze_task(request: TaskAnalysisRequest):
                 reasoning=reasoning,
             )
 
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
             # If GPT response isn't valid JSON, use fallback heuristics
+            print(f"DEBUG: JSON decode error: {e}")
+            print(f"DEBUG: Failed to parse response: {gpt_response}")
+            print(f"DEBUG: Cleaned response that failed: {cleaned_response}")
             return await _fallback_analysis(task_data)
         except Exception as e:
             # If GPT service fails, use fallback heuristics
-            print(f"GPT analysis failed: {e}")
+            print(f"DEBUG: GPT analysis failed: {e}")
             return await _fallback_analysis(task_data)
 
     except Exception as e:
@@ -170,10 +197,15 @@ async def _fallback_analysis(task_data: dict) -> TaskAnalysisResponse:
 
     # Determine complexity
     complexity = 3  # Default medium
+    print(f"DEBUG: Fallback analysis - priority: {priority}")
     if priority == "high":
         complexity = 4
+        print(f"DEBUG: High priority detected, setting complexity to 4")
     elif priority == "low":
         complexity = 2
+        print(f"DEBUG: Low priority detected, setting complexity to 2")
+    else:
+        print(f"DEBUG: Medium priority, keeping complexity at 3")
 
     if len(description) > 200:
         complexity = min(5, complexity + 1)
@@ -252,7 +284,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                 - Due Date: {task_data['due_date'] or 'Not specified'}
                 - Tags: {', '.join(task_data['tags']) if task_data['tags'] else 'None'}
 
-                Please respond with a JSON object in this exact format:
+                CRITICAL: You must respond with ONLY a valid JSON object in this exact format, with no additional text or explanation:
                 {{
                     "estimated_hours": <number>,
                     "complexity": <1-5>,
@@ -262,11 +294,12 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                 }}
 
                 Guidelines:
-                - Estimated hours should be realistic for a developer
-                - Complexity should consider technical difficulty, scope, and dependencies
-                - Task type should be based on the primary purpose of the work
-                - Confidence should reflect how clear the task requirements are
+                - Estimated hours should be realistic for a developer (0.5 to 100 hours)
+                - Complexity must be an integer between 1 and 5 (1=very easy, 5=very complex)
+                - Task type must be one of: bug_fix, feature, refactor, testing, documentation, other
+                - Confidence must be a decimal between 0.0 and 1.0
                 - Reasoning should be concise but informative
+                - Do not include any text before or after the JSON object
                 """
 
                 # Send GPT processing step
@@ -279,7 +312,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                 try:
                     gpt_service = OpenAIo4Service()
                     gpt_response = gpt_service.call_o4_api(
-                        system_prompt="You are an expert software development task analyzer. Analyze the given task and provide estimates in the exact JSON format requested.",
+                        system_prompt="You are an expert software development task analyzer. You must respond with ONLY a valid JSON object in the exact format requested. Do not include any explanatory text, markdown formatting, or additional content outside the JSON object.",
                         data={"prompt": prompt},
                     )
 
@@ -287,8 +320,16 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                     yield f"data: {json.dumps({'status': 'processing_complete', 'message': 'AI analysis complete, validating results...'})}\n\n"
                     await asyncio.sleep(0.1)
 
+                    # Clean the response - remove any markdown formatting or extra text
+                    cleaned_response = gpt_response.strip()
+                    if cleaned_response.startswith("```json"):
+                        cleaned_response = cleaned_response[7:]
+                    if cleaned_response.endswith("```"):
+                        cleaned_response = cleaned_response[:-3]
+                    cleaned_response = cleaned_response.strip()
+
                     # Parse and validate the response
-                    analysis_result = json.loads(gpt_response)
+                    analysis_result = json.loads(cleaned_response)
 
                     # Validate the response structure
                     required_fields = [
@@ -335,8 +376,11 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                         'reasoning': reasoning,
                     }})}\n\n"
 
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
                     # Fallback to heuristics
+                    print(f"DEBUG: JSON decode error in streaming: {e}")
+                    print(f"DEBUG: Failed to parse response: {gpt_response}")
+                    print(f"DEBUG: Cleaned response that failed: {cleaned_response}")
                     yield f"data: {json.dumps({'status': 'fallback', 'message': 'Using fallback analysis...'})}\n\n"
                     await asyncio.sleep(0.1)
 
