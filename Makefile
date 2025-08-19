@@ -1,6 +1,11 @@
 dev:
 	concurrently "cd frontend && pnpm i && pnpm run dev" "cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload"
 
+dev2:
+	cd frontend && pnpm i && pnpm run dev &
+	cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload &
+	wait
+
 self:
 	git remote set-url origin https://github.com/alfardil/gitty.git
 
