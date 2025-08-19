@@ -84,7 +84,7 @@ function DashboardPage() {
     isAdminOfAnyEnterprise;
 
   return (
-    <div className="min-h-screen flex bg-[#181A20] text-gray-100">
+    <div className="min-h-screen flex bg-background text-foreground">
       <Sidebar
         user={user}
         sidebarOpen={sidebarOpen}
@@ -101,15 +101,15 @@ function DashboardPage() {
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-[#20232a] border-b border-blue-400/10">
+        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-secondary-background border-b border-border">
           <div className="flex items-center gap-3 w-full">
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-blue-400/10"
+              className="md:hidden p-2 rounded-lg hover:bg-white/10"
               onClick={() => setSidebarMobile(true)}
             >
               <Menu className="w-6 h-6 text-gray-200" />
             </button>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">
               {SIDEBAR_SECTIONS.find((s) => s.key === section)?.label ||
                 "Dashboard"}
             </h1>
@@ -176,7 +176,7 @@ function DashboardPage() {
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-[#181A20] text-gray-100">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 py-8 bg-background text-foreground">
           {shouldRenderAdminSection && (
             <AdminSection userId={user.uuid as string} />
           )}

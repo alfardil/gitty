@@ -11,7 +11,7 @@ export function FeaturesSection() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
-            Why Choose DevBoard?
+            Why Choose Thestral?
           </h2>
           <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
             Transform how your development team understands, navigates, and

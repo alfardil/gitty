@@ -65,7 +65,7 @@ export function DemoVideo() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
-            See DevBoard in Action
+            See Thestral in Action
           </h2>
         </div>
 
@@ -74,7 +74,7 @@ export function DemoVideo() {
             <iframe
               ref={iframeRef}
               className="w-full h-full"
-              title="DevBoard Demo"
+              title="Thestral Demo"
               src="https://www.youtube.com/embed/byyAqb5Hywo?enablejsapi=1&controls=0&mute=1&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0&loop=1&playlist=byyAqb5Hywo"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

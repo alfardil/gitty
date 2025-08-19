@@ -16,7 +16,7 @@ export function StatsSection() {
             Trusted by Developers Worldwide
           </h2>
           <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
-            See how DevBoard is transforming codebase understanding across teams
+            See how Thestral is transforming codebase understanding across teams
           </p>
         </div>
 

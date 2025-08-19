@@ -81,12 +81,12 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-[#23272f] transition-all duration-300 ${
+        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-secondary-background transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-20"
-        } border-r border-blue-400/20 rounded-r-xl shadow-lg`}
+        } border-r border-border rounded-r-xl shadow-lg`}
       >
         <div
-          className={`flex items-center border-b border-blue-400/10 transition-all duration-300 ${
+          className={`flex items-center border-b border-border transition-all duration-300 ${
             sidebarOpen ? "p-4 justify-between" : "p-4 justify-center"
           }`}
           style={{ minHeight: "72px" }}
@@ -185,7 +185,7 @@ export function Sidebar({
       {/* Mobile sidebar overlay */}
       {sidebarMobile && (
         <div className="fixed inset-0 z-40 flex">
-          <div className="relative w-64 bg-[#191919] flex flex-col h-full border-r border-[#18CCFC]/30">
+          <div className="relative w-64 bg-secondary-background flex flex-col h-full border-r border-border">
             <div
               className="flex items-center gap-3 px-4 py-4 border-b border-[#18CCFC]/30"
               style={{ minHeight: "72px" }}
