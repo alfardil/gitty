@@ -5,22 +5,11 @@ import { Spinner } from "@/components/ui/neo/spinner";
 
 export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubscribe = async () => {
     setLoading(true);
-    setError("");
-    const res = await fetch("/api/stripe/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ price_id: "price_1RnOzmRwByLP4b065nOWSVwa" }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      setError("Failed to create checkout session");
-    }
+    window.location.href =
+      "https://buy.stripe.com/test_dRmcN764M3KwbSW0Ho6wE03";
     setLoading(false);
   };
 
@@ -53,12 +42,6 @@ export default function PaymentPage() {
                 "Subscribe"
               )}
             </button>
-
-            {error && (
-              <div className="text-red-400 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
 
             <div className="mt-6 text-xs text-white/40">
               You'll be redirected to Stripe to complete your payment
