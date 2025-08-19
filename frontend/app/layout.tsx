@@ -15,9 +15,9 @@ const sen = Sen({
 });
 
 export const metadata: Metadata = {
-  title: "Devboard",
+  title: "Thestral",
   description:
-    "This is Devboard, a web app that takes any public GitHub repository and converts it into an educational shortform video that onboards the user to the project's system design, tech stack, and other relevant information for onboarding.",
+    "This is Thestral, a web app that takes any public GitHub repository and converts it into an educational shortform video that onboards the user to the project's system design, tech stack, and other relevant information for onboarding.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/png" href="/gittylogo.png" />
       </head>
-      <body>
+      <body className="bg-background text-foreground">
         <ReactQueryProvider>
           <Toaster />
           {children}

@@ -45,7 +45,7 @@ export function useWaitlist(): UseWaitlistReturn {
       }
 
       setSuccess(true);
-      setEmail("");
+      // Don't clear email immediately - let the component handle it
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

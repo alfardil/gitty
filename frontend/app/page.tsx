@@ -1,24 +1,24 @@
 "use client";
 
-import { BackgroundBeams } from "@/components/ui/ace/background-beams";
-import { MacbookScroll } from "@/components/ui/ace/macbook-scroll";
+import { useState, useEffect } from "react";
 import { Navbar } from "./_components/Navbar";
 import { Hero } from "./_components/Hero";
-import { StatsSection } from "./_components/StatsSection";
-import { DemoVideo } from "./_components/DemoVideo";
-import { FeaturesSection } from "./_components/FeaturesSection";
+import { VideoSection } from "./_components/VideoSection";
+import { MissionsSection } from "./_components/MissionsSection";
 import { WaitlistSection } from "./_components/waitlist/WaitlistSection";
 
+
 export default function LandingPage() {
-  const scrollToFeatures = () => {
-    const featuresSection = document.getElementById("features");
+
+  const scrollToMission = () => {
+    const missionSection = document.getElementById("missions-section");
     const navbar = document.querySelector('[class*="sticky"]');
 
-    if (featuresSection) {
+    if (missionSection) {
       const navbarHeight = navbar
         ? navbar.getBoundingClientRect().height + 20
         : 100;
-      const elementPosition = featuresSection.offsetTop - navbarHeight;
+      const elementPosition = missionSection.offsetTop - navbarHeight;
 
       window.scrollTo({
         top: elementPosition,
@@ -28,38 +28,45 @@ export default function LandingPage() {
   };
 
   const navItems = [
-    { name: "Features", link: "#features" },
-    { name: "Talk to Sales", link: "#" },
-    { name: "Pricing", link: "#" },
+    { name: "Mission", link: "#missions" },
+    // { name: "Talk to Sales", link: "#" },
+    // { name: "Pricing", link: "#" },
   ];
 
   const handleItemClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     item: { name: string; link: string }
   ) => {
-    if (item.name === "Features") {
+    if (item.name === "Mission") {
       e.preventDefault();
-      scrollToFeatures();
+      scrollToMission();
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white flex flex-col">
-      <BackgroundBeams className="fixed inset-0 z-0 pointer-events-none" />
+    <div className="relative min-h-screen bg-[#0a0a0a] text-white flex flex-col overflow-hidden scroll-smooth">
+      {/* Animated background grid */}
+      <div className="fixed inset-0 z-0 opacity-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a]" />
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '50px 50px'
+        }} />
+      </div>
+
       <Navbar navItems={navItems} onItemClick={handleItemClick} />
-      <Hero />
-      <section className="relative w-full min-h-[200vh] flex items-center justify-center bg-black z-10">
-        <MacbookScroll
-          src="/analysis.png"
-          showGradient={true}
-          title=" "
-          badge="DevBoard"
-        />
-      </section>
-      <StatsSection />
-      <DemoVideo />
-      {/* <FeaturesSection /> */}
-      <WaitlistSection />
+      
+      
+
+      <div className="pt-32">
+        <Hero />
+        <VideoSection />
+        <MissionsSection />
+        <WaitlistSection />
+      </div>
     </div>
   );
 }

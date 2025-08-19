@@ -9,7 +9,8 @@ export function middleware(request: NextRequest) {
     pathname === "/login" ||
     pathname === "/auth/access-denied" ||
     pathname === "/auth/error" ||
-    pathname.startsWith("/api/auth")
+    pathname.startsWith("/api/auth") ||
+    pathname === "/api/waitlist"
   ) {
     return NextResponse.next();
   }
