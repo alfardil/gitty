@@ -133,249 +133,219 @@ function AdminSection({ userId }: AdminSectionProps) {
   );
 
   return (
-    <section>
-      <h2 className="text-xl font-bold mb-4">Admin Panel</h2>
-
-      {/* Enterprise Selection */}
-      <div className="mb-6">
-        <label
-          htmlFor="enterprise-select"
-          className="mr-2 font-medium text-gray-300"
-        >
-          Select Enterprise:
-        </label>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              id="enterprise-select"
-              className="border border-blue-400/20 rounded px-3 py-2 min-w-[200px] text-left bg-[#181A20] text-white focus:outline-none focus:ring-2 focus:ring-blue-400 hover:border-blue-400/40 transition-colors"
-            >
-              {selectedEnt?.name || "Select..."}
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-[#23272f] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
-            {enterprises.map((ent: Enterprise) => (
-              <DropdownMenuItem
-                key={ent.id}
-                onSelect={() => setSelectedEnterprise(ent.id)}
-                className={`px-4 py-2 rounded cursor-pointer text-white hover:bg-[#23272f] focus:bg-[#23272f] transition-colors ${ent.id === selectedEnterprise ? "font-bold bg-[#181A20] text-blue-400" : "bg-[#181A20]"}`}
+    <section className="space-y-8">
+      {/* Simple Enterprise Selection */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-mono text-white/60 tracking-wider">
+            Enterprise:
+          </label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                id="enterprise-select"
+                className="border border-white/10 rounded-lg px-4 py-2 min-w-[200px] text-left bg-[#0f0f0f] text-white/80 focus:outline-none focus:ring-2 focus:ring-blue-500/30 hover:border-white/20 transition-all duration-200 text-sm font-mono"
               >
-                {ent.name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+                {selectedEnt?.name || "Select..."}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
+              {enterprises.map((ent: Enterprise) => (
+                <DropdownMenuItem
+                  key={ent.id}
+                  onSelect={() => setSelectedEnterprise(ent.id)}
+                  className={`px-3 py-2 rounded cursor-pointer text-sm font-mono hover:bg-white/5 transition-colors ${ent.id === selectedEnterprise ? "bg-white/10 text-blue-400" : "text-white/70"}`}
+                >
+                  {ent.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        
+        {/* Create Project Button */}
+        {selectedEnterprise && (
+          <button
+            onClick={() => setShowProjectForm(!showProjectForm)}
+            className="px-4 py-2 bg-green-600/80 hover:bg-green-600 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
+          >
+            {showProjectForm ? "Cancel" : "+ New Project"}
+          </button>
+        )}
       </div>
 
-      {/* Project Selection */}
-      {selectedEnterprise && (
-        <div className="mb-6">
-          <div className="flex items-center gap-4">
+      {/* Project Creation Form */}
+      {showProjectForm && (
+        <div className="p-4 border border-white/10 rounded-lg bg-[#0a0a0a]/50">
+          <h4 className="text-sm font-mono text-white/80 mb-4">
+            Create New Project
+          </h4>
+          <div className="space-y-3">
             <div>
-              <label
-                htmlFor="project-select"
-                className="mr-2 font-medium text-gray-300"
-              >
-                Select Project:
+              <label className="block text-xs font-mono text-white/60 mb-1">
+                Project Name
               </label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    id="project-select"
-                    className="border border-green-400/20 rounded px-3 py-2 min-w-[200px] text-left bg-[#181A20] text-white focus:outline-none focus:ring-2 focus:ring-green-400 hover:border-green-400/40 transition-colors"
-                  >
-                    {projects.find((p) => p.id === selectedProject)?.name ||
-                      "Select Project"}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-[#23272f] border border-green-400/20 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
-                  {projects.map((project) => (
-                    <DropdownMenuItem
-                      key={project.id}
-                      onSelect={() => setSelectedProject(project.id)}
-                      className={`px-4 py-2 rounded cursor-pointer text-white hover:bg-[#23272f] focus:bg-[#23272f] transition-colors ${project.id === selectedProject ? "font-bold bg-[#181A20] text-green-400" : "bg-[#181A20]"}`}
-                    >
-                      {project.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <input
+                type="text"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+                className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+                placeholder="Enter project name"
+              />
             </div>
-            <button
-              onClick={() => setShowProjectForm(!showProjectForm)}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
-            >
-              {showProjectForm ? "Cancel" : "+ New Project"}
-            </button>
+            <div>
+              <label className="block text-xs font-mono text-white/60 mb-1">
+                Description (optional)
+              </label>
+              <textarea
+                value={newProjectDescription}
+                onChange={(e) => setNewProjectDescription(e.target.value)}
+                className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+                placeholder="Enter project description"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={async () => {
+                  if (!newProjectName.trim()) {
+                    toast.error("Project name is required");
+                    return;
+                  }
+                  await createProject({
+                    name: newProjectName.trim(),
+                    description: newProjectDescription.trim() || undefined,
+                    enterpriseId: selectedEnterprise!,
+                  });
+                  setNewProjectName("");
+                  setNewProjectDescription("");
+                  setShowProjectForm(false);
+                }}
+                disabled={isCreating}
+                className="px-4 py-2 bg-green-600/80 hover:bg-green-600 disabled:bg-white/10 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
+              >
+                {isCreating ? "Creating..." : "Create Project"}
+              </button>
+              <button
+                onClick={() => {
+                  setNewProjectName("");
+                  setNewProjectDescription("");
+                  setShowProjectForm(false);
+                }}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 rounded-lg text-sm font-mono transition-all duration-200"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-
-          {/* Project Creation Form */}
-          {showProjectForm && (
-            <div className="mt-4 p-4 bg-[#1A1A1A] border border-green-400/20 rounded-lg">
-              <h4 className="text-lg font-semibold text-white mb-3">
-                Create New Project
-              </h4>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Project Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0F0F0F] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400"
-                    placeholder="Enter project name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">
-                    Description (optional)
-                  </label>
-                  <textarea
-                    value={newProjectDescription}
-                    onChange={(e) => setNewProjectDescription(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0F0F0F] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400"
-                    placeholder="Enter project description"
-                    rows={3}
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={async () => {
-                      if (!newProjectName.trim()) {
-                        toast.error("Project name is required");
-                        return;
-                      }
-                      await createProject({
-                        name: newProjectName.trim(),
-                        description: newProjectDescription.trim() || undefined,
-                        enterpriseId: selectedEnterprise,
-                      });
-                      setNewProjectName("");
-                      setNewProjectDescription("");
-                      setShowProjectForm(false);
-                    }}
-                    disabled={isCreating}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    {isCreating ? "Creating..." : "Create Project"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setNewProjectName("");
-                      setNewProjectDescription("");
-                      setShowProjectForm(false);
-                    }}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="relative bg-[#1A1A1A] p-1 rounded-lg overflow-hidden">
-          {/* Sliding Background */}
-          <div
-            className="absolute top-1 bottom-1 bg-[#2A2A2A] rounded-md transition-all duration-300 ease-in-out"
-            style={{
-              width: "calc(100% / 6 - 0.125rem)",
-              transform: `translateX(${
-                activeTab === "users"
-                  ? "0"
-                  : activeTab === "analytics"
-                    ? "calc(100% + 0.125rem)"
-                    : activeTab === "quality"
-                      ? "calc(200% + 0.25rem)"
-                      : activeTab === "time"
-                        ? "calc(300% + 0.375rem)"
-                        : activeTab === "dependencies"
-                          ? "calc(400% + 0.5rem)"
-                          : activeTab === "project-users"
-                            ? "calc(500% + 0.625rem)"
-                            : "0"
-              })`,
-            }}
-          />
-
-          <div className="grid grid-cols-6 gap-1">
-            <button
-              onClick={() => handleTabChange("users")}
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
-            >
-              <span
-                className={
-                  activeTab === "users"
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
-                }
-              >
-                Users
-              </span>
-            </button>
-            <button
-              onClick={() => handleTabChange("analytics")}
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
-            >
-              <span
-                className={
-                  activeTab === "analytics"
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
-                }
-              >
-                Analytics
-              </span>
-            </button>
-            <button
-              disabled
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
-            >
-              <span className="text-gray-500">Quality</span>
-            </button>
-            <button
-              disabled
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
-            >
-              <span className="text-gray-500">Time Tracking</span>
-            </button>
-            <button
-              disabled
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center opacity-50 cursor-not-allowed"
-            >
-              <span className="text-gray-500">Dependencies</span>
-            </button>
-            <button
-              onClick={() => handleTabChange("project-users")}
-              className="relative py-2 px-2 rounded-md text-sm font-medium transition-colors z-10 text-center"
-            >
-              <span
-                className={
-                  activeTab === "project-users"
-                    ? "text-white"
-                    : "text-gray-400 hover:text-white"
-                }
-              >
-                Project Users
-              </span>
-            </button>
-          </div>
+      {/* Clean Navigation Tabs */}
+      <div className="border-b border-white/10">
+        <div className="flex space-x-8">
+          <button
+            onClick={() => handleTabChange("users")}
+            className={`py-3 px-1 border-b-2 text-sm font-mono transition-all duration-200 ${
+              activeTab === "users"
+                ? "border-white/60 text-white"
+                : "border-transparent text-white/60 hover:text-white hover:border-white/30"
+            }`}
+          >
+            Users
+          </button>
+          <button
+            onClick={() => handleTabChange("analytics")}
+            className={`py-3 px-1 border-b-2 text-sm font-mono transition-all duration-200 ${
+              activeTab === "analytics"
+                ? "border-white/60 text-white"
+                : "border-transparent text-white/60 hover:text-white hover:border-white/30"
+            }`}
+          >
+            Analytics
+          </button>
+          <button
+            disabled
+            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
+          >
+            Quality
+          </button>
+          <button
+            disabled
+            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
+          >
+            Time
+          </button>
+          <button
+            disabled
+            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
+          >
+            Dependencies
+          </button>
+          <button
+            onClick={() => handleTabChange("project-users")}
+            className={`py-3 px-1 border-b-2 text-sm font-mono transition-all duration-200 ${
+              activeTab === "project-users"
+                ? "border-white/60 text-white"
+                : "border-transparent text-white/60 hover:text-white hover:border-white/30"
+            }`}
+          >
+            Project Users
+          </button>
         </div>
       </div>
 
       {/* Tab Content */}
       {activeTab === "users" && (
-        <>
-          {/* Invite forms for members and admins */}
+        <div className="space-y-8">
+          {/* Users List - No Text */}
+          <div className="space-y-3">
+            {users.map((user: EnterpriseUser) => (
+              <div
+                key={user.id}
+                className="flex items-center space-x-4 p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                onClick={(e) => {
+                  const url = `/users/${user.id}?enterpriseId=${selectedEnterprise}${selectedProject ? `&projectId=${selectedProject}` : ""}`;
+
+                  // If command/ctrl key is pressed, open in new tab
+                  if (e.metaKey || e.ctrlKey) {
+                    window.open(url, "_blank");
+                  } else {
+                    router.push(url);
+                  }
+                }}
+              >
+                {user.avatarUrl && (
+                  <img
+                    src={user.avatarUrl}
+                    alt="avatar"
+                    className="w-10 h-10 rounded-full border border-white/10"
+                  />
+                )}
+                <div className="flex-1">
+                  <div className="text-sm font-mono text-white/80 font-medium">
+                    {user.firstName && user.lastName
+                      ? `${user.firstName} ${user.lastName}`
+                      : user.githubUsername}
+                  </div>
+                  <div className="text-xs font-mono text-white/50">
+                    {user.subscription_plan}
+                  </div>
+                </div>
+                <div className="text-xs font-mono text-white/40">
+                  View Profile →
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Access Control Section */}
           {selectedEnt && (
-            <div className="mb-8 flex justify-center">
-              <div className="flex gap-8">
+            <div className="pt-8 border-t border-white/10">
+              <h3 className="text-lg font-mono text-white/80 mb-6">
+                Access Control
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <InviteCodeForm
                   role="member"
                   enterpriseId={actions.memberInviteEnterpriseId}
@@ -409,57 +379,7 @@ function AdminSection({ userId }: AdminSectionProps) {
               </div>
             </div>
           )}
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">
-              {selectedProject ? "Users in Project" : "Users in Enterprise"}
-            </h3>
-            {selectedProject && (
-              <p className="text-sm text-gray-400 mb-4">
-                Showing users assigned to tasks in this project
-              </p>
-            )}
-            <ul className="space-y-2">
-              {users.map((user: EnterpriseUser) => (
-                <li
-                  key={user.id}
-                  className="flex items-center space-x-4 p-2 border rounded hover:bg-[#1A1A1A] transition-colors cursor-pointer"
-                  onClick={(e) => {
-                    const url = `/users/${user.id}?enterpriseId=${selectedEnterprise}${selectedProject ? `&projectId=${selectedProject}` : ""}`;
-
-                    // If command/ctrl key is pressed, open in new tab
-                    if (e.metaKey || e.ctrlKey) {
-                      window.open(url, "_blank");
-                    } else {
-                      router.push(url);
-                    }
-                  }}
-                >
-                  {user.avatarUrl && (
-                    <img
-                      src={user.avatarUrl}
-                      alt="avatar"
-                      className="w-10 h-10 rounded-full"
-                    />
-                  )}
-                  <div className="flex-1">
-                    <div className="font-medium text-white">
-                      {user.firstName && user.lastName
-                        ? `${user.firstName} ${user.lastName}`
-                        : user.githubUsername}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {user.subscription_plan}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    Click to view profile →
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </>
+        </div>
       )}
 
       {activeTab === "analytics" && selectedEnterprise && selectedProject && (
@@ -516,38 +436,137 @@ function AdminSection({ userId }: AdminSectionProps) {
           />
         )}
 
-      {activeTab === "project-users" &&
-        selectedEnterprise &&
-        selectedProject && (
-          <ProjectUserManagement
-            projectId={selectedProject}
-            projectName={
-              projects.find((p) => p.id === selectedProject)?.name ||
-              "Unknown Project"
-            }
-          />
-        )}
-
-      {/* Show message when project not selected */}
-      {selectedEnterprise && !selectedProject && activeTab !== "users" && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
-            <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">
-              Please select a project to view{" "}
-              {activeTab === "project-users"
-                ? "project user management"
-                : "analytics"}
-            </p>
-            <p className="text-sm">
-              Choose a project from the dropdown above to see project-specific
-              {activeTab === "project-users"
-                ? " user assignments"
-                : " insights"}
-            </p>
+      {activeTab === "project-users" && selectedEnterprise && (
+        <div className="space-y-8">
+          {/* Project Selection for Project Users */}
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-mono text-white/60 tracking-wider">
+              Project:
+            </label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  id="project-select"
+                  className="border border-white/10 rounded-lg px-4 py-2 min-w-[200px] text-left bg-[#0f0f0f] text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 hover:border-white/20 transition-all duration-200 text-sm font-mono"
+                >
+                  {projects.find((p) => p.id === selectedProject)?.name ||
+                    "Select Project"}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
+                {projects.map((project) => (
+                  <DropdownMenuItem
+                    key={project.id}
+                    onSelect={() => setSelectedProject(project.id)}
+                    className={`px-3 py-2 rounded cursor-pointer text-sm font-mono hover:bg-white/5 transition-colors ${project.id === selectedProject ? "bg-white/10 text-green-400" : "text-white/70"}`}
+                  >
+                    {project.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <button
+              onClick={() => setShowProjectForm(!showProjectForm)}
+              className="px-4 py-2 bg-green-600/80 hover:bg-green-600 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
+            >
+              {showProjectForm ? "Cancel" : "+ New Project"}
+            </button>
           </div>
+
+          {/* Project Creation Form */}
+          {showProjectForm && (
+            <div className="p-4 border border-white/10 rounded-lg bg-[#0a0a0a]/50">
+              <h4 className="text-sm font-mono text-white/80 mb-4">
+                Create New Project
+              </h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1">
+                    Project Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newProjectName}
+                    onChange={(e) => setNewProjectName(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+                    placeholder="Enter project name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-white/60 mb-1">
+                    Description (optional)
+                  </label>
+                  <textarea
+                    value={newProjectDescription}
+                    onChange={(e) => setNewProjectDescription(e.target.value)}
+                    className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+                    placeholder="Enter project description"
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={async () => {
+                      if (!newProjectName.trim()) {
+                        toast.error("Project name is required");
+                        return;
+                      }
+                      await createProject({
+                        name: newProjectName.trim(),
+                        description: newProjectDescription.trim() || undefined,
+                        enterpriseId: selectedEnterprise!,
+                      });
+                      setNewProjectName("");
+                      setNewProjectDescription("");
+                      setShowProjectForm(false);
+                    }}
+                    disabled={isCreating}
+                    className="px-4 py-2 bg-green-600/80 hover:bg-green-600 disabled:bg-white/10 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
+                  >
+                    {isCreating ? "Creating..." : "Create Project"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setNewProjectName("");
+                      setNewProjectDescription("");
+                      setShowProjectForm(false);
+                    }}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 rounded-lg text-sm font-mono transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Project User Management */}
+          {selectedProject && (
+            <ProjectUserManagement
+              projectId={selectedProject}
+              projectName={
+                projects.find((p) => p.id === selectedProject)?.name ||
+                "Unknown Project"
+              }
+            />
+          )}
         </div>
       )}
+
+      {/* Show message when project not selected */}
+      {selectedEnterprise && !selectedProject && activeTab !== "users" && activeTab !== "project-users" && (
+        <div className="text-center py-12">
+          <Target className="w-8 h-8 mx-auto mb-4 opacity-50 text-white/40" />
+          <p className="text-sm font-mono text-white/60 mb-2">
+            Please select a project to view {activeTab}
+          </p>
+          <p className="text-xs font-mono text-white/40">
+            Choose a project from the dropdown above to see project-specific insights
+          </p>
+        </div>
+      )}
+
+
     </section>
   );
 }

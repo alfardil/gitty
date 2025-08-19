@@ -285,34 +285,6 @@ export function ProjectUserManagement({
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-xl p-6">
-        <div className="flex items-center gap-3 mb-3">
-          <Users className="w-6 h-6 text-green-400" />
-          <h3 className="text-xl font-semibold text-white">
-            Project User Management
-          </h3>
-        </div>
-        <p className="text-gray-400 mb-4">
-          Manage user assignments for{" "}
-          <span className="text-green-400 font-medium">{projectName}</span>
-        </p>
-        <div className="flex items-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-green-400" />
-            <span className="text-gray-300">
-              {assignedUsers.length} assigned users
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-blue-400" />
-            <span className="text-gray-300">
-              {availableUsers.length} available users
-            </span>
-          </div>
-        </div>
-      </div>
-
       {/* Assign User Section */}
       <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
         <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">

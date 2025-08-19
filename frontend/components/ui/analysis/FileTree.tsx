@@ -60,9 +60,9 @@ export function FileTree({
       <div key={node.path}>
         <div
           className={`
-            group flex items-center gap-2 py-1.5 cursor-pointer
-            hover:bg-blue-50/80 transition-colors relative
-            ${isSelected ? "bg-blue-100" : ""}
+            group flex items-center gap-2 py-1 cursor-pointer
+            hover:bg-white/5 transition-colors relative
+            ${isSelected ? "bg-white/10" : ""}
           `}
           style={{ paddingLeft: `${depth * 16 + 12}px` }}
           onClick={() => {
@@ -75,16 +75,16 @@ export function FileTree({
         >
           {isFolder && (
             <ChevronRight
-              className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0
+              className={`w-3 h-3 text-white/40 transition-transform flex-shrink-0
                 ${isExpanded ? "rotate-90" : ""}
               `}
             />
           )}
-          <span className={`truncate z-10 ${isFolder ? "font-medium" : ""}`}>
+          <span className={`truncate z-10 text-xs font-mono text-white/70 ${isFolder ? "font-medium" : ""}`}>
             {node.name}
           </span>
 
-          <div className="absolute inset-0 pointer-events-none bg-blue-50/80 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute inset-0 pointer-events-none bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
         {isFolder && isExpanded && node.children && (
           <div>

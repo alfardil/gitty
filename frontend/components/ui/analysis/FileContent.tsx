@@ -62,12 +62,7 @@ export function FileContent({
   const isMarkdown = language === "markdown";
 
   return (
-    <div className="h-full flex flex-col bg-[#1E1E1E]">
-      <div className="sticky top-0 z-10 px-6 py-3 text-sm text-gray-300 border-b border-gray-700 bg-[#252526] flex items-center justify-between">
-        <span className="truncate">{selectedFile}</span>
-        <span className="text-xs text-gray-500 ml-2">{language}</span>
-      </div>
-
+    <div className="h-full flex flex-col bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
       <div className="flex-1 overflow-auto relative">
         {loading ? (
           <div className="flex justify-center py-8">
@@ -80,32 +75,33 @@ export function FileContent({
               style={customStyle}
               customStyle={{
                 margin: 0,
-                padding: "1rem",
-                background: "#1E1E1E",
+                padding: "0.75rem",
+                background: "transparent",
                 minHeight: "100%",
                 width: "100%",
               }}
               codeTagProps={{
                 style: {
-                  fontSize: "0.9rem",
-                  lineHeight: "1.5",
+                  fontSize: "0.75rem",
+                  lineHeight: "1.3",
                   fontFamily:
                     'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
                   display: "inline-block",
                   width: "100%",
                 },
               }}
-              className="scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent"
+              className="scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
               showLineNumbers
               wrapLongLines={true}
               lineNumberStyle={{
-                minWidth: "3em",
-                paddingRight: "1em",
+                minWidth: "2.2em",
+                paddingRight: "0.6em",
                 textAlign: "right",
                 userSelect: "none",
-                color: "#6e7681",
-                borderRight: "1px solid #30363d",
-                marginRight: "1em",
+                color: "#6a7181",
+                borderRight: "1px solid #2a2a2a",
+                marginRight: "0.6em",
+                fontSize: "0.6rem",
               }}
               lineProps={{
                 style: {

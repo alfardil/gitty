@@ -81,47 +81,46 @@ export function Sidebar({
   return (
     <>
       <aside
-        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-secondary-background transition-all duration-300 ${
+        className={`hidden md:flex flex-col h-screen fixed z-30 left-0 top-0 bg-[#0a0a0a]/95 backdrop-blur-md transition-all duration-300 ${
           sidebarOpen ? "w-64" : "w-20"
-        } border-r border-border rounded-r-xl shadow-lg`}
+        } border-r border-white/10`}
       >
+        {/* Header */}
         <div
-          className={`flex items-center border-b border-border transition-all duration-300 ${
+          className={`flex items-center border-b border-white/10 transition-all duration-300 ${
             sidebarOpen ? "p-4 justify-between" : "p-4 justify-center"
           }`}
           style={{ minHeight: "72px" }}
         >
           {sidebarOpen ? (
             <div className="flex items-center gap-3 w-full">
-              <img
-                src={user.avatar_url}
-                alt={user.name || user.login}
-                className="w-10 h-10 rounded-full border-2 border-blue-400/60"
-              />
-              <div className="flex flex-col">
-                <div className="font-semibold text-gray-100 text-sm">
-                  {username || user.name || user.login}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 border border-white rounded-full flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
                 </div>
+                <span className="text-white font-semibold text-lg">Thestral</span>
               </div>
               <button
-                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-blue-400/10 hover:text-blue-400"
+                className="ml-auto p-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-colors"
                 onClick={() => setSidebarOpen(false)}
                 aria-label="Collapse sidebar"
               >
-                <ChatGPTSidebarToggleLeft className="w-7 h-7" />
+                <ChatGPTSidebarToggleLeft className="w-5 h-5" />
               </button>
             </div>
           ) : (
             <button
-              className="p-2 rounded-lg text-gray-400 hover:bg-blue-400/10 hover:text-blue-400"
+              className="p-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-colors"
               onClick={() => setSidebarOpen(true)}
               aria-label="Expand sidebar"
             >
-              <ChatGPTSidebarToggleLeft className="w-7 h-7" />
+              <ChatGPTSidebarToggleLeft className="w-5 h-5" />
             </button>
           )}
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-2">
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-3 space-y-1">
           {filteredSidebarSections.map(
             ({
               key,
@@ -134,50 +133,74 @@ export function Sidebar({
             }) => (
               <button
                 key={key}
-                className={`group flex items-center w-full gap-3 rounded-lg text-base font-medium transition-colors ${
+                className={`group flex items-center w-full gap-2.5 rounded-lg text-xs font-medium ${
                   showSection === key
-                    ? "bg-blue-400/10 text-blue-400"
-                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                    ? "bg-white/10 text-white border border-white/20"
+                    : "text-white/70 hover:bg-white/5 hover:text-white/90"
                 } ${
                   sidebarOpen
-                    ? "px-4 py-2 justify-start"
-                    : "h-12 justify-center"
+                    ? "px-3 py-2.5 justify-start"
+                    : "h-10 justify-center"
                 }`}
                 onClick={() => router.push(`/dashboard?section=${key}`)}
               >
-                <Icon className="w-6 h-6" />
-                {sidebarOpen && <span className="truncate">{label}</span>}
+                <Icon className={`w-4 h-4 transition-colors ${
+                  showSection === key ? "text-white" : "text-white/60"
+                }`} />
+                {sidebarOpen && <span className="truncate font-mono tracking-wider uppercase">{label}</span>}
               </button>
             )
           )}
         </nav>
-        <div className="mt-auto px-3 py-4 border-t border-blue-400/10 flex flex-col gap-2">
+
+        {/* User section */}
+        <div className="px-3 py-3 border-t border-white/10">
+          <div className={`flex items-center gap-2.5 rounded-lg p-2.5 bg-white/5 border border-white/10 ${
+            sidebarOpen ? "justify-start" : "justify-center"
+          }`}>
+            <img
+              src={user.avatar_url}
+              alt={user.name || user.login}
+              className="w-6 h-6 rounded-full border border-white/20"
+            />
+            {sidebarOpen && (
+              <div className="flex flex-col min-w-0">
+                <div className="font-mono text-xs text-white/80 truncate">
+                  {username || user.name || user.login}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom actions */}
+        <div className="px-3 py-3 border-t border-white/10 flex flex-col gap-0.5">
           <button
             onClick={() => router.push(`/dashboard?section=billing`)}
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
-              sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
+            className={`flex items-center gap-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors ${
+              sidebarOpen ? "px-3 py-2 justify-start" : "h-9 justify-center"
             }`}
           >
-            <CreditCard className="w-6 h-6" />
-            {sidebarOpen && <span>Billing</span>}
+            <CreditCard className="w-4 h-4" />
+            {sidebarOpen && <span className="text-xs font-mono tracking-wider uppercase">BILLING</span>}
           </button>
           <button
             onClick={() => router.push(`/dashboard?section=settings`)}
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
-              sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
+            className={`flex items-center gap-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors ${
+              sidebarOpen ? "px-3 py-2 justify-start" : "h-9 justify-center"
             }`}
           >
-            <Settings className="w-6 h-6" />
-            {sidebarOpen && <span>Settings</span>}
+            <Settings className="w-4 h-4" />
+            {sidebarOpen && <span className="text-xs font-mono tracking-wider uppercase">SETTINGS</span>}
           </button>
           <button
             onClick={logout}
-            className={`flex items-center gap-3 rounded-lg text-gray-300 hover:bg-white/5 hover:text-white transition-colors ${
-              sidebarOpen ? "px-4 py-2 justify-start" : "h-12 justify-center"
+            className={`flex items-center gap-2.5 rounded-lg text-white/60 hover:bg-white/5 hover:text-white transition-colors ${
+              sidebarOpen ? "px-3 py-2 justify-start" : "h-9 justify-center"
             }`}
           >
-            <LogOut className="w-6 h-6" />
-            {sidebarOpen && <span>Logout</span>}
+            <LogOut className="w-4 h-4" />
+            {sidebarOpen && <span className="text-xs font-mono tracking-wider uppercase">LOGOUT</span>}
           </button>
         </div>
       </aside>
@@ -185,30 +208,26 @@ export function Sidebar({
       {/* Mobile sidebar overlay */}
       {sidebarMobile && (
         <div className="fixed inset-0 z-40 flex">
-          <div className="relative w-64 bg-secondary-background flex flex-col h-full border-r border-border">
+          <div className="relative w-64 bg-[#0a0a0a]/95 backdrop-blur-md flex flex-col h-full border-r border-white/10">
             <div
-              className="flex items-center gap-3 px-4 py-4 border-b border-[#18CCFC]/30"
+              className="flex items-center gap-3 px-4 py-4 border-b border-white/10"
               style={{ minHeight: "72px" }}
             >
-              <img
-                src={user.avatar_url}
-                alt={user.name || user.login}
-                className="w-10 h-10 rounded-full border-2 border-[#18CCFC]"
-              />
-              <div className="flex flex-col">
-                <div className="font-semibold text-white text-sm">
-                  {user.name || user.login}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 border border-white rounded-full flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white rounded-full"></div>
                 </div>
+                <span className="text-white font-semibold text-lg">Thestral</span>
               </div>
               <button
-                className="ml-auto p-2 rounded-lg text-gray-400 hover:bg-[#18CCFC]/20 hover:text-[#18CCFC]"
+                className="ml-auto p-2 rounded-lg text-white/60 hover:bg-white/10 hover:text-white transition-colors"
                 onClick={() => setSidebarMobile(false)}
                 aria-label="Close sidebar"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-2">
+            <nav className="flex-1 px-3 py-3 space-y-1">
               {filteredSidebarSections.map(
                 ({
                   key,
@@ -221,40 +240,42 @@ export function Sidebar({
                 }) => (
                   <button
                     key={key}
-                    className={`group flex items-center w-full gap-3 px-4 py-2 rounded-lg text-base font-medium transition-colors ${
+                    className={`group flex items-center w-full gap-2.5 px-3 py-2.5 rounded-lg text-xs font-medium ${
                       showSection === key
-                        ? "bg-[#18CCFC]/20 text-[#18CCFC]"
-                        : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                        ? "bg-white/10 text-white border border-white/20"
+                        : "text-white/70 hover:bg-white/5 hover:text-white/90"
                     } justify-start`}
-                    onClick={() => handleSidebarNav(key)}
+                    onClick={() => router.push(`/dashboard?section=${key}`)}
                   >
-                    <Icon className="w-6 h-6" />
-                    <span className="truncate">{label}</span>
+                    <Icon className={`w-4 h-4 transition-colors ${
+                      showSection === key ? "text-white" : "text-white/60"
+                    }`} />
+                    <span className="truncate font-mono tracking-wider uppercase">{label}</span>
                   </button>
                 )
               )}
             </nav>
-            <div className="mt-auto px-3 py-4 border-t border-[#18CCFC]/30 flex flex-col gap-2">
-              <button
-                onClick={() => handleSidebarNav("billing")}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
-              >
-                <CreditCard className="w-6 h-6" />
-                <span>Billing</span>
-              </button>
-              <button
-                onClick={() => handleSidebarNav("settings")}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
-              >
-                <Settings className="w-6 h-6" />
-                <span>Settings</span>
-              </button>
+            <div className="mt-auto px-3 py-3 border-t border-white/10 flex flex-col gap-0.5">
+                              <button
+                  onClick={() => router.push(`/dashboard?section=billing`)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/60 hover:bg-white/5 hover:text-white justify-start"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span className="text-xs font-mono tracking-wider uppercase">BILLING</span>
+                </button>
+                <button
+                  onClick={() => router.push(`/dashboard?section=settings`)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/60 hover:bg-white/5 hover:text-white justify-start"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="text-xs font-mono tracking-wider uppercase">SETTINGS</span>
+                </button>
               <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-400 hover:bg-gray-700 hover:text-white justify-start"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/60 hover:bg-white/5 hover:text-white justify-start"
               >
-                <LogOut className="w-6 h-6" />
-                <span>Logout</span>
+                <LogOut className="w-4 h-4" />
+                <span className="text-xs font-mono tracking-wider uppercase">LOGOUT</span>
               </button>
             </div>
           </div>

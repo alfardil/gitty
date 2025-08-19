@@ -24,34 +24,60 @@ export function CommitActivityChart({ data }: CommitActivityChartProps) {
         data={data}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <CartesianGrid 
+          strokeDasharray="3 3" 
+          stroke="#ffffff" 
+          strokeOpacity={0.1}
+          vertical={false}
+        />
         <XAxis
           dataKey="name"
-          tick={{ fill: "#6b7280", fontSize: 14 }}
+          tick={{ fill: "#ffffff", fontSize: 12, fontWeight: 500 }}
           axisLine={false}
           tickLine={false}
+          tickMargin={10}
         />
         <YAxis
-          tick={{ fill: "#6b7280", fontSize: 14 }}
+          tick={{ fill: "#ffffff", fontSize: 12, fontWeight: 500 }}
           axisLine={false}
           tickLine={false}
           allowDecimals={false}
+          tickMargin={10}
         />
         <Tooltip
           contentStyle={{
-            background: "white",
+            background: "#0a0a0a",
             borderRadius: 8,
-            border: "1px solid #e5e7eb",
-            color: "#111827",
+            border: "1px solid #ffffff20",
+            color: "#ffffff",
+            fontSize: "12px",
+            fontFamily: "monospace",
+          }}
+          labelStyle={{
+            color: "#ffffff80",
+            fontSize: "11px",
+            fontFamily: "monospace",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
           }}
         />
         <Line
           type="monotone"
           dataKey="commits"
-          stroke="#6366f1"
-          strokeWidth={3}
-          dot={{ r: 5, fill: "#6366f1", stroke: "white", strokeWidth: 2 }}
-          activeDot={{ r: 7 }}
+          stroke="#3b82f6"
+          strokeWidth={2}
+          dot={{ 
+            r: 4, 
+            fill: "#3b82f6", 
+            stroke: "#0a0a0a", 
+            strokeWidth: 2 
+          }}
+          activeDot={{ 
+            r: 6,
+            fill: "#60a5fa",
+            stroke: "#0a0a0a",
+            strokeWidth: 2
+          }}
         />
       </LineChart>
     </ResponsiveContainer>

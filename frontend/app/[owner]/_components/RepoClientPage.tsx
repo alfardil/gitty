@@ -107,25 +107,21 @@ export default function RepoClientPage({
           sidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        <header className="flex items-center justify-between w-full px-4 md:px-8 py-4 bg-[#23272f] border-b border-blue-400/10">
+        <header className="flex items-center justify-between w-full px-4 md:px-8 py-3 bg-gradient-to-r from-[#0a0a0a] to-[#0f0f0f] border-b border-white/10">
           <div className="flex items-center gap-3 w-full">
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-blue-400/10"
+              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors duration-200"
               onClick={() => setSidebarMobile(true)}
             >
-              <Menu className="w-6 h-6 text-gray-200" />
+              <Menu className="w-5 h-5 text-white/70" />
             </button>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-sm font-mono text-white/60 tracking-wider">
               {owner}/{repo}
             </h1>
           </div>
         </header>
-        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-2 bg-[#181A20] text-white">
-          <div className="mb-4">
-            <div className="text-4xl font-bold mb-2 mt-8 text-center text-white">
-              System Design Diagram
-            </div>
-
+        <main className="flex-1 w-full max-w-8xl mx-auto px-2 md:px-4 py-4 bg-[#0a0a0a] text-white">
+          <div className="mb-6">
             <div className="flex items-center justify-center w-full">
               <DiagramSection owner={owner} repo={repo} />
             </div>
@@ -134,7 +130,7 @@ export default function RepoClientPage({
           <div className="flex gap-6">
             <div className="w-full">
               <div
-                className="bg-[#23272f] mb-8 mt-8 flex flex-col relative select-none rounded-2xl border border-blue-400/20"
+                className="bg-gradient-to-r from-[#0a0a0a] to-[#0f0f0f] mb-8 mt-4 flex flex-col relative select-none rounded-xl border border-white/10 overflow-hidden"
                 style={{
                   height: explorerHeight,
                   minHeight: 120,
@@ -142,15 +138,22 @@ export default function RepoClientPage({
                 }}
               >
                 <div className="flex h-full">
-                  <div className="w-[280px] border-r border-blue-400/10 flex flex-col">
-                    <div className="bg-[#20232a] border-b border-blue-400/10 p-3 flex items-center">
-                      <h2 className="text-sm font-medium text-white">
+                  {/* Directory Panel */}
+                  <div className="w-[280px] border-r border-white/10 flex flex-col bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
+                    <div className="bg-gradient-to-r from-[#0a0a0a] to-[#111] border-b border-white/10 p-2 flex items-center">
+                      <div className="w-1.5 h-1.5 bg-blue-500/60 rounded-full mr-2"></div>
+                      <h2 className="text-xs font-mono text-white/60 tracking-wider uppercase">
                         Directory
                       </h2>
                     </div>
-                    <div className="overflow-y-auto flex-1 bg-[#23272f]">
+                    <div className="overflow-y-auto flex-1 bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
                       {fileTree.length === 0 ? (
-                        <div className="text-gray-400 text-center py-4">
+                        <div className="text-white/40 text-center py-4 font-mono text-xs">
+                          <div className="w-6 h-6 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-2 border border-white/10">
+                            <svg className="w-3 h-3 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
                           No files found or unable to fetch file tree.
                         </div>
                       ) : (
@@ -167,15 +170,19 @@ export default function RepoClientPage({
                     </div>
                   </div>
 
-                  <div className="flex-1 flex flex-col">
+                  {/* File Content Panel */}
+                  <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
                     {selectedFile ? (
                       <>
-                        <div className="bg-[#20232a] border-b border-blue-400/10 px-4 py-2 flex-shrink-0">
-                          <h3 className="text-sm font-medium text-white truncate">
-                            {selectedFile}
-                          </h3>
+                        <div className="bg-gradient-to-r from-[#0a0a0a] to-[#111] border-b border-white/10 px-3 py-2 flex-shrink-0">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-green-500/60 rounded-full"></div>
+                            <h3 className="text-xs font-mono text-white/70 tracking-wide truncate">
+                              {selectedFile}
+                            </h3>
+                          </div>
                         </div>
-                        <div className="flex-1 overflow-auto">
+                        <div className="flex-1 overflow-auto bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
                           <FileContent
                             selectedFile={selectedFile}
                             fileContent={fileContent}
@@ -184,8 +191,15 @@ export default function RepoClientPage({
                         </div>
                       </>
                     ) : (
-                      <div className="flex-1 flex items-center justify-center text-gray-400 bg-[#23272f]">
-                        Select a file to view its contents
+                      <div className="flex-1 flex items-center justify-center text-white/40 bg-gradient-to-b from-[#0f0f0f] to-[#0a0a0a]">
+                        <div className="text-center">
+                          <div className="w-8 h-8 bg-white/5 rounded-lg flex items-center justify-center mx-auto mb-2 border border-white/10">
+                            <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <p className="font-mono text-xs tracking-wide">Select a file to view its contents</p>
+                        </div>
                       </div>
                     )}
                   </div>

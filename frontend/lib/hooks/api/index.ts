@@ -1,7 +1,7 @@
 export { useTasks } from "./useTasks";
 export { useUserProfile } from "./useUserProfile";
 export { useUserEnterprises } from "./useUserEnterprises";
-export { useUserAssignmentHistory } from "./useUserAssignmentHistory";
+
 export { useUserRecentTasks } from "./useUserRecentTasks";
 export { useUserOrgs } from "./useUserOrgs";
 export { useUserRepos } from "./useUserRepos";
