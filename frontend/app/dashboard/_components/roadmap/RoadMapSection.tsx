@@ -543,6 +543,18 @@ export function RoadMapSection() {
     return !task.estimatedHours || !task.complexity || !task.taskType;
   };
 
+  const toggleTagExpansion = (taskId: string) => {
+    setExpandedTags((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId);
+      } else {
+        newSet.add(taskId);
+      }
+      return newSet;
+    });
+  };
+
   if (
     isLoading ||
     enterprisesLoading ||
@@ -560,10 +572,10 @@ export function RoadMapSection() {
   if (enterprises.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="text-lg font-medium text-gray-300">
-          No Enterprises Found
+        <div className="text-lg font-mono tracking-wider uppercase text-white/70">
+          NO ENTERPRISES FOUND
         </div>
-        <div className="text-sm text-gray-500 text-center max-w-md">
+        <div className="text-xs font-mono text-white/40 text-center max-w-md">
           You need to be a member of at least one enterprise to view and manage
           tasks.
           <br />
@@ -588,20 +600,20 @@ export function RoadMapSection() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-300">
-              Enterprise:
+            <span className="text-xs font-mono tracking-wider uppercase text-white/70">
+              ENTERPRISE:
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white hover:border-blue-400/30 transition-colors">
-                  <span className="text-sm">
+                <button className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white hover:border-blue-400/30 transition-colors">
+                  <span className="text-xs font-mono">
                     {enterprises.find((e) => e.id === selectedEnterprise)
                       ?.name || "Select Enterprise"}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                  <ChevronDown className="w-4 h-4 text-white/60" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
+              <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
                 {enterprises.length > 0 ? (
                   enterprises.map((enterprise) => (
                     <DropdownMenuItem
@@ -610,17 +622,17 @@ export function RoadMapSection() {
                         setSelectedEnterprise(enterprise.id);
                         setSelectedProject(null); // Reset project when enterprise changes
                       }}
-                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                      className={`text-xs font-mono hover:bg-white/10 focus:bg-white/10 cursor-pointer ${
                         selectedEnterprise === enterprise.id
                           ? "bg-blue-500/20 text-blue-300"
-                          : ""
+                          : "text-white"
                       }`}
                     >
                       {enterprise.name}
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <div className="px-3 py-2 text-gray-400 text-sm">
+                  <div className="px-3 py-2 text-white/40 text-xs font-mono">
                     No enterprises available
                   </div>
                 )}
@@ -629,37 +641,39 @@ export function RoadMapSection() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-300">Project:</span>
+            <span className="text-xs font-mono tracking-wider uppercase text-white/70">
+              PROJECT:
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="flex items-center gap-2 px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white hover:border-green-400/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white hover:border-green-400/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!selectedEnterprise}
                 >
-                  <span className="text-sm">
+                  <span className="text-xs font-mono">
                     {projects.find((p) => p.id === selectedProject)?.name ||
                       "Select Project"}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                  <ChevronDown className="w-4 h-4 text-white/60" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#2d313a] border border-green-400/20 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
+              <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white min-w-[200px]">
                 {selectedEnterprise && projects.length > 0 ? (
                   projects.map((project) => (
                     <DropdownMenuItem
                       key={project.id}
                       onClick={() => setSelectedProject(project.id)}
-                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
+                      className={`text-xs font-mono hover:bg-white/10 focus:bg-white/10 cursor-pointer ${
                         selectedProject === project.id
                           ? "bg-green-500/20 text-green-300"
-                          : ""
+                          : "text-white"
                       }`}
                     >
                       {project.name}
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <div className="px-3 py-2 text-gray-400 text-sm">
+                  <div className="px-3 py-2 text-white/40 text-xs font-mono">
                     {!selectedEnterprise
                       ? "Select enterprise first"
                       : "No projects available"}
@@ -677,10 +691,10 @@ export function RoadMapSection() {
       {/* Show message if no project is selected */}
       {!selectedProject && (
         <div className="flex flex-col items-center justify-center h-64 space-y-4">
-          <div className="text-lg font-medium text-gray-300">
-            Select a Project
+          <div className="text-lg font-mono tracking-wider uppercase text-white/70">
+            SELECT A PROJECT
           </div>
-          <div className="text-sm text-gray-500 text-center max-w-md">
+          <div className="text-xs font-mono text-white/40 text-center max-w-md">
             Please select a project to view and manage tasks in the roadmap.
           </div>
         </div>
@@ -691,22 +705,28 @@ export function RoadMapSection() {
         <>
           {/* Status Summary and New Task Button */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex gap-4">
+            <div className="flex gap-6">
               {Object.entries(statusConfig).map(([status, config]) => (
-                <div key={status} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${config.color}`}></div>
-                  <span className="text-sm text-gray-300">
-                    {config.label} {getStatusCount(status as Task["status"])}
+                <div
+                  key={status}
+                  className="flex items-center gap-2 bg-white/5 px-3 py-2 rounded-lg"
+                >
+                  <div className={`w-2 h-2 rounded-full ${config.color}`}></div>
+                  <span className="text-xs font-mono tracking-wider uppercase text-white/70">
+                    {config.label}
+                  </span>
+                  <span className="text-xs font-mono text-white/40 bg-white/10 px-2 py-0.5 rounded">
+                    {getStatusCount(status as Task["status"])}
                   </span>
                 </div>
               ))}
             </div>
             <button
               onClick={() => setShowNewTaskModal(true)}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-mono tracking-wider uppercase transition-colors flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              New Task
+              NEW TASK
             </button>
           </div>
 
@@ -715,22 +735,24 @@ export function RoadMapSection() {
             {Object.entries(statusConfig).map(([status, config]) => (
               <div
                 key={status}
-                className={`bg-[#23272f] rounded-lg border p-4 min-h-[600px] transition-all duration-200 ${
+                className={`bg-[#0a0a0a] rounded-lg border p-4 min-h-[600px] transition-all duration-200 ${
                   dropTarget === status &&
                   draggedTask &&
                   draggedTask.status !== status
-                    ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20"
-                    : "border-[#353a45]"
+                    ? "border-blue-400 bg-[#111111] shadow-lg shadow-blue-400/20"
+                    : "border-white/10"
                 }`}
                 onDragOver={(e) => handleDragOver(e, status as Task["status"])}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, status as Task["status"])}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className={`font-semibold ${config.textColor}`}>
+                  <h3
+                    className={`font-mono tracking-wider uppercase text-xs ${config.textColor}`}
+                  >
                     {config.label}
                   </h3>
-                  <span className="text-sm text-gray-400">
+                  <span className="text-xs font-mono text-white/60 bg-white/5 px-2 py-1 rounded">
                     {getStatusCount(status as Task["status"])}
                   </span>
                 </div>
@@ -753,18 +775,18 @@ export function RoadMapSection() {
                         )}
 
                       <div
-                        className={`bg-[#2d313a] rounded-lg p-4 border cursor-move transition-all duration-200 ${
+                        className={`bg-[#111111] rounded-lg p-4 border cursor-move transition-all duration-200 space-y-3 ${
                           draggedTask?.id === task.id
-                            ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 opacity-50 scale-105 rotate-1"
+                            ? "border-blue-400 bg-[#0a0a0a] shadow-lg shadow-blue-400/20 opacity-50 scale-105 rotate-1"
                             : dropPosition?.taskId === task.id &&
                                 draggedTask &&
                                 draggedTask.id !== task.id
-                              ? "border-blue-400 bg-[#1a1d23] shadow-lg shadow-blue-400/20 transform scale-105"
+                              ? "border-blue-400 bg-[#0a0a0a] shadow-lg shadow-blue-400/20 transform scale-105"
                               : isReordering
-                                ? "border-yellow-400/50 bg-[#1a1d23] shadow-lg shadow-yellow-400/20"
+                                ? "border-yellow-400/50 bg-[#0a0a0a] shadow-lg shadow-yellow-400/20"
                                 : isTaskOverdue(task)
                                   ? "border-red-500/30 hover:border-red-500/50 border-4"
-                                  : "border-[#353a45] hover:border-blue-400/30"
+                                  : "border-white/10 hover:border-blue-400/30"
                         }`}
                         draggable={!isReordering}
                         onDragStart={(e) => handleDragStart(e, task)}
@@ -773,75 +795,78 @@ export function RoadMapSection() {
                         onDrop={(e) => handleTaskDrop(e, task)}
                         onDragEnd={handleDragEnd}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium text-white text-sm line-clamp-2 flex-1 mr-2">
+                        {/* Task header */}
+                        <div className="flex items-start justify-between">
+                          <h4 className="font-mono text-white text-xs line-clamp-2 flex-1 mr-2">
                             {task.title}
                           </h4>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button className="text-gray-400 hover:text-white p-1">
+                              <button className="text-white/60 hover:text-white p-1 flex-shrink-0">
                                 <MoreVertical className="w-4 h-4" />
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
+                            <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white">
                               <DropdownMenuItem
                                 onClick={() => openEditModal(task)}
-                                className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                                className="text-xs font-mono hover:bg-white/10 focus:bg-white/10 cursor-pointer"
                               >
                                 <Edit className="w-4 h-4 mr-2" />
-                                Edit
+                                EDIT
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => deleteTask(task.id)}
-                                className="text-red-400 hover:text-red-300 hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
+                                className="text-xs font-mono text-red-400 hover:text-red-300 hover:bg-white/10 focus:bg-white/10 cursor-pointer"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
-                                Delete
+                                DELETE
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
-                        <div className="flex items-center gap-2 mb-2">
+                        {/* Priority */}
+                        <div className="flex items-center gap-2">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <button
-                                className={`px-2 py-1 rounded text-xs font-medium ${priorityConfig[task.priority].color} ${priorityConfig[task.priority].textColor} hover:opacity-80 transition-opacity cursor-pointer`}
+                                className={`px-2 py-1 rounded text-xs font-mono tracking-wider uppercase ${priorityConfig[task.priority].color} ${priorityConfig[task.priority].textColor} hover:opacity-80 transition-opacity cursor-pointer`}
                               >
                                 {priorityConfig[task.priority].label}
                               </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
+                            <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white">
                               <DropdownMenuItem
                                 onClick={() =>
                                   updateTaskPriority(task.id, "low")
                                 }
-                                className="text-white hover:bg-green-500/20 focus:bg-green-500/20 bg-green-400/10 cursor-pointer"
+                                className="text-xs font-mono hover:bg-green-500/20 focus:bg-green-500/20 bg-green-400/10 cursor-pointer"
                               >
-                                Low
+                                LOW
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
                                   updateTaskPriority(task.id, "medium")
                                 }
-                                className="text-white hover:bg-yellow-500/20 focus:bg-yellow-500/20 bg-yellow-400/10 cursor-pointer"
+                                className="text-xs font-mono hover:bg-yellow-500/20 focus:bg-yellow-500/20 bg-yellow-400/10 cursor-pointer"
                               >
-                                Medium
+                                MEDIUM
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
                                   updateTaskPriority(task.id, "high")
                                 }
-                                className="text-white hover:bg-red-500/20 focus:bg-red-500/20 bg-red-400/10 cursor-pointer"
+                                className="text-xs font-mono hover:bg-red-500/20 focus:bg-red-500/20 bg-red-400/10 cursor-pointer"
                               >
-                                High
+                                HIGH
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
 
+                        {/* Description */}
                         {task.description && (
-                          <div className="text-xs text-gray-400 mb-3 line-clamp-2">
+                          <div className="text-xs font-mono text-white/60 line-clamp-2">
                             <ReactMarkdown
                               components={
                                 {
@@ -856,9 +881,9 @@ export function RoadMapSection() {
                                       className || ""
                                     );
                                     return !inline && match ? (
-                                      <pre className="bg-[#1a1d23] p-1 rounded text-xs overflow-x-auto">
+                                      <pre className="bg-[#0a0a0a] p-1 rounded text-xs overflow-x-auto">
                                         <code
-                                          className={`language-${match[1]} text-xs`}
+                                          className={`language-${match[1]} text-xs font-mono`}
                                           {...props}
                                         >
                                           {children}
@@ -866,7 +891,7 @@ export function RoadMapSection() {
                                       </pre>
                                     ) : (
                                       <code
-                                        className="bg-[#1a1d23] px-1 py-0.5 rounded text-xs font-mono"
+                                        className="bg-[#0a0a0a] px-1 py-0.5 rounded text-xs font-mono"
                                         {...props}
                                       >
                                         {children}
@@ -874,12 +899,12 @@ export function RoadMapSection() {
                                     );
                                   },
                                   pre: ({ children }: any) => (
-                                    <div className="bg-[#1a1d23] p-1 rounded text-xs overflow-x-auto">
+                                    <div className="bg-[#0a0a0a] p-1 rounded text-xs overflow-x-auto">
                                       {children}
                                     </div>
                                   ),
                                   p: ({ children }: any) => (
-                                    <span className="text-xs text-gray-400">
+                                    <span className="text-xs font-mono text-white/60">
                                       {children}
                                     </span>
                                   ),
@@ -892,182 +917,95 @@ export function RoadMapSection() {
                         )}
 
                         {/* Task metadata */}
-                        <div className="flex flex-wrap gap-2 mb-3">
+                        <div className="flex flex-wrap gap-2">
                           {task.estimatedHours ? (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded">
+                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-500/20 text-blue-300 text-xs font-mono rounded">
                               <Clock className="w-3 h-3" />
                               <span>{task.estimatedHours}h</span>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
-                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
-                              <span>Analyzing...</span>
-                            </div>
-                          )}
+                          ) : null}
                           {task.complexity ? (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded">
-                              <span>⚡</span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs font-mono rounded">
                               <span>{task.complexity}/5</span>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
-                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
-                              <span>Analyzing...</span>
-                            </div>
-                          )}
+                          ) : null}
                           {task.taskType ? (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-300 text-xs rounded">
-                              <span>📋</span>
-                              <span className="capitalize">
-                                {task.taskType.replace("_", " ")}
-                              </span>
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-300 text-xs font-mono tracking-wider uppercase rounded">
+                              <span>{task.taskType.replace("_", " ")}</span>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 text-xs rounded">
-                              <div className="w-3 h-3 bg-gray-400 rounded-full animate-pulse"></div>
-                              <span>Analyzing...</span>
-                            </div>
-                          )}
+                          ) : null}
                         </div>
 
-                        <div className="flex items-center justify-between text-xs text-gray-400">
-                          {task.dueDate && (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>
-                                {new Date(task.dueDate).toLocaleString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                    hour: "numeric",
-                                    minute: "2-digit",
-                                    hour12: true,
-                                  }
-                                )}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex items-center gap-1">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-1 hover:bg-[#353a45] rounded px-1 py-0.5 transition-colors">
-                                  <User className="w-3 h-3" />
-                                  <span className="text-xs">
-                                    {task.assigneeId
-                                      ? projectUsersData?.data?.assignedUsers.find(
-                                          (user) => user.id === task.assigneeId
-                                        )?.firstName ||
-                                        projectUsersData?.data?.assignedUsers.find(
-                                          (user) => user.id === task.assigneeId
-                                        )?.githubUsername ||
-                                        task.assigneeName ||
-                                        "Unknown User"
-                                      : "Unassigned"}
-                                  </span>
-                                  <ChevronDown className="w-2 h-2 text-gray-500" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-60 overflow-y-auto min-w-[200px]">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    updateTaskAssignee(task.id, null)
-                                  }
-                                  className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
-                                      <User className="w-3 h-3 text-gray-300" />
-                                    </div>
-                                    <span>Unassigned</span>
-                                  </div>
-                                </DropdownMenuItem>
-                                {projectUsersData?.data?.assignedUsers.map(
-                                  (user) => (
-                                    <DropdownMenuItem
-                                      key={user.id}
-                                      onClick={() =>
-                                        updateTaskAssignee(task.id, user.id)
-                                      }
-                                      className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
-                                        task.assigneeId === user.id
-                                          ? "bg-blue-500/20 text-blue-300"
-                                          : ""
-                                      }`}
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        {user.avatarUrl ? (
-                                          <img
-                                            src={user.avatarUrl}
-                                            alt={
-                                              user.firstName ||
-                                              user.githubUsername ||
-                                              "User"
-                                            }
-                                            className="w-5 h-5 rounded-full"
-                                          />
-                                        ) : (
-                                          <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
-                                            <User className="w-3 h-3 text-gray-300" />
-                                          </div>
-                                        )}
-                                        <span className="text-sm">
-                                          {user.firstName
-                                            ? `${user.firstName} ${user.lastName || ""}`
-                                            : user.githubUsername || user.email}
-                                        </span>
-                                      </div>
-                                    </DropdownMenuItem>
-                                  )
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </div>
-
+                        {/* Task tags */}
                         {task.tags && task.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {(expandedTags.has(task.id)
-                              ? task.tags
-                              : task.tags.slice(0, 2)
-                            ).map((tag, index) => (
+                          <div className="flex flex-wrap gap-1">
+                            {task.tags.slice(0, 3).map((tag, index) => (
                               <span
                                 key={index}
-                                className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded"
+                                className="px-2 py-1 bg-white/10 text-white/70 text-xs font-mono rounded"
                               >
                                 {tag}
                               </span>
                             ))}
-                            {task.tags.length > 2 &&
-                              !expandedTags.has(task.id) && (
-                                <button
-                                  onClick={() =>
-                                    setExpandedTags(
-                                      (prev) => new Set([...prev, task.id])
-                                    )
-                                  }
-                                  className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded hover:bg-[#404550] transition-colors cursor-pointer"
-                                >
-                                  +{task.tags.length - 2}
-                                </button>
-                              )}
-                            {expandedTags.has(task.id) && (
+                            {task.tags.length > 3 && (
                               <button
-                                onClick={() =>
-                                  setExpandedTags((prev) => {
-                                    const newSet = new Set(prev);
-                                    newSet.delete(task.id);
-                                    return newSet;
-                                  })
-                                }
-                                className="px-2 py-1 bg-[#353a45] text-xs text-gray-300 rounded hover:bg-[#404550] transition-colors cursor-pointer"
+                                onClick={() => toggleTagExpansion(task.id)}
+                                className="px-2 py-1 bg-white/10 text-white/70 text-xs font-mono rounded hover:bg-white/20 transition-colors"
                               >
-                                Show less
+                                +{task.tags.length - 3}
                               </button>
                             )}
                           </div>
                         )}
+
+                        {/* Expanded tags */}
+                        {expandedTags.has(task.id) &&
+                          task.tags &&
+                          task.tags.length > 3 && (
+                            <div className="flex flex-wrap gap-1">
+                              {task.tags.slice(3).map((tag, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-white/10 text-white/70 text-xs font-mono rounded"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                        {/* Task footer */}
+                        <div className="space-y-2 text-xs font-mono text-white/40">
+                          {/* Assignee and due date row */}
+                          <div className="flex items-center gap-2">
+                            {task.assigneeName && (
+                              <div className="flex items-center gap-1">
+                                <User className="w-3 h-3" />
+                                <span>{task.assigneeName}</span>
+                              </div>
+                            )}
+                            {task.dueDate && (
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {new Date(task.dueDate).toLocaleDateString()}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          {/* Completion status row */}
+                          {task.completedAt && (
+                            <div className="flex items-center gap-1 text-green-400">
+                              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                              <span>
+                                COMPLETED{" "}
+                                {new Date(
+                                  task.completedAt
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Drop indicator below task */}
@@ -1079,33 +1017,6 @@ export function RoadMapSection() {
                         )}
                     </React.Fragment>
                   ))}
-
-                  {/* Empty state indicator when dragging */}
-                  {getTasksByStatus(status as Task["status"]).length === 0 &&
-                    dropTarget === status &&
-                    draggedTask &&
-                    draggedTask.status !== status && (
-                      <div className="flex items-center justify-center h-32 border-2 border-dashed border-blue-400/50 rounded-lg bg-blue-400/10">
-                        <span className="text-blue-400 text-sm font-medium">
-                          Drop here
-                        </span>
-                      </div>
-                    )}
-
-                  <button
-                    onClick={() => setShowNewTaskModal(true)}
-                    disabled={isCreating}
-                    className="w-full p-3 border-2 border-dashed border-[#353a45] rounded-lg text-gray-400 hover:border-blue-400/30 hover:text-blue-400 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCreating ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
-                    ) : (
-                      <Plus className="w-4 h-4" />
-                    )}
-                    <span className="text-sm">
-                      {isCreating ? "Creating..." : "New task"}
-                    </span>
-                  </button>
                 </div>
               </div>
             ))}

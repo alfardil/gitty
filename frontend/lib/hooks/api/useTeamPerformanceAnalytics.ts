@@ -47,11 +47,9 @@ interface TeamPerformanceAnalytics {
 }
 
 const fetchTeamPerformanceAnalytics = async (
-  enterpriseId: string,
-  projectId?: string
+  enterpriseId: string
 ): Promise<TeamPerformanceAnalytics> => {
   const params = new URLSearchParams({ enterpriseId });
-  if (projectId) params.append("projectId", projectId);
 
   const response = await fetch(
     `/api/admin?action=getTeamPerformanceAnalytics&${params}`
@@ -70,13 +68,10 @@ const fetchTeamPerformanceAnalytics = async (
   return data.data;
 };
 
-export function useTeamPerformanceAnalytics(
-  enterpriseId: string | null,
-  projectId?: string
-) {
+export function useTeamPerformanceAnalytics(enterpriseId: string | null) {
   return useQuery({
-    queryKey: ["team-performance-analytics", enterpriseId, projectId],
-    queryFn: () => fetchTeamPerformanceAnalytics(enterpriseId!, projectId),
+    queryKey: ["team-performance-analytics", enterpriseId],
+    queryFn: () => fetchTeamPerformanceAnalytics(enterpriseId!),
     enabled: !!enterpriseId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes

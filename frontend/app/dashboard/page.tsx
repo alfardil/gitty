@@ -59,8 +59,6 @@ function DashboardPage() {
     scopeRepos: Repository[];
   };
 
-
-
   const handleRepoClick = (owner: string, repo: string) => {
     router.push(`/${owner}/${repo}`);
   };
@@ -111,36 +109,56 @@ function DashboardPage() {
             >
               <Menu className="w-6 h-6 text-gray-200" />
             </button>
-            
-            <div className="ml-auto relative">
-              <div className="relative inline-block text-left">
-                <button
-                  className="inline-flex justify-center items-center px-4 py-2 border border-blue-400/20 shadow-sm text-sm font-medium rounded-md text-gray-100 bg-[#23272f] hover:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                  onClick={() => {
-                    const dropdown = document.getElementById("scope-dropdown");
-                    if (dropdown) {
-                      dropdown.classList.toggle("hidden");
-                    }
-                  }}
-                >
-                  {selectedScope}
-                  <ChevronDown className="ml-2 h-4 w-4 text-blue-400" />
-                </button>
-                <div
-                  id="scope-dropdown"
-                  className="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#23272f] ring-1 ring-blue-400/20 z-10"
-                >
-                  <div className="py-1" role="menu">
-                    {orgs.map((org) => (
+
+            {section === "analysis" && (
+              <div className="ml-auto relative">
+                <div className="relative inline-block text-left">
+                  <button
+                    className="inline-flex justify-center items-center px-4 py-2 border border-blue-400/20 shadow-sm text-sm font-medium rounded-md text-gray-100 bg-[#23272f] hover:bg-blue-400/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onClick={() => {
+                      const dropdown =
+                        document.getElementById("scope-dropdown");
+                      if (dropdown) {
+                        dropdown.classList.toggle("hidden");
+                      }
+                    }}
+                  >
+                    {selectedScope}
+                    <ChevronDown className="ml-2 h-4 w-4 text-blue-400" />
+                  </button>
+                  <div
+                    id="scope-dropdown"
+                    className="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-[#23272f] ring-1 ring-blue-400/20 z-10"
+                  >
+                    <div className="py-1" role="menu">
+                      {orgs.map((org) => (
+                        <button
+                          key={org.login}
+                          className={`${
+                            selectedScope === org.login
+                              ? "bg-blue-400/10 text-white"
+                              : "text-gray-200"
+                          } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
+                          onClick={() => {
+                            setSelectedScope(org.login);
+                            const dropdown =
+                              document.getElementById("scope-dropdown");
+                            if (dropdown) {
+                              dropdown.classList.add("hidden");
+                            }
+                          }}
+                        >
+                          {org.login}
+                        </button>
+                      ))}
                       <button
-                        key={org.login}
                         className={`${
-                          selectedScope === org.login
+                          selectedScope === "Personal"
                             ? "bg-blue-400/10 text-white"
                             : "text-gray-200"
                         } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
                         onClick={() => {
-                          setSelectedScope(org.login);
+                          setSelectedScope("Personal");
                           const dropdown =
                             document.getElementById("scope-dropdown");
                           if (dropdown) {
@@ -148,30 +166,13 @@ function DashboardPage() {
                           }
                         }}
                       >
-                        {org.login}
+                        Personal
                       </button>
-                    ))}
-                    <button
-                      className={`${
-                        selectedScope === "Personal"
-                          ? "bg-blue-400/10 text-white"
-                          : "text-gray-200"
-                      } block w-full text-left px-4 py-2 text-sm hover:bg-blue-400/10`}
-                      onClick={() => {
-                        setSelectedScope("Personal");
-                        const dropdown =
-                          document.getElementById("scope-dropdown");
-                        if (dropdown) {
-                          dropdown.classList.add("hidden");
-                        }
-                      }}
-                    >
-                      Personal
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </header>
 
@@ -215,7 +216,7 @@ function DashboardPage() {
                     />
                   </button>
                 </div>
-                
+
                 <div
                   className={`transition-all duration-500 ease-in-out overflow-hidden ${
                     showSearch
@@ -223,8 +224,7 @@ function DashboardPage() {
                       : "max-w-0 w-0 h-0 opacity-0"
                   }`}
                   style={{
-                    transitionProperty:
-                      "max-width, width, height, opacity",
+                    transitionProperty: "max-width, width, height, opacity",
                   }}
                 >
                   <input
@@ -254,7 +254,7 @@ function DashboardPage() {
                   >
                     {/* Background accent */}
                     <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-blue-500/5 to-transparent rounded-full"></div>
-                    
+
                     <div className="relative z-10">
                       {/* Title and Lock/Unlock Icon Row */}
                       <div className="flex items-center justify-between mb-4">
@@ -273,20 +273,24 @@ function DashboardPage() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Description */}
                       <p className="text-sm text-white/70 flex-1 mb-4 leading-relaxed">
                         {repo.description || "No description available"}
                       </p>
-                      
+
                       {/* Metadata */}
                       <div className="flex items-center justify-between text-xs text-white/50">
                         <div className="flex items-center gap-3">
                           <span className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 bg-white/40 rounded-full"></div>
-                            <span className="font-mono text-white/60">{repo.stargazers_count}</span>
+                            <span className="font-mono text-white/60">
+                              {repo.stargazers_count}
+                            </span>
                           </span>
-                          <span className="font-mono">{repo.language || "No language"}</span>
+                          <span className="font-mono">
+                            {repo.language || "No language"}
+                          </span>
                         </div>
                         <div className="text-blue-400 font-mono text-xs opacity-60 group-hover:opacity-100 transition-opacity">
                           ANALYZE
@@ -302,14 +306,18 @@ function DashboardPage() {
                 <div className="text-center py-16">
                   <div className="inline-flex items-center gap-2 text-white/60">
                     <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin"></div>
-                    <span className="font-mono text-sm">LOADING REPOSITORIES</span>
+                    <span className="font-mono text-sm">
+                      LOADING REPOSITORIES
+                    </span>
                   </div>
                 </div>
               ) : scopeRepos.length === 0 ? (
                 <div className="text-center py-16 text-white/40">
                   <Search className="w-16 h-16 mx-auto mb-4 opacity-40" />
                   <p className="text-lg mb-2">No repositories found</p>
-                  <p className="text-sm">Try switching to a different organization or scope</p>
+                  <p className="text-sm">
+                    Try switching to a different organization or scope
+                  </p>
                 </div>
               ) : null}
             </>

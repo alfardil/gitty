@@ -69,7 +69,7 @@ html {
 
 @layer base {
   body {
-    @apply text-foreground font-base bg-background;
+    @apply text-foreground font-mono bg-background;
   }
 
   h1,
@@ -78,7 +78,7 @@ html {
   h4,
   h5,
   h6 {
-    @apply font-heading;
+    @apply font-mono;
   }
 }
 

@@ -6,9 +6,6 @@ import { Enterprise } from "@/lib/types/business/Enterprise";
 import { User } from "@/lib/types/business/User";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TeamPerformanceAnalytics } from "./TeamPerformanceAnalytics";
-import { QualityMetricsDashboard } from "./QualityMetricsDashboard";
-import { TimeTrackingDashboard } from "./TimeTrackingDashboard";
-import { DependencyVisualization } from "./DependencyVisualization";
 import { ProjectUserManagement } from "./ProjectUserManagement";
 import { ComingSoonSection } from "./ComingSoonSection";
 import { toast } from "sonner";
@@ -41,20 +38,10 @@ function AdminSection({ userId }: AdminSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<
-    | "users"
-    | "analytics"
-    | "quality"
-    | "time"
-    | "dependencies"
-    | "project-users"
+    "users" | "analytics" | "project-users"
   >(
-    (searchParams.get("adminTab") as
-      | "users"
-      | "analytics"
-      | "quality"
-      | "time"
-      | "dependencies"
-      | "project-users") || "users"
+    (searchParams.get("adminTab") as "users" | "analytics" | "project-users") ||
+      "users"
   );
   const {
     enterprises,
@@ -102,15 +89,7 @@ function AdminSection({ userId }: AdminSectionProps) {
   }, [selectedEnterprise]);
 
   // Handle tab changes and update URL
-  const handleTabChange = (
-    tab:
-      | "users"
-      | "analytics"
-      | "quality"
-      | "time"
-      | "dependencies"
-      | "project-users"
-  ) => {
+  const handleTabChange = (tab: "users" | "analytics" | "project-users") => {
     setActiveTab(tab);
     const params = new URLSearchParams();
     params.set("section", "admin");
@@ -123,6 +102,86 @@ function AdminSection({ userId }: AdminSectionProps) {
     }
 
     router.push(`/dashboard?${params.toString()}`);
+  };
+
+  // Helper function to render project creation form
+  const renderProjectCreationForm = () => {
+    if (!showProjectForm) return null;
+
+    const handleCreateProject = async () => {
+      if (!newProjectName.trim()) {
+        toast.error("Project name is required");
+        return;
+      }
+
+      try {
+        await createProject({
+          name: newProjectName.trim(),
+          description: newProjectDescription.trim() || undefined,
+          enterpriseId: selectedEnterprise!,
+        });
+        setNewProjectName("");
+        setNewProjectDescription("");
+        setShowProjectForm(false);
+      } catch (error) {
+        toast.error("Failed to create project");
+      }
+    };
+
+    const handleCancel = () => {
+      setNewProjectName("");
+      setNewProjectDescription("");
+      setShowProjectForm(false);
+    };
+
+    return (
+      <div className="p-4 border border-white/10 rounded-lg bg-[#0a0a0a]/50">
+        <h4 className="text-sm font-mono text-white/80 mb-4">
+          Create New Project
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-mono text-white/60 mb-1">
+              Project Name
+            </label>
+            <input
+              type="text"
+              value={newProjectName}
+              onChange={(e) => setNewProjectName(e.target.value)}
+              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+              placeholder="Enter project name"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono text-white/60 mb-1">
+              Description (optional)
+            </label>
+            <textarea
+              value={newProjectDescription}
+              onChange={(e) => setNewProjectDescription(e.target.value)}
+              className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
+              placeholder="Enter project description"
+              rows={3}
+            />
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={handleCreateProject}
+              disabled={isCreating}
+              className="px-4 py-2 bg-green-600/80 hover:bg-green-600 disabled:bg-white/10 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
+            >
+              {isCreating ? "Creating..." : "Create Project"}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 rounded-lg text-sm font-mono transition-all duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (enterprisesLoading) return <Spinner size="large" />;
@@ -162,7 +221,7 @@ function AdminSection({ userId }: AdminSectionProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
+
         {/* Create Project Button */}
         {selectedEnterprise && (
           <button
@@ -175,71 +234,7 @@ function AdminSection({ userId }: AdminSectionProps) {
       </div>
 
       {/* Project Creation Form */}
-      {showProjectForm && (
-        <div className="p-4 border border-white/10 rounded-lg bg-[#0a0a0a]/50">
-          <h4 className="text-sm font-mono text-white/80 mb-4">
-            Create New Project
-          </h4>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-mono text-white/60 mb-1">
-                Project Name
-              </label>
-              <input
-                type="text"
-                value={newProjectName}
-                onChange={(e) => setNewProjectName(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
-                placeholder="Enter project name"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-mono text-white/60 mb-1">
-                Description (optional)
-              </label>
-              <textarea
-                value={newProjectDescription}
-                onChange={(e) => setNewProjectDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
-                placeholder="Enter project description"
-                rows={3}
-              />
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={async () => {
-                  if (!newProjectName.trim()) {
-                    toast.error("Project name is required");
-                    return;
-                  }
-                  await createProject({
-                    name: newProjectName.trim(),
-                    description: newProjectDescription.trim() || undefined,
-                    enterpriseId: selectedEnterprise!,
-                  });
-                  setNewProjectName("");
-                  setNewProjectDescription("");
-                  setShowProjectForm(false);
-                }}
-                disabled={isCreating}
-                className="px-4 py-2 bg-green-600/80 hover:bg-green-600 disabled:bg-white/10 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
-              >
-                {isCreating ? "Creating..." : "Create Project"}
-              </button>
-              <button
-                onClick={() => {
-                  setNewProjectName("");
-                  setNewProjectDescription("");
-                  setShowProjectForm(false);
-                }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 rounded-lg text-sm font-mono transition-all duration-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {renderProjectCreationForm()}
 
       {/* Clean Navigation Tabs */}
       <div className="border-b border-white/10">
@@ -263,24 +258,6 @@ function AdminSection({ userId }: AdminSectionProps) {
             }`}
           >
             Analytics
-          </button>
-          <button
-            disabled
-            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
-          >
-            Quality
-          </button>
-          <button
-            disabled
-            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
-          >
-            Time
-          </button>
-          <button
-            disabled
-            className="py-3 px-1 border-b-2 border-transparent text-sm font-mono opacity-30 cursor-not-allowed text-white/40"
-          >
-            Dependencies
           </button>
           <button
             onClick={() => handleTabChange("project-users")}
@@ -382,59 +359,9 @@ function AdminSection({ userId }: AdminSectionProps) {
         </div>
       )}
 
-      {activeTab === "analytics" && selectedEnterprise && selectedProject && (
-        <TeamPerformanceAnalytics
-          enterpriseId={selectedEnterprise}
-          projectId={selectedProject}
-        />
+      {activeTab === "analytics" && selectedEnterprise && (
+        <TeamPerformanceAnalytics enterpriseId={selectedEnterprise} />
       )}
-
-      {activeTab === "quality" && selectedEnterprise && selectedProject && (
-        <ComingSoonSection
-          title="Quality Metrics Dashboard"
-          description="Monitor code quality, review processes, and quality assurance metrics"
-          features={[
-            "Code review analytics",
-            "Quality score tracking",
-            "Review time metrics",
-            "Quality trend analysis",
-            "Automated quality checks",
-            "Quality improvement recommendations",
-          ]}
-        />
-      )}
-
-      {activeTab === "time" && selectedEnterprise && selectedProject && (
-        <ComingSoonSection
-          title="Time Tracking Dashboard"
-          description="Monitor estimation accuracy and time analytics"
-          features={[
-            "Time estimation accuracy",
-            "Actual vs estimated hours",
-            "Time tracking analytics",
-            "Team velocity metrics",
-            "Time trend analysis",
-            "Estimation improvement insights",
-          ]}
-        />
-      )}
-
-      {activeTab === "dependencies" &&
-        selectedEnterprise &&
-        selectedProject && (
-          <ComingSoonSection
-            title="Dependency Visualization"
-            description="Visualize task dependencies and identify bottlenecks"
-            features={[
-              "Task dependency graphs",
-              "Bottleneck identification",
-              "Circular dependency detection",
-              "Critical path analysis",
-              "Dependency impact assessment",
-              "Automated dependency suggestions",
-            ]}
-          />
-        )}
 
       {activeTab === "project-users" && selectedEnterprise && (
         <div className="space-y-8">
@@ -474,71 +401,7 @@ function AdminSection({ userId }: AdminSectionProps) {
           </div>
 
           {/* Project Creation Form */}
-          {showProjectForm && (
-            <div className="p-4 border border-white/10 rounded-lg bg-[#0a0a0a]/50">
-              <h4 className="text-sm font-mono text-white/80 mb-4">
-                Create New Project
-              </h4>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-mono text-white/60 mb-1">
-                    Project Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
-                    placeholder="Enter project name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-mono text-white/60 mb-1">
-                    Description (optional)
-                  </label>
-                  <textarea
-                    value={newProjectDescription}
-                    onChange={(e) => setNewProjectDescription(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-lg text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 text-sm font-mono"
-                    placeholder="Enter project description"
-                    rows={3}
-                  />
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={async () => {
-                      if (!newProjectName.trim()) {
-                        toast.error("Project name is required");
-                        return;
-                      }
-                      await createProject({
-                        name: newProjectName.trim(),
-                        description: newProjectDescription.trim() || undefined,
-                        enterpriseId: selectedEnterprise!,
-                      });
-                      setNewProjectName("");
-                      setNewProjectDescription("");
-                      setShowProjectForm(false);
-                    }}
-                    disabled={isCreating}
-                    className="px-4 py-2 bg-green-600/80 hover:bg-green-600 disabled:bg-white/10 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
-                  >
-                    {isCreating ? "Creating..." : "Create Project"}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setNewProjectName("");
-                      setNewProjectDescription("");
-                      setShowProjectForm(false);
-                    }}
-                    className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white/80 rounded-lg text-sm font-mono transition-all duration-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          {renderProjectCreationForm()}
 
           {/* Project User Management */}
           {selectedProject && (
@@ -553,20 +416,35 @@ function AdminSection({ userId }: AdminSectionProps) {
         </div>
       )}
 
-      {/* Show message when project not selected */}
-      {selectedEnterprise && !selectedProject && activeTab !== "users" && activeTab !== "project-users" && (
+      {/* Show message when enterprise not selected for analytics */}
+      {!selectedEnterprise && activeTab === "analytics" && (
         <div className="text-center py-12">
           <Target className="w-8 h-8 mx-auto mb-4 opacity-50 text-white/40" />
           <p className="text-sm font-mono text-white/60 mb-2">
-            Please select a project to view {activeTab}
+            Please select an enterprise to view analytics
           </p>
           <p className="text-xs font-mono text-white/40">
-            Choose a project from the dropdown above to see project-specific insights
+            Choose an enterprise from the dropdown above to see enterprise-wide
+            insights
           </p>
         </div>
       )}
 
-
+      {/* Show message when project not selected for project-users */}
+      {selectedEnterprise &&
+        !selectedProject &&
+        activeTab === "project-users" && (
+          <div className="text-center py-12">
+            <Target className="w-8 h-8 mx-auto mb-4 opacity-50 text-white/40" />
+            <p className="text-sm font-mono text-white/60 mb-2">
+              Please select a project to view project users
+            </p>
+            <p className="text-xs font-mono text-white/40">
+              Choose a project from the dropdown above to see project-specific
+              user management
+            </p>
+          </div>
+        )}
     </section>
   );
 }

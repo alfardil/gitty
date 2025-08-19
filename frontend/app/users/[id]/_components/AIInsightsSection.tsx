@@ -228,18 +228,6 @@ export function AIInsightsSection({
         </div>
       </div>
 
-      {/* Warning */}
-      <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-yellow-400 mb-2">
-          <AlertTriangle className="w-4 h-4" />
-          <span className="font-medium">Admin Only</span>
-        </div>
-        <p className="text-yellow-300 text-sm">
-          This analysis provides brutally honest feedback for performance review
-          purposes.
-        </p>
-      </div>
-
       {/* Last Generated Insight */}
       {lastInsight && (
         <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">

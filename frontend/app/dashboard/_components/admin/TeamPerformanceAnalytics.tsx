@@ -17,19 +17,17 @@ import {
 
 interface TeamPerformanceAnalyticsProps {
   enterpriseId: string;
-  projectId?: string;
 }
 
 export function TeamPerformanceAnalytics({
   enterpriseId,
-  projectId,
 }: TeamPerformanceAnalyticsProps) {
   const router = useRouter();
   const {
     data: analytics,
     isLoading,
     error,
-  } = useTeamPerformanceAnalytics(enterpriseId, projectId);
+  } = useTeamPerformanceAnalytics(enterpriseId);
 
   if (isLoading) {
     return (
@@ -73,10 +71,10 @@ export function TeamPerformanceAnalytics({
           <span className="text-white/30 font-mono text-lg">{"{"}</span>
           <div>
             <h3 className="text-lg font-mono text-white/90 tracking-wide mb-1">
-              team_performance_analytics
+              enterprise_performance_analytics
             </h3>
             <p className="text-xs font-mono text-white/50 tracking-wider">
-              insights_for_timeline_predictions
+              insights_for_enterprise_timeline_predictions
             </p>
           </div>
           <span className="text-white/30 font-mono text-lg">{"}"}</span>
@@ -97,18 +95,24 @@ export function TeamPerformanceAnalytics({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">completion_rate</h4>
+            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
+              completion_rate
+            </h4>
             <div className="w-2 h-2 bg-green-500/60 rounded-full"></div>
           </div>
           <div className="text-2xl font-mono font-bold text-white mb-1">
             {teamMetrics.averageCompletionRate.toFixed(1)}%
           </div>
-          <div className="text-xs font-mono text-white/40">team_average</div>
+          <div className="text-xs font-mono text-white/40">
+            enterprise_average
+          </div>
         </div>
 
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">task_velocity</h4>
+            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
+              task_velocity
+            </h4>
             <div className="w-2 h-2 bg-blue-500/60 rounded-full"></div>
           </div>
           <div className="text-2xl font-mono font-bold text-white mb-1">
@@ -119,7 +123,9 @@ export function TeamPerformanceAnalytics({
 
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">avg_time</h4>
+            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
+              avg_time
+            </h4>
             <div className="w-2 h-2 bg-yellow-500/60 rounded-full"></div>
           </div>
           <div className="text-2xl font-mono font-bold text-white mb-1">
@@ -132,7 +138,9 @@ export function TeamPerformanceAnalytics({
 
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">complexity</h4>
+            <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
+              complexity
+            </h4>
             <div className="w-2 h-2 bg-purple-500/60 rounded-full"></div>
           </div>
           <div className="text-2xl font-mono font-bold text-white mb-1">
@@ -146,7 +154,9 @@ export function TeamPerformanceAnalytics({
       <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-6">
         <div className="flex items-center gap-2 mb-5">
           <span className="text-white/30 font-mono text-sm">{"{"}</span>
-          <h4 className="text-sm font-mono text-white/80 tracking-wide">task_status_overview</h4>
+          <h4 className="text-sm font-mono text-white/80 tracking-wide">
+            enterprise_task_status_overview
+          </h4>
           <span className="text-white/30 font-mono text-sm">{"}"}</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -158,7 +168,9 @@ export function TeamPerformanceAnalytics({
               <div className="text-xl font-mono font-bold text-white">
                 {teamMetrics.totalTasksCompleted}
               </div>
-              <div className="text-xs font-mono text-white/50 tracking-wider">completed</div>
+              <div className="text-xs font-mono text-white/50 tracking-wider">
+                completed
+              </div>
             </div>
           </div>
 
@@ -170,7 +182,9 @@ export function TeamPerformanceAnalytics({
               <div className="text-xl font-mono font-bold text-white">
                 {teamMetrics.totalTasksInProgress}
               </div>
-              <div className="text-xs font-mono text-white/50 tracking-wider">in_progress</div>
+              <div className="text-xs font-mono text-white/50 tracking-wider">
+                in_progress
+              </div>
             </div>
           </div>
 
@@ -182,7 +196,9 @@ export function TeamPerformanceAnalytics({
               <div className="text-xl font-mono font-bold text-white">
                 {teamMetrics.totalTasksOverdue}
               </div>
-              <div className="text-xs font-mono text-white/50 tracking-wider">overdue</div>
+              <div className="text-xs font-mono text-white/50 tracking-wider">
+                overdue
+              </div>
             </div>
           </div>
         </div>
@@ -192,7 +208,9 @@ export function TeamPerformanceAnalytics({
       <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-6">
         <div className="flex items-center gap-2 mb-5">
           <span className="text-white/30 font-mono text-sm">{"{"}</span>
-          <h4 className="text-sm font-mono text-white/80 tracking-wide">individual_performance</h4>
+          <h4 className="text-sm font-mono text-white/80 tracking-wide">
+            enterprise_individual_performance
+          </h4>
           <span className="text-white/30 font-mono text-sm">{"}"}</span>
         </div>
         <div className="space-y-3">
@@ -215,9 +233,12 @@ export function TeamPerformanceAnalytics({
                   />
                 )}
                 <div>
-                  <div className="font-mono font-medium text-white/90 text-sm">{user.username}</div>
+                  <div className="font-mono font-medium text-white/90 text-sm">
+                    {user.username}
+                  </div>
                   <div className="text-xs font-mono text-white/50 tracking-wider">
-                    {user.tasksCompleted} completed • {user.tasksInProgress} in_progress
+                    {user.tasksCompleted} completed • {user.tasksInProgress}{" "}
+                    in_progress
                   </div>
                 </div>
               </div>

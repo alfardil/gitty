@@ -51,7 +51,7 @@ export function Settings() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-[#23272F] text-white py-8">
+    <div className="min-h-screen flex flex-col items-center bg-background text-foreground py-8">
       <div className="max-w-md mx-auto py-12 px-4 sm:px-0 flex flex-col items-center">
         <h2 className="text-xl font-bold mb-8 text-white text-center">
           Account
@@ -73,12 +73,12 @@ export function Settings() {
             {username || user.login}
           </div>
           {username && (
-            <div className="text-gray-400 text-sm mb-1">({user.login})</div>
+            <div className="text-white/60 text-sm mb-1">({user.login})</div>
           )}
           {editing ? (
             <div className="flex flex-col items-center gap-2 w-full">
               <input
-                className="w-full max-w-xs py-2 px-4 rounded-full bg-[#181A1F] text-gray-200 border border-[#353a45] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full max-w-xs py-2 px-4 rounded-lg bg-[#0a0a0a] text-white border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400/30"
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
                 placeholder="Enter new username"
@@ -87,14 +87,14 @@ export function Settings() {
               />
               <div className="flex gap-2 w-full max-w-xs">
                 <button
-                  className="flex-1 py-2 rounded-full bg-blue-700 text-white font-semibold hover:bg-blue-800 transition"
+                  className="flex-1 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
                   onClick={handleUsernameSave}
                   disabled={usernameLoading}
                 >
                   {usernameLoading ? "Saving..." : "Save"}
                 </button>
                 <button
-                  className="flex-1 py-2 rounded-full bg-gray-600 text-white font-semibold hover:bg-gray-700 transition"
+                  className="flex-1 py-2 rounded-lg bg-[#111111] text-white font-semibold hover:bg-white/10 transition border border-white/10"
                   onClick={() => {
                     setEditing(false);
                     setUsernameError(null);
@@ -110,7 +110,7 @@ export function Settings() {
             </div>
           ) : (
             <button
-              className="w-full max-w-xs py-2 px-6 rounded-full bg-[#181A1F] text-gray-200 font-medium flex items-center justify-center gap-2 mb-2 border border-[#353a45] hover:bg-blue-700 hover:text-white transition min-w-[180px]"
+              className="w-full max-w-xs py-2 px-6 rounded-lg bg-[#0a0a0a] text-white font-medium flex items-center justify-center gap-2 mb-2 border border-white/10 hover:bg-white/10 transition min-w-[180px]"
               onClick={() => {
                 setEditing(true);
                 setUsernameInput(user.username || "");
@@ -148,7 +148,7 @@ export function Settings() {
 
         {/* Logout Button */}
         <button
-          className="w-full max-w-xs py-3 rounded-full bg-[#181A1F] text-gray-200 font-semibold flex items-center justify-center gap-2 mt-8 border border-[#353a45] hover:bg-blue-700 hover:text-white transition"
+          className="w-full max-w-xs py-3 rounded-lg bg-[#0a0a0a] text-white font-semibold flex items-center justify-center gap-2 mt-8 border border-white/10 hover:bg-white/10 transition"
           onClick={logout}
         >
           <LogOut className="w-5 h-5 text-blue-400" />
