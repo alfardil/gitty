@@ -92,9 +92,7 @@ class GitHubService:
         # Try to get the default branch first
         branch = self.get_default_branch(username, repo, githubAccessToken)
         if branch:
-            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{
-                branch
-            }?recursive=1"
+            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1"
             response = requests.get(api_url, headers=_get_headers(githubAccessToken))
 
             if response.status_code == 200:
@@ -110,9 +108,7 @@ class GitHubService:
 
         # If default branch didn't work or wasn't found, try common branch names
         for branch in ["main", "master"]:
-            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{
-                branch
-            }?recursive=1"
+            api_url = f"https://api.github.com/repos/{username}/{repo}/git/trees/{branch}?recursive=1"
             response = requests.get(api_url, headers=_get_headers(githubAccessToken))
 
             if response.status_code == 200:
