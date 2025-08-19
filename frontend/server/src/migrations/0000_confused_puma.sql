@@ -1,10 +1,41 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS vector   WITH SCHEMA public;
 
-CREATE TYPE "public"."enterprise_role" AS ENUM('admin', 'member');--> statement-breakpoint
-CREATE TYPE "public"."subscription_plan" AS ENUM('FREE', 'PRO', 'ENTERPRISE');--> statement-breakpoint
-CREATE TYPE "public"."task_priority" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
-CREATE TYPE "public"."task_status" AS ENUM('not_started', 'in_progress', 'pending_pr_approval', 'done');--> statement-breakpoint
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE t.typname = 'enterprise_role' AND n.nspname = 'public'
+  ) THEN
+    CREATE TYPE public.enterprise_role AS ENUM('admin', 'member');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE t.typname = 'subscription_plan' AND n.nspname = 'public'
+  ) THEN
+    CREATE TYPE public.subscription_plan AS ENUM('FREE', 'PRO', 'ENTERPRISE');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE t.typname = 'task_priority' AND n.nspname = 'public'
+  ) THEN
+    CREATE TYPE public.task_priority AS ENUM('low', 'medium', 'high');
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE t.typname = 'task_status' AND n.nspname = 'public'
+  ) THEN
+    CREATE TYPE public.task_status AS ENUM('not_started', 'in_progress', 'pending_pr_approval', 'done');
+  END IF;
+END$$;
+
 CREATE TABLE "diagram_cache" (
 	"username" varchar(256) NOT NULL,
 	"repo" varchar(256) NOT NULL,
