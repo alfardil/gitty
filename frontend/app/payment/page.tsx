@@ -8,8 +8,7 @@ export default function PaymentPage() {
 
   const handleSubscribe = async () => {
     setLoading(true);
-    window.location.href =
-      "https://buy.stripe.com/test_dRmcN764M3KwbSW0Ho6wE03";
+    window.location.href = "https://buy.stripe.com/00weVe5YP6Ir9v2ejscfK00";
     setLoading(false);
   };
 
