@@ -5,7 +5,7 @@ import { SubscriptionSeatsService } from "@/lib/services/subscription-seats";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { seatId: string } }
+  { params }: { params: Promise<{ seatId: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -15,7 +15,7 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { seatId } = params;
+    const { seatId } = await params;
     const { userId } = await request.json();
 
     if (!userId) {

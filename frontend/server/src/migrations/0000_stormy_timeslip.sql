@@ -1,41 +1,8 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
-CREATE EXTENSION IF NOT EXISTS vector   WITH SCHEMA public;
-
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_type t
-    JOIN pg_namespace n ON n.oid = t.typnamespace
-    WHERE t.typname = 'enterprise_role' AND n.nspname = 'public'
-  ) THEN
-    CREATE TYPE public.enterprise_role AS ENUM('admin', 'member');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_type t
-    JOIN pg_namespace n ON n.oid = t.typnamespace
-    WHERE t.typname = 'subscription_plan' AND n.nspname = 'public'
-  ) THEN
-    CREATE TYPE public.subscription_plan AS ENUM('FREE', 'PRO', 'ENTERPRISE');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_type t
-    JOIN pg_namespace n ON n.oid = t.typnamespace
-    WHERE t.typname = 'task_priority' AND n.nspname = 'public'
-  ) THEN
-    CREATE TYPE public.task_priority AS ENUM('low', 'medium', 'high');
-  END IF;
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_type t
-    JOIN pg_namespace n ON n.oid = t.typnamespace
-    WHERE t.typname = 'task_status' AND n.nspname = 'public'
-  ) THEN
-    CREATE TYPE public.task_status AS ENUM('not_started', 'in_progress', 'pending_pr_approval', 'done');
-  END IF;
-END$$;
-
+CREATE TYPE "public"."enterprise_role" AS ENUM('admin', 'member');--> statement-breakpoint
+CREATE TYPE "public"."seat_status" AS ENUM('available', 'assigned', 'inactive');--> statement-breakpoint
+CREATE TYPE "public"."subscription_plan" AS ENUM('FREE', 'PRO', 'ENTERPRISE');--> statement-breakpoint
+CREATE TYPE "public"."task_priority" AS ENUM('low', 'medium', 'high');--> statement-breakpoint
+CREATE TYPE "public"."task_status" AS ENUM('not_started', 'in_progress', 'pending_pr_approval', 'done');--> statement-breakpoint
 CREATE TABLE "diagram_cache" (
 	"username" varchar(256) NOT NULL,
 	"repo" varchar(256) NOT NULL,
@@ -128,23 +95,21 @@ CREATE TABLE "sessions" (
 	"deletedAt" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE "task_assignments" (
+CREATE TABLE "subscription_seats" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"task_id" uuid NOT NULL,
-	"assignee_id" uuid NOT NULL,
-	"assigned_by_id" uuid NOT NULL,
-	"assignedAt" timestamp DEFAULT now() NOT NULL,
-	"unassignedAt" timestamp
-);
---> statement-breakpoint
-CREATE TABLE "task_status_history" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"task_id" uuid NOT NULL,
-	"from_status" "task_status",
-	"to_status" "task_status" NOT NULL,
-	"changed_by_id" uuid NOT NULL,
-	"changedAt" timestamp DEFAULT now() NOT NULL,
-	"notes" text
+	"subscriptionId" varchar(255) NOT NULL,
+	"owner_id" uuid NOT NULL,
+	"enterprise_id" uuid,
+	"seatNumber" integer NOT NULL,
+	"assigned_to_user_id" uuid,
+	"assignedAt" timestamp,
+	"seat_status" "seat_status" DEFAULT 'available',
+	"inviteCode" varchar(64),
+	"inviteCodeExpiresAt" timestamp,
+	"createdAt" timestamp DEFAULT now() NOT NULL,
+	"updatedAt" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "subscription_seats_inviteCode_unique" UNIQUE("inviteCode"),
+	CONSTRAINT "subscription_seats_subscription_id_seat_number_unique" UNIQUE("subscriptionId","seatNumber")
 );
 --> statement-breakpoint
 CREATE TABLE "task_time_entries" (
@@ -200,8 +165,11 @@ CREATE TABLE "users" (
 	"bio" varchar(512),
 	"developer" boolean DEFAULT false NOT NULL,
 	"username" varchar(255),
+	"linkedin" varchar(512),
+	"role" varchar(255),
 	"analyzedReposCount" integer DEFAULT 0,
 	"subscription_plan" "subscription_plan" DEFAULT 'FREE',
+	"stripeCustomerId" varchar(255),
 	CONSTRAINT "users_githubId_unique" UNIQUE("githubId"),
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
 	CONSTRAINT "users_username_unique" UNIQUE("username")
@@ -227,11 +195,9 @@ ALTER TABLE "project_members" ADD CONSTRAINT "project_members_user_id_fk" FOREIG
 ALTER TABLE "projects" ADD CONSTRAINT "projects_enterprise_id_fk" FOREIGN KEY ("enterprise_id") REFERENCES "public"."enterprises"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "projects" ADD CONSTRAINT "projects_created_by_id_fk" FOREIGN KEY ("created_by_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "task_assignments" ADD CONSTRAINT "task_assignments_task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."tasks"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "task_assignments" ADD CONSTRAINT "task_assignments_assignee_id_fk" FOREIGN KEY ("assignee_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "task_assignments" ADD CONSTRAINT "task_assignments_assigned_by_id_fk" FOREIGN KEY ("assigned_by_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "task_status_history" ADD CONSTRAINT "task_status_history_task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."tasks"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "task_status_history" ADD CONSTRAINT "task_status_history_changed_by_id_fk" FOREIGN KEY ("changed_by_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "subscription_seats" ADD CONSTRAINT "subscription_seats_owner_id_users_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "subscription_seats" ADD CONSTRAINT "subscription_seats_enterprise_id_fk" FOREIGN KEY ("enterprise_id") REFERENCES "public"."enterprises"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "subscription_seats" ADD CONSTRAINT "subscription_seats_assigned_to_user_id_users_id_fk" FOREIGN KEY ("assigned_to_user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "task_time_entries" ADD CONSTRAINT "task_time_entries_task_id_fk" FOREIGN KEY ("task_id") REFERENCES "public"."tasks"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "task_time_entries" ADD CONSTRAINT "task_time_entries_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "tasks" ADD CONSTRAINT "tasks_assignee_id_fk" FOREIGN KEY ("assignee_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

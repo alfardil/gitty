@@ -1,5 +1,5 @@
 {
-  "id": "1cf798c2-a8b0-4e26-abdc-1f547e193880",
+  "id": "d26811ba-c1d6-4eb5-88ec-c2825b4c8bf2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -712,8 +712,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.task_assignments": {
-      "name": "task_assignments",
+    "public.subscription_seats": {
+      "name": "subscription_seats",
       "schema": "",
       "columns": {
         "id": {
@@ -723,46 +723,85 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "task_id": {
-          "name": "task_id",
+        "subscriptionId": {
+          "name": "subscriptionId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "assignee_id": {
-          "name": "assignee_id",
+        "enterprise_id": {
+          "name": "enterprise_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "seatNumber": {
+          "name": "seatNumber",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "assigned_by_id": {
-          "name": "assigned_by_id",
+        "assigned_to_user_id": {
+          "name": "assigned_to_user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "assignedAt": {
           "name": "assignedAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
+          "notNull": false
         },
-        "unassignedAt": {
-          "name": "unassignedAt",
+        "seat_status": {
+          "name": "seat_status",
+          "type": "seat_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'available'"
+        },
+        "inviteCode": {
+          "name": "inviteCode",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inviteCodeExpiresAt": {
+          "name": "inviteCodeExpiresAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "task_assignments_task_id_fk": {
-          "name": "task_assignments_task_id_fk",
-          "tableFrom": "task_assignments",
-          "tableTo": "tasks",
+        "subscription_seats_owner_id_users_id_fk": {
+          "name": "subscription_seats_owner_id_users_id_fk",
+          "tableFrom": "subscription_seats",
+          "tableTo": "users",
           "columnsFrom": [
-            "task_id"
+            "owner_id"
           ],
           "columnsTo": [
             "id"
@@ -770,12 +809,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "task_assignments_assignee_id_fk": {
-          "name": "task_assignments_assignee_id_fk",
-          "tableFrom": "task_assignments",
-          "tableTo": "users",
+        "subscription_seats_enterprise_id_fk": {
+          "name": "subscription_seats_enterprise_id_fk",
+          "tableFrom": "subscription_seats",
+          "tableTo": "enterprises",
           "columnsFrom": [
-            "assignee_id"
+            "enterprise_id"
           ],
           "columnsTo": [
             "id"
@@ -783,12 +822,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "task_assignments_assigned_by_id_fk": {
-          "name": "task_assignments_assigned_by_id_fk",
-          "tableFrom": "task_assignments",
+        "subscription_seats_assigned_to_user_id_users_id_fk": {
+          "name": "subscription_seats_assigned_to_user_id_users_id_fk",
+          "tableFrom": "subscription_seats",
           "tableTo": "users",
           "columnsFrom": [
-            "assigned_by_id"
+            "assigned_to_user_id"
           ],
           "columnsTo": [
             "id"
@@ -798,93 +837,23 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.task_status_history": {
-      "name": "task_status_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+      "uniqueConstraints": {
+        "subscription_seats_inviteCode_unique": {
+          "name": "subscription_seats_inviteCode_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "inviteCode"
+          ]
         },
-        "task_id": {
-          "name": "task_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "from_status": {
-          "name": "from_status",
-          "type": "task_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "to_status": {
-          "name": "to_status",
-          "type": "task_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changed_by_id": {
-          "name": "changed_by_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changedAt": {
-          "name": "changedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
+        "subscription_seats_subscription_id_seat_number_unique": {
+          "name": "subscription_seats_subscription_id_seat_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "subscriptionId",
+            "seatNumber"
+          ]
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "task_status_history_task_id_fk": {
-          "name": "task_status_history_task_id_fk",
-          "tableFrom": "task_status_history",
-          "tableTo": "tasks",
-          "columnsFrom": [
-            "task_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "task_status_history_changed_by_id_fk": {
-          "name": "task_status_history_changed_by_id_fk",
-          "tableFrom": "task_status_history",
-          "tableTo": "users",
-          "columnsFrom": [
-            "changed_by_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1290,6 +1259,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "linkedin": {
+          "name": "linkedin",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "analyzedReposCount": {
           "name": "analyzedReposCount",
           "type": "integer",
@@ -1304,6 +1285,12 @@
           "primaryKey": false,
           "notNull": false,
           "default": "'FREE'"
+        },
+        "stripeCustomerId": {
+          "name": "stripeCustomerId",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1385,6 +1372,15 @@
       "values": [
         "admin",
         "member"
+      ]
+    },
+    "public.seat_status": {
+      "name": "seat_status",
+      "schema": "public",
+      "values": [
+        "available",
+        "assigned",
+        "inactive"
       ]
     },
     "public.subscription_plan": {
