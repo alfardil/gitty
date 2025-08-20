@@ -60,9 +60,22 @@ export async function GET(request: NextRequest) {
         lastName: dbUser.lastName,
         uuid: dbUser.id,
         developer: dbUser.developer,
-        subscription_plan: dbUser.subscriptionPlan,
+        subscription_plan: dbUser.subscriptionPlan || "FREE",
+        linkedin: dbUser.linkedin,
+        role: dbUser.role,
+        stripeCustomerId: dbUser.stripeCustomerId,
+        email: dbUser.email,
       }
-    : user;
+    : {
+        ...user,
+        uuid: undefined,
+        developer: false,
+        subscription_plan: "FREE",
+        linkedin: null,
+        role: null,
+        stripeCustomerId: null,
+        email: user.email || null,
+      };
 
   return NextResponse.json({
     success: true,

@@ -17,7 +17,7 @@ export function WaitlistInput() {
     setEmail(value);
   };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim()) return;
 
@@ -38,7 +38,7 @@ export function WaitlistInput() {
 
   if (showSuccess) {
     return (
-            <motion.div
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
@@ -50,33 +50,39 @@ export function WaitlistInput() {
             <div className="text-white/40">{"{"}</div>
             <div className="ml-4 space-y-1">
               <div>
-                <span className="text-blue-400">"status"</span>
+                <span className="text-blue-400">&quot;status&quot;</span>
                 <span className="text-white/60">:</span>
-                <span className="text-green-400 ml-2">"success"</span>
+                <span className="text-green-400 ml-2">&quot;success&quot;</span>
                 <span className="text-white/60">,</span>
               </div>
               <div>
-                <span className="text-blue-400">"message"</span>
+                <span className="text-blue-400">&quot;message&quot;</span>
                 <span className="text-white/60">:</span>
-                <span className="text-white/80 ml-2">"Welcome to the Thestral"</span>
+                <span className="text-white/80 ml-2">
+                  &quot;Welcome to the Thestral&quot;
+                </span>
                 <span className="text-white/60">,</span>
               </div>
               <div>
-                <span className="text-blue-400">"action"</span>
+                <span className="text-blue-400">&quot;action&quot;</span>
                 <span className="text-white/60">:</span>
-                <span className="text-white/80 ml-2">"Team will contact you soon"</span>
+                <span className="text-white/80 ml-2">
+                  &quot;Team will contact you soon&quot;
+                </span>
                 <span className="text-white/60">,</span>
               </div>
               <div>
-                <span className="text-blue-400">"queue"</span>
+                <span className="text-blue-400">&quot;queue&quot;</span>
                 <span className="text-white/60">:</span>
-                <span className="text-yellow-400 ml-2">"secured"</span>
+                <span className="text-yellow-400 ml-2">
+                  &quot;secured&quot;
+                </span>
                 <span className="text-white/60">,</span>
               </div>
               <div>
-                <span className="text-blue-400">"access"</span>
+                <span className="text-blue-400">&quot;access&quot;</span>
                 <span className="text-white/60">:</span>
-                <span className="text-purple-400 ml-2">"early"</span>
+                <span className="text-purple-400 ml-2">&quot;early&quot;</span>
               </div>
             </div>
             <div className="text-white/40">{"}"}</div>
@@ -118,20 +124,22 @@ export function WaitlistInput() {
           >
             {/* Background effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent"></div>
-            
+
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <div className="w-4 h-4 border border-red-400 rounded-full flex items-center justify-center">
                   <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                 </div>
-                <span className="font-mono font-bold tracking-wider">ACCESS DENIED</span>
+                <span className="font-mono font-bold tracking-wider">
+                  ACCESS DENIED
+                </span>
               </div>
               <div className="text-xs font-mono text-red-300/80">
                 ERROR CODE: <span className="text-red-400">AUTH_FAILED</span>
               </div>
               <div className="text-xs text-white/60 mt-2">{error}</div>
             </div>
-            
+
             {/* Animated border */}
             <div className="absolute inset-0 border border-red-500/20 rounded-lg">
               <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-400/50 to-transparent animate-pulse"></div>
@@ -148,18 +156,22 @@ export function WaitlistInput() {
         >
           {/* Background scanning effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent animate-pulse"></div>
-          
+
           <div className="relative z-10">
             <div className="flex items-center justify-center gap-3 mb-2">
               <div className="w-4 h-4 border-2 border-white/30 border-t-blue-400 rounded-full animate-spin"></div>
-              <span className="font-mono font-bold tracking-wider">AUTHENTICATING</span>
+              <span className="font-mono font-bold tracking-wider">
+                AUTHENTICATING
+              </span>
             </div>
             <div className="text-xs font-mono text-blue-300/80">
               STATUS: <span className="text-blue-400">PROCESSING</span>
             </div>
-            <div className="text-xs text-white/60 mt-2">Establishing secure connection to intelligence network...</div>
+            <div className="text-xs text-white/60 mt-2">
+              Establishing secure connection to intelligence network...
+            </div>
           </div>
-          
+
           {/* Animated progress line */}
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/50 to-transparent">
             <div className="w-full h-full bg-gradient-to-r from-blue-400/0 via-blue-400 to-blue-400/0 animate-pulse"></div>

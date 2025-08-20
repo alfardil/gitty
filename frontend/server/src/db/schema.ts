@@ -43,8 +43,11 @@ export const users = pgTable(
     bio: varchar({ length: 512 }),
     developer: boolean().default(false).notNull(),
     username: varchar({ length: 255 }),
+    linkedin: varchar({ length: 512 }),
+    role: varchar({ length: 255 }),
     analyzedReposCount: integer().default(0),
     subscriptionPlan: subscriptionPlan("subscription_plan").default("FREE"),
+    stripeCustomerId: varchar({ length: 255 }),
   },
   (table) => [
     unique("users_githubId_unique").on(table.githubId),
@@ -370,5 +373,50 @@ export const performanceInsights = pgTable(
       foreignColumns: [users.id],
       name: "performance_insights_generated_by_fk",
     }),
+  ]
+);
+
+export const seatStatus = pgEnum("seat_status", [
+  "available",
+  "assigned",
+  "inactive",
+]);
+
+export const subscriptionSeats = pgTable(
+  "subscription_seats",
+  {
+    id: uuid().defaultRandom().primaryKey().notNull(),
+    subscriptionId: varchar({ length: 255 }).notNull(),
+    ownerId: uuid("owner_id").notNull(),
+    enterpriseId: uuid("enterprise_id"),
+    seatNumber: integer().notNull(),
+    assignedToUserId: uuid("assigned_to_user_id"),
+    assignedAt: timestamp({ mode: "string" }),
+    status: seatStatus("seat_status").default("available"),
+    inviteCode: varchar({ length: 64 }).unique(),
+    inviteCodeExpiresAt: timestamp({ mode: "string" }),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ownerId],
+      foreignColumns: [users.id],
+      name: "subscription_seats_owner_id_users_id_fk",
+    }),
+    foreignKey({
+      columns: [table.enterpriseId],
+      foreignColumns: [enterprises.id],
+      name: "subscription_seats_enterprise_id_fk",
+    }),
+    foreignKey({
+      columns: [table.assignedToUserId],
+      foreignColumns: [users.id],
+      name: "subscription_seats_assigned_to_user_id_users_id_fk",
+    }),
+    unique("subscription_seats_subscription_id_seat_number_unique").on(
+      table.subscriptionId,
+      table.seatNumber
+    ),
   ]
 );

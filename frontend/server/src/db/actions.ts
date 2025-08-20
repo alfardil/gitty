@@ -105,12 +105,14 @@ export async function isUserDeveloper(githubId: string): Promise<boolean> {
 }
 
 export async function getUserByGithubId(githubId: string) {
+  console.log("getUserByGithubId called with:", githubId);
   const user = await db
     .select()
     .from(usersTable)
     .where(eq(usersTable.githubId, githubId))
     .limit(1);
 
+  console.log("getUserByGithubId result:", user[0] || null);
   return user[0] || null;
 }
 

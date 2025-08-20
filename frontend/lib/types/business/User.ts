@@ -13,6 +13,9 @@ export type User = {
   bio: string | null;
   email: string | null;
   username: string | null;
+  linkedin?: string | null;
+  role?: string | null;
   developer?: boolean;
   subscription_plan: string;
+  stripeCustomerId?: string | null;
 };

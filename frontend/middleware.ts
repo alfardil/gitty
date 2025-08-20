@@ -10,7 +10,10 @@ export function middleware(request: NextRequest) {
     pathname === "/auth/access-denied" ||
     pathname === "/auth/error" ||
     pathname.startsWith("/api/auth") ||
-    pathname === "/api/waitlist"
+    pathname === "/api/waitlist" ||
+    pathname.startsWith("/api/stripe/webhook") ||
+    pathname.startsWith("/api/stripe/test") ||
+    pathname.startsWith("/api/stripe/env-check")
   ) {
     return NextResponse.next();
   }

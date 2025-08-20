@@ -21,9 +21,12 @@ export function RedeemInviteForm({
       <h3 className="text-lg font-semibold mb-4 text-center text-white">
         Redeem Invite Code
       </h3>
+      <p className="text-sm text-white/60 mb-4 text-center">
+        Enter a subscription seat invite code or enterprise invite code
+      </p>
       <input
         className="w-full p-2 rounded-lg bg-[#111111] border border-white/10 mb-4 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400/30"
-        placeholder="Invite Code"
+        placeholder="Enter invite code..."
         value={redeemCode}
         onChange={(e) => setRedeemCode(e.target.value)}
       />

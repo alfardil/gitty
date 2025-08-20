@@ -204,6 +204,8 @@ export async function GET(
         lastName: user.lastName,
         email: user.email,
         avatarUrl: user.avatarUrl,
+        linkedin: user.linkedin,
+        role: user.role,
         joinedAt: user.joinedAt,
         subscriptionPlan: user.subscriptionPlan,
       },
@@ -241,6 +243,151 @@ export async function GET(
     return NextResponse.json(profileData);
   } catch (error) {
     console.error("Error fetching user profile:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: targetUserId } = await params;
+    const body = await request.json();
+    const { linkedin, role, email } = body;
+
+    const isUUID =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        targetUserId
+      );
+    if (!isUUID) {
+      return NextResponse.json(
+        { error: "Invalid user ID format" },
+        { status: 400 }
+      );
+    }
+
+    const cookieStore = await cookies();
+    const userCookie = cookieStore.get("github_user");
+
+    if (!userCookie) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const currentUser = JSON.parse(userCookie.value);
+    const currentUserGithubId = String(currentUser.id);
+
+    const currentDbUser = await getUserByGithubId(currentUserGithubId);
+    if (!currentDbUser) {
+      return NextResponse.json(
+        { error: "Current user not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if user is updating their own profile or is an admin
+    const isOwnProfile = currentDbUser.id === targetUserId;
+
+    if (!isOwnProfile) {
+      // Check if current user is admin of any enterprise that includes the target user
+      const adminEnterprises = await db
+        .select({
+          enterpriseId: enterpriseUsers.enterpriseId,
+        })
+        .from(enterpriseUsers)
+        .where(
+          and(
+            eq(enterpriseUsers.userId, currentDbUser.id),
+            eq(enterpriseUsers.role, "admin")
+          )
+        );
+
+      if (!adminEnterprises.length) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      const adminEnterpriseIds = adminEnterprises.map(
+        (ent) => ent.enterpriseId
+      );
+
+      const targetUserEnterprises = await db
+        .select()
+        .from(enterpriseUsers)
+        .where(
+          and(
+            eq(enterpriseUsers.userId, targetUserId),
+            inArray(enterpriseUsers.enterpriseId, adminEnterpriseIds)
+          )
+        );
+
+      if (!targetUserEnterprises.length) {
+        return NextResponse.json(
+          { error: "User not found in your enterprises" },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Update the user profile
+    const updateData: any = {};
+    if (linkedin !== undefined) updateData.linkedin = linkedin;
+    if (role !== undefined) updateData.role = role;
+    if (email !== undefined) {
+      // Check if email is already taken by another user
+      if (email && email !== currentDbUser.email) {
+        const existingUser = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email))
+          .limit(1);
+
+        if (existingUser.length > 0) {
+          return NextResponse.json(
+            { error: "Email address is already in use" },
+            { status: 400 }
+          );
+        }
+      }
+      updateData.email = email;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: "No valid fields to update" },
+        { status: 400 }
+      );
+    }
+
+    console.log("Updating user profile:", {
+      userId: targetUserId,
+      updateData,
+      linkedin,
+      role,
+    });
+
+    try {
+      await db.update(users).set(updateData).where(eq(users.id, targetUserId));
+      console.log("Database update successful");
+    } catch (dbError) {
+      console.error("Database update failed:", dbError);
+      return NextResponse.json(
+        {
+          error: "Database update failed",
+          details: dbError instanceof Error ? dbError.message : "Unknown error",
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Profile updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

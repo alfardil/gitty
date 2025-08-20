@@ -8,6 +8,13 @@
       "when": 1755553248369,
       "tag": "0000_confused_puma",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755553248370,
+      "tag": "0004_add_enterprise_and_invite_fields",
+      "breakpoints": true
     }
   ]
 }
