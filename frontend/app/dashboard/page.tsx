@@ -56,20 +56,6 @@ function DashboardPage() {
   // Use the subscription plan from the user object directly, fallback to stats
   const currentSubscriptionPlan = user?.subscription_plan || subscriptionPlan;
 
-  // Debug logging
-  console.log("Dashboard Debug:", {
-    userUuid: user?.uuid,
-    userId: user?.id,
-    subscriptionPlan,
-    currentSubscriptionPlan,
-    isAdminOfAnyEnterprise,
-    userDeveloper: user?.developer,
-    userSubscriptionPlan: user?.subscription_plan,
-    isAdminLoading,
-    statsLoading,
-    user: user,
-  });
-
   const { repos, loading: reposLoading } = useUserRepos(user);
   const { orgs, loading: orgsLoading } = useUserOrgs(user) as {
     orgs: any[];

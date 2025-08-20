@@ -103,27 +103,20 @@ export async function GET(request: NextRequest) {
       //   );
       // }
 
-      console.log("Access control bypassed - allowing access to project tasks");
-
       // Set where clause for project tasks
       whereClause = eq(tasks.projectId, projectId);
-      console.log("Set whereClause for project tasks:", whereClause);
     } else {
       // Fallback to showing only user's tasks when no project is specified
       whereClause = or(
         eq(tasks.createdById, dbUser.id),
         eq(tasks.assigneeId, dbUser.id)
       );
-      console.log("Set whereClause for user tasks:", whereClause);
     }
 
     // Add enterprise filter if provided
     if (enterpriseId) {
       whereClause = and(whereClause, eq(tasks.enterpriseId, enterpriseId));
-      console.log("Added enterprise filter to whereClause:", whereClause);
     }
-
-    console.log("Final whereClause:", whereClause);
 
     const userTasks = await db
       .select({
@@ -149,7 +142,6 @@ export async function GET(request: NextRequest) {
       .where(whereClause)
       .orderBy(tasks.status, tasks.position);
 
-    console.log("Successfully fetched tasks:", userTasks.length);
     return NextResponse.json({ tasks: userTasks });
   } catch (error) {
     console.error("Error fetching tasks:", error);
