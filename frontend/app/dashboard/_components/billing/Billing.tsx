@@ -557,7 +557,12 @@ export function Billing() {
                     </div>
 
                     <button
-                      onClick={() => redirectToCheckout(quantity)}
+                      onClick={() =>
+                        redirectToCheckout(
+                          quantity,
+                          selectedEnterprise || enterprises[0]?.id
+                        )
+                      }
                       className="px-6 py-2 bg-main text-white rounded-md hover:bg-main/90 transition-colors font-mono"
                     >
                       Upgrade to Pro ({quantity} seat{quantity > 1 ? "s" : ""})
