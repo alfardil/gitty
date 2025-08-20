@@ -21,7 +21,7 @@ interface SubscriptionResponse {
 }
 
 const fetchSubscriptionDetails = async (
-  stripeCustomerId: string | null
+  stripeCustomerId: string | null | undefined
 ): Promise<SubscriptionDetails | null> => {
   if (!stripeCustomerId) {
     return null;

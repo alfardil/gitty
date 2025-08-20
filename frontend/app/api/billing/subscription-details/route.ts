@@ -46,28 +46,32 @@ export async function GET(request: NextRequest) {
     const price = subscription.items.data[0].price;
 
     // Calculate next billing date
-    let nextBillingDate = new Date(subscription.current_period_end * 1000);
-    if (subscription.cancel_at_period_end) {
-      nextBillingDate = new Date(subscription.cancel_at * 1000);
+    let nextBillingDate = new Date(
+      (subscription as any).current_period_end * 1000
+    );
+    if ((subscription as any).cancel_at_period_end) {
+      nextBillingDate = new Date((subscription as any).cancel_at * 1000);
     }
 
     const subscriptionDetails = {
       status: subscription.status,
       currentPeriodStart: new Date(
-        subscription.current_period_start * 1000
+        (subscription as any).current_period_start * 1000
       ).toISOString(),
       currentPeriodEnd: new Date(
-        subscription.current_period_end * 1000
+        (subscription as any).current_period_end * 1000
       ).toISOString(),
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      cancelAtPeriodEnd: (subscription as any).cancel_at_period_end,
       quantity: subscription.items.data[0].quantity || 1,
       priceId: price.id,
-      priceAmount: price.unit_amount ? price.unit_amount / 100 : 0,
+      priceAmount: (price as any).unit_amount
+        ? (price as any).unit_amount / 100
+        : 0,
       priceCurrency: price.currency.toUpperCase(),
       interval: price.recurring?.interval || "month",
       nextBillingDate: nextBillingDate.toISOString(),
       totalAmount:
-        (price.unit_amount ? price.unit_amount / 100 : 0) *
+        ((price as any).unit_amount ? (price as any).unit_amount / 100 : 0) *
         (subscription.items.data[0].quantity || 1),
     };
 

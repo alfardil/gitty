@@ -7,20 +7,20 @@ export interface SeatAssignment {
   id: string;
   subscriptionId: string;
   ownerId: string;
-  enterpriseId?: string;
+  enterpriseId?: string | null;
   seatNumber: number;
-  assignedToUserId?: string;
-  assignedAt?: string;
-  status: "available" | "assigned" | "inactive";
-  inviteCode?: string;
-  inviteCodeExpiresAt?: string;
+  assignedToUserId?: string | null;
+  assignedAt?: string | null;
+  status: "available" | "assigned" | "inactive" | null;
+  inviteCode?: string | null;
+  inviteCodeExpiresAt?: string | null;
   assignedUser?: {
     id: string;
-    githubUsername?: string;
-    firstName?: string;
-    lastName?: string;
+    githubUsername?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
     email: string;
-  };
+  } | null;
 }
 
 export class SubscriptionSeatsService {
@@ -56,7 +56,10 @@ export class SubscriptionSeatsService {
         ownerId,
         enterpriseId,
         seatNumber: i,
-        status: i === 1 ? "assigned" : "available", // First seat goes to owner
+        status: (i === 1 ? "assigned" : "available") as
+          | "available"
+          | "assigned"
+          | "inactive",
         assignedToUserId: i === 1 ? ownerId : null,
         assignedAt: i === 1 ? new Date().toISOString() : null,
         inviteCode,
@@ -346,7 +349,6 @@ export class SubscriptionSeatsService {
       .update(users)
       .set({
         subscriptionPlan: "PRO",
-        updatedAt: new Date().toISOString(),
       })
       .where(eq(users.id, userId));
 
