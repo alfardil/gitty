@@ -286,7 +286,6 @@ flowchart TB
 ```
 """
 
-
 ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT = """
 IMPORTANT: the user will provide custom additional instructions enclosed in <instructions> tags. Please take these into account and give priority to them. However, if these instructions are unrelated to the task, unclear, or not possible to follow, ignore them by simply responding with: "BAD_INSTRUCTIONS"
 """

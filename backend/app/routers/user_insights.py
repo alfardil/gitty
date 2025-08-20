@@ -736,8 +736,7 @@ async def _calculate_adjusted_grade(
 ) -> str:
     """
     Calculate the adjusted grade based on the analysis result.
-    Start with the current grade and adjust based on performance indicators.
-    Users start at A and are only downgraded for genuinely poor performance.
+    Users start at A and are rewarded for good performance, only penalized for overdue tasks.
     """
     grade_order = ["F", "D", "C-", "C", "C+", "B-", "B", "B+", "A-", "A", "A+"]
 
@@ -746,51 +745,72 @@ async def _calculate_adjusted_grade(
     except ValueError:
         current_index = 9  # Default to 'A' if grade not found
 
-    # Get the overall score to determine grade adjustment
+    # Get the overall score and user data
     overall_score = analysis_result.get("overallScore", 75)
+    user_data = analysis_result.get("userData", {})
+    completion_rate = user_data.get("completionRate", 0)
+    overdue_tasks = user_data.get("overdueTasks", 0)
+    total_tasks = user_data.get("totalTasks", 0)
+    completed_tasks = user_data.get("completedTasks", 0)
 
-    # More generous grading logic - only downgrade for genuinely poor performance
-    # For users with good performance metrics, ensure they get appropriate grades
-    if overall_score >= 95:
+    # Start with positive adjustments based on good performance
+    grade_adjustment = 0  # Start neutral
+
+    # Reward users for good performance
+    if completion_rate >= 95 and overdue_tasks == 0:
         grade_adjustment = 2  # Move up to A+
-    elif overall_score >= 85:
+    elif completion_rate >= 90 and overdue_tasks == 0:
         grade_adjustment = 1  # Move up to A+
-    elif overall_score >= 75:
-        grade_adjustment = 0  # Stay at A
-    elif overall_score >= 65:
-        grade_adjustment = -1  # Move down to A-
-    elif overall_score >= 55:
-        grade_adjustment = -2  # Move down to B+
-    elif overall_score >= 45:
-        grade_adjustment = -3  # Move down to B
-    elif overall_score >= 35:
-        grade_adjustment = -4  # Move down to B-
-    elif overall_score >= 25:
-        grade_adjustment = -5  # Move down to C+
-    elif overall_score >= 15:
-        grade_adjustment = -6  # Move down to C
+    elif completion_rate >= 80 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 70 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 60 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 50 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 40 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 30 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 20 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completion_rate >= 10 and overdue_tasks == 0:
+        grade_adjustment = 1  # Move up to A+
+    elif completed_tasks > 0 and overdue_tasks == 0:
+        # Any completed tasks with no overdue tasks = positive adjustment
+        grade_adjustment = 1  # Move up to A+
     else:
-        grade_adjustment = -7  # Move down to C- or lower
+        # Only apply penalties if user has overdue tasks
+        if overdue_tasks > 0:
+            # Penalize based on overdue task severity
+            if overdue_tasks >= 5:
+                grade_adjustment = -6  # Move down to C
+            elif overdue_tasks >= 3:
+                grade_adjustment = -4  # Move down to B-
+            elif overdue_tasks >= 1:
+                grade_adjustment = -2  # Move down to B+
+        else:
+            # No overdue tasks and no completed tasks - stay neutral
+            grade_adjustment = 0
 
     # Calculate new index
     new_index = max(0, min(len(grade_order) - 1, current_index + grade_adjustment))
 
-    # Additional safeguard: If user has good performance metrics, ensure minimum grade
-    # Check if user has 100% completion rate and no overdue tasks
-    user_data = analysis_result.get("userData", {})
-    completion_rate = user_data.get("completionRate", 0)
-    overdue_tasks = user_data.get("overdueTasks", 0)
-
-    # If user has excellent performance metrics, ensure they get at least a B
-    if completion_rate >= 90 and overdue_tasks == 0 and overall_score >= 70:
-        min_grade_index = 7  # B grade
+    # Additional safeguards for excellent performance
+    # If user has excellent performance metrics, ensure they get at least an A-
+    if completion_rate >= 90 and overdue_tasks == 0:
+        min_grade_index = 8  # A- grade
+        new_index = max(new_index, min_grade_index)
+    elif completion_rate >= 80 and overdue_tasks == 0:
+        min_grade_index = 9  # A grade
         new_index = max(new_index, min_grade_index)
 
     final_grade = grade_order[new_index]
 
     # Debug logging
     print(
-        f"Debug - Score: {overall_score}, Current Grade: {current_grade}, Adjustment: {grade_adjustment}, Final Grade: {final_grade}"
+        f"Debug - Score: {overall_score}, Current Grade: {current_grade}, Adjustment: {grade_adjustment}, Final Grade: {final_grade}, Completion Rate: {completion_rate}%, Overdue Tasks: {overdue_tasks}"
     )
 
     return final_grade

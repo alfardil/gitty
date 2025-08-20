@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
     // Test database connection
     try {
       const testQuery = await db.select({ count: sql`count(*)` }).from(tasks);
-      console.log("Database connection test successful:", testQuery);
     } catch (dbError) {
       console.error("Database connection test failed:", dbError);
       return NextResponse.json(
@@ -96,18 +95,6 @@ export async function GET(request: NextRequest) {
         hasAccess = projectAccess.length > 0 || enterpriseAdminCheck.length > 0;
       }
 
-      // Debug logging
-      console.log("Project access check:", {
-        projectAccess: projectAccess.length,
-        enterpriseAdminCheck: enterpriseAdminCheck.length,
-        hasAccess,
-        userId: dbUser.id,
-        projectId,
-        enterpriseId: project[0]?.enterpriseId,
-        projectAccessDetails: projectAccess,
-        enterpriseAdminDetails: enterpriseAdminCheck
-      });
-
       // TEMPORARILY BYPASS ACCESS CONTROL FOR TESTING
       // if (!hasAccess) {
       //   return NextResponse.json(
@@ -115,9 +102,9 @@ export async function GET(request: NextRequest) {
       //     { status: 403 }
       //   );
       // }
-      
+
       console.log("Access control bypassed - allowing access to project tasks");
-      
+
       // Set where clause for project tasks
       whereClause = eq(tasks.projectId, projectId);
       console.log("Set whereClause for project tasks:", whereClause);
@@ -149,6 +136,12 @@ export async function GET(request: NextRequest) {
         assigneeId: tasks.assigneeId,
         enterpriseId: tasks.enterpriseId,
         projectId: tasks.projectId,
+        tags: tasks.tags,
+        position: tasks.position,
+        completedAt: tasks.completedAt,
+        estimatedHours: tasks.estimatedHours,
+        complexity: tasks.complexity,
+        taskType: tasks.taskType,
         createdAt: tasks.createdAt,
         updatedAt: tasks.updatedAt,
       })
@@ -160,7 +153,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ tasks: userTasks });
   } catch (error) {
     console.error("Error fetching tasks:", error);
-    
+
     // More detailed error logging
     if (error instanceof Error) {
       console.error("Error name:", error.name);
@@ -170,7 +163,7 @@ export async function GET(request: NextRequest) {
       console.error("Unknown error type:", typeof error);
       console.error("Error value:", error);
     }
-    
+
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -212,9 +205,6 @@ export async function POST(request: NextRequest) {
       assigneeId,
       enterpriseId,
       projectId,
-      estimatedHours,
-      complexity,
-      taskType,
     } = body;
 
     if (!title) {
@@ -268,7 +258,7 @@ export async function POST(request: NextRequest) {
         enterpriseId: finalEnterpriseId || null,
         projectId: projectId || null,
         assignedAt: assignedAt,
-        // Don't set these fields - they'll be filled by AI analysis
+        // to be filled by AI analysis
         estimatedHours: null,
         complexity: null, // Let AI analysis determine complexity
         taskType: null,

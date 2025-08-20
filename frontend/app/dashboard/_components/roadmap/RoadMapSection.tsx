@@ -304,7 +304,7 @@ export function RoadMapSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) return;
 
     try {
@@ -318,7 +318,7 @@ export function RoadMapSection() {
           tags: formData.tags,
           assigneeId: formData.assigneeId || undefined,
         });
-        
+
         // Close modal and reset form after editing
         setShowNewTaskModal(false);
         setEditingTask(null);
@@ -340,7 +340,7 @@ export function RoadMapSection() {
           tags: formData.tags,
           assigneeId: formData.assigneeId || undefined,
         });
-        
+
         // Close modal and reset form after creating
         setShowNewTaskModal(false);
         setFormData({
@@ -1069,11 +1069,12 @@ export function RoadMapSection() {
         >
           <div
             className={`h-auto max-h-[90vh] w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-l-xl shadow-2xl transform transition-all duration-500 ease-out m-4 ${
-              showNewTaskModal ? 'translate-x-0' : 'translate-x-full'
+              showNewTaskModal ? "translate-x-0" : "translate-x-full"
             }`}
             onClick={(e) => e.stopPropagation()}
             style={{
-              boxShadow: "0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.05)"
+              boxShadow:
+                "0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.05)",
             }}
           >
             {/* Header with Action Buttons */}
@@ -1101,7 +1102,11 @@ export function RoadMapSection() {
             </div>
 
             {/* Form */}
-            <form id="task-form" onSubmit={handleSubmit} className="flex flex-col h-full">
+            <form
+              id="task-form"
+              onSubmit={handleSubmit}
+              className="flex flex-col h-full"
+            >
               <div className="p-4 space-y-4 flex-shrink-0">
                 {/* Title */}
                 <div>
@@ -1136,9 +1141,15 @@ export function RoadMapSection() {
                     </label>
                     <input
                       type="date"
-                      value={formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : ''}
+                      value={
+                        formData.dueDate
+                          ? formData.dueDate.toISOString().split("T")[0]
+                          : ""
+                      }
                       onChange={(e) => {
-                        const date = e.target.value ? new Date(e.target.value) : undefined;
+                        const date = e.target.value
+                          ? new Date(e.target.value)
+                          : undefined;
                         setFormData({ ...formData, dueDate: date });
                       }}
                       className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200"
@@ -1156,7 +1167,9 @@ export function RoadMapSection() {
                           type="button"
                           className={`w-full px-3 py-2 border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200 text-left flex items-center justify-between ${priorityConfig[formData.priority].color} ${priorityConfig[formData.priority].textColor}`}
                         >
-                          <span className="capitalize tracking-wide text-xs">{formData.priority}</span>
+                          <span className="capitalize tracking-wide text-xs">
+                            {formData.priority}
+                          </span>
                           <div className="w-3 h-3 flex items-center justify-center">
                             <div className="w-1.5 h-1.5 border border-current rounded-full opacity-60"></div>
                           </div>
@@ -1265,7 +1278,9 @@ export function RoadMapSection() {
                                 <img
                                   src={user.avatarUrl}
                                   alt={
-                                    user.firstName || user.githubUsername || "User"
+                                    user.firstName ||
+                                    user.githubUsername ||
+                                    "User"
                                   }
                                   className="w-4 h-4 rounded-full border border-white/10"
                                 />
@@ -1300,11 +1315,11 @@ export function RoadMapSection() {
                   }
                   className="w-full h-full bg-transparent border-none text-white font-mono text-sm focus:outline-none resize-none placeholder:text-white/30 p-0"
                   placeholder="Start typing your description..."
-                  style={{ 
+                  style={{
                     whiteSpace: "pre-wrap",
                     lineHeight: "1.5",
                     minHeight: "80px",
-                    maxHeight: "550px" // Actually limit how far down it goes
+                    maxHeight: "550px", // Actually limit how far down it goes
                   }}
                 />
               </div>

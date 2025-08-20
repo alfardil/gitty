@@ -6,7 +6,6 @@ import { Spinner } from "@/components/ui/neo/spinner";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Users, Clock, Crown, Zap, Shield } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback, memo } from "react";
-import { useGlobalCountdown } from "@/lib/hooks/business/useGlobalCountdown";
 
 interface Enterprise {
   id: string;
@@ -22,46 +21,6 @@ interface EnterpriseUser {
   role: string;
 }
 
-// Memoized countdown display component
-const CountdownDisplay = memo(({ timeLeft }: { timeLeft: { days: number; hours: number; minutes: number; seconds: number } }) => (
-  <div className="grid grid-cols-4 gap-4 max-w-md mx-auto">
-    <div className="text-center">
-      <div className="text-2xl font-semibold text-foreground bg-background border border-border rounded p-3">
-        {timeLeft.days}
-      </div>
-      <div className="text-xs text-foreground/60 mt-1 uppercase tracking-wide">
-        Days
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-semibold text-foreground bg-background border border-border rounded p-3">
-        {timeLeft.hours.toString().padStart(2, '0')}
-      </div>
-      <div className="text-xs text-foreground/60 mt-1 uppercase tracking-wide">
-        Hours
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-semibold text-foreground bg-background border border-border rounded p-3">
-        {timeLeft.minutes.toString().padStart(2, '0')}
-      </div>
-      <div className="text-xs text-foreground/60 mt-1 uppercase tracking-wide">
-        Minutes
-      </div>
-    </div>
-    <div className="text-center">
-      <div className="text-2xl font-semibold text-foreground bg-background border border-border rounded p-3">
-        {timeLeft.seconds.toString().padStart(2, '0')}
-      </div>
-      <div className="text-xs text-foreground/60 mt-1 uppercase tracking-wide">
-        Seconds
-      </div>
-    </div>
-  </div>
-));
-
-CountdownDisplay.displayName = 'CountdownDisplay';
-
 // Memoized team member card component
 const TeamMemberCard = memo(({ member }: { member: EnterpriseUser }) => (
   <div className="bg-background/50 border border-border rounded-md p-4 hover:bg-background/70 transition-colors">
@@ -75,24 +34,22 @@ const TeamMemberCard = memo(({ member }: { member: EnterpriseUser }) => (
             ? `${member.firstName} ${member.lastName}`
             : member.githubUsername || "Unknown User"}
         </div>
-        <div className="text-sm text-foreground/60 truncate">
-          {member.role}
-        </div>
+        <div className="text-sm text-foreground/60 truncate">{member.role}</div>
       </div>
     </div>
   </div>
 ));
 
-TeamMemberCard.displayName = 'TeamMemberCard';
+TeamMemberCard.displayName = "TeamMemberCard";
 
 // Memoized features list component
 const FeaturesList = memo(() => (
   <div className="space-y-2">
     {[
       "Unlimited Analysis",
-      "AI Insights", 
+      "AI Insights",
       "Team Collaboration",
-      "Priority Support"
+      "Priority Support",
     ].map((feature) => (
       <div key={feature} className="flex items-center gap-2">
         <div className="w-1.5 h-1.5 bg-foreground/40 rounded-full"></div>
@@ -102,7 +59,7 @@ const FeaturesList = memo(() => (
   </div>
 ));
 
-FeaturesList.displayName = 'FeaturesList';
+FeaturesList.displayName = "FeaturesList";
 
 export function FreeTrialBilling() {
   const { user, loading } = useAuth();
@@ -112,15 +69,17 @@ export function FreeTrialBilling() {
     loading: enterprisesLoading,
   } = useAdminEnterprises(user?.uuid || "");
 
-  const [selectedEnterprise, setSelectedEnterprise] = useState<string | null>(null);
-  
-  // Use global countdown hook that persists across navigation
-  const { timeLeft } = useGlobalCountdown();
+  const [selectedEnterprise, setSelectedEnterprise] = useState<string | null>(
+    null
+  );
 
   // Memoized enterprise selection handler
-  const handleEnterpriseChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedEnterprise(e.target.value);
-  }, []);
+  const handleEnterpriseChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setSelectedEnterprise(e.target.value);
+    },
+    []
+  );
 
   // Auto-select first enterprise with useCallback to prevent unnecessary re-renders
   useEffect(() => {
@@ -130,8 +89,8 @@ export function FreeTrialBilling() {
   }, [enterprises, selectedEnterprise]);
 
   // Memoized derived values to prevent unnecessary recalculations
-  const currentEnterprise = useMemo(() => 
-    enterprises.find((e: Enterprise) => e.id === selectedEnterprise),
+  const currentEnterprise = useMemo(
+    () => enterprises.find((e: Enterprise) => e.id === selectedEnterprise),
     [enterprises, selectedEnterprise]
   );
 
@@ -144,7 +103,9 @@ export function FreeTrialBilling() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Spinner size="large" />
-          <p className="mt-4 text-foreground/60">Loading billing information...</p>
+          <p className="mt-4 text-foreground/60">
+            Loading billing information...
+          </p>
         </div>
       </div>
     );
@@ -166,22 +127,12 @@ export function FreeTrialBilling() {
     <div className="space-y-8 p-6">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold text-foreground">Billing & Subscription</h1>
+        <h1 className="text-3xl font-semibold text-foreground">
+          Billing & Subscription
+        </h1>
         <p className="text-foreground/60 text-sm">
           Manage your free trial and team access
         </p>
-      </div>
-
-      {/* Countdown Banner */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <Clock className="w-5 h-5 text-foreground/60" />
-            <h2 className="text-lg font-medium text-foreground">Trial Ends In</h2>
-          </div>
-          
-          <CountdownDisplay timeLeft={timeLeft} />
-        </div>
       </div>
 
       {/* Plan Status Grid */}
@@ -219,10 +170,14 @@ export function FreeTrialBilling() {
           <div className="space-y-3">
             <div className="flex justify-between items-center py-2 border-b border-border/50">
               <span className="text-sm text-foreground/60">Total Members</span>
-              <span className="font-medium text-foreground">{totalTeamMembers}</span>
+              <span className="font-medium text-foreground">
+                {totalTeamMembers}
+              </span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-border/50">
-              <span className="text-sm text-foreground/60">Seats Available</span>
+              <span className="text-sm text-foreground/60">
+                Seats Available
+              </span>
               <span className="font-medium text-foreground">Unlimited</span>
             </div>
             <div className="flex justify-between items-center py-2">
@@ -245,7 +200,9 @@ export function FreeTrialBilling() {
       {/* Enterprise Selection */}
       {enterprises.length > 0 && (
         <div className="bg-card border border-border rounded-lg p-6">
-          <h3 className="font-medium text-foreground mb-4">Enterprise Management</h3>
+          <h3 className="font-medium text-foreground mb-4">
+            Enterprise Management
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm text-foreground/60 mb-2">

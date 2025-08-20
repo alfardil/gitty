@@ -72,15 +72,6 @@ export async function GET(
       )
       .limit(1);
 
-    // Debug logging
-    console.log("Project users access check:", {
-      userEnterprise: userEnterprise.length,
-      userId: dbUser.id,
-      projectId,
-      enterpriseId: project.enterpriseId,
-      userEnterpriseDetails: userEnterprise
-    });
-
     // TEMPORARILY BYPASS ACCESS CONTROL FOR TESTING
     // if (userEnterprise.length === 0) {
     //   return NextResponse.json(
@@ -88,8 +79,6 @@ export async function GET(
     //     { status: 403 }
     //   );
     // }
-    
-    console.log("Access control bypassed - allowing access to project users");
 
     // Get all users assigned to this project
     // Fallback to projectMembers table if memberIds is not available
