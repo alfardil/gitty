@@ -13,7 +13,7 @@ import { useUserRepos } from "@/lib/hooks/api/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Billing } from "@/app/dashboard/_components/billing/Billing";
+import { FreeTrialBilling } from "@/app/dashboard/_components/billing/FreeTrialBilling";
 import { Settings } from "@/app/dashboard/_components/settings/Settings";
 import { Suspense } from "react";
 import DeveloperSection from "@/app/dashboard/_components/developer";
@@ -381,7 +381,7 @@ function DashboardPage() {
             </PaymentGate>
           )}
 
-          {section === "billing" && <Billing />}
+          {section === "billing" && <FreeTrialBilling />}
           {section === "settings" && <Settings />}
           {section === "developer" && user.developer && (
             <DeveloperSection user={user} />

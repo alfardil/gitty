@@ -5,7 +5,7 @@ interface SidebarState {
   sidebarMobile: boolean;
 }
 
-const SIDEBAR_STORAGE_KEY = "gitty-sidebar-state";
+const SIDEBAR_STORAGE_KEY = "thestral-sidebar-state";
 
 export function useSidebarState() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);

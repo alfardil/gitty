@@ -19,14 +19,14 @@ export function AIChatSection({
 
   if (!accessToken) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 space-y-6">
-        <div className="p-6 rounded-full bg-zinc-900/50 border border-white/10">
-          <FileSearch className="w-10 h-10 text-indigo-500" />
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-4 space-y-4">
+        <div className="p-6 rounded-lg border border-white/10 bg-white/5">
+          <FileSearch className="w-8 h-8 text-white/60" />
         </div>
-        <div className="space-y-3">
-          <p className="text-white text-xl font-semibold">No GitHub Token</p>
-          <p className="text-zinc-500 text-base max-w-[280px]">
-            Please log in to GitHub to use the AI chat features.
+        <div className="space-y-2 max-w-[280px]">
+          <p className="text-white text-lg font-medium">Access Denied</p>
+          <p className="text-white/60 text-sm">
+            Authentication required to proceed
           </p>
         </div>
       </div>

@@ -1,3 +1,3 @@
 """
-Gitty API package
+Thestral API package
 """

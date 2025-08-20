@@ -21,6 +21,8 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
   } = useQuery({
     queryKey: ["admin-enterprises", userId],
     queryFn: async (): Promise<Enterprise[]> => {
+      if (!userId) return [];
+      
       const res = await fetch(
         `/api/admin?action=getAdminEnterprises&userId=${userId}`
       );
@@ -31,8 +33,10 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
       return [];
     },
     enabled: !!userId,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes (increased from 2)
+    gcTime: 10 * 60 * 1000, // 10 minutes (increased from 5)
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnMount: false, // Prevent refetch on component mount if data exists
   });
 
   // Select the first enterprise by default
@@ -42,12 +46,12 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
 
   // Set default selected enterprise when enterprisesData changes
   useEffect(() => {
-    if (enterprisesData && enterprisesData.length > 0) {
-      setSelectedEnterprise((prev) => prev ?? enterprisesData[0].id);
-    } else {
+    if (enterprisesData && enterprisesData.length > 0 && !selectedEnterprise) {
+      setSelectedEnterprise(enterprisesData[0].id);
+    } else if (enterprisesData && enterprisesData.length === 0) {
       setSelectedEnterprise(null);
     }
-  }, [enterprisesData]);
+  }, [enterprisesData, selectedEnterprise]);
 
   const {
     data: usersData,
@@ -57,6 +61,7 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
     queryKey: ["enterprise-users", selectedEnterprise, projectId],
     queryFn: async (): Promise<EnterpriseUser[]> => {
       if (!selectedEnterprise) return [];
+      
       const params = new URLSearchParams({ enterpriseId: selectedEnterprise });
       if (projectId) params.append("projectId", projectId);
 
@@ -68,8 +73,10 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
       return [];
     },
     enabled: !!selectedEnterprise,
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes (increased from 2)
+    gcTime: 10 * 60 * 1000, // 10 minutes (increased from 5)
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnMount: false, // Prevent refetch on component mount if data exists
   });
 
   return {

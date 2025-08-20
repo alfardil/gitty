@@ -44,7 +44,7 @@ export function InviteCodeForm({
       <div className="flex items-center gap-2">
         <span className="text-white/40 font-mono text-sm">{"{"}</span>
         <h3 className="text-sm font-mono text-white/80 tracking-wide">
-          {role === "member" ? "member" : "admin"}_access
+          {role === "member" ? "Member" : "Admin"} Access
         </h3>
         <span className="text-white/40 font-mono text-sm">{"}"}</span>
       </div>
@@ -114,7 +114,7 @@ export function InviteCodeForm({
         ) : (
           <>
             <span>{"{"}</span>
-            <span>generate_invite</span>
+            <span>generate invite</span>
             <span>{"}"}</span>
           </>
         )}

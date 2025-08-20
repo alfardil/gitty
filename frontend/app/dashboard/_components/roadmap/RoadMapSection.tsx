@@ -302,21 +302,58 @@ export function RoadMapSection() {
     return true;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.title.trim()) return;
 
-    if (!validateForm(formData)) return;
-
-    // Ensure a project is selected before creating/updating tasks
-    if (!selectedProject) {
-      toast.error("Please select a project before creating tasks");
-      return;
-    }
-
-    if (editingTask) {
-      updateTask(editingTask.id, formData);
-    } else {
-      createTask(formData);
+    try {
+      if (editingTask) {
+        // Update existing task
+        await updateTask(editingTask.id, {
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          dueDate: formData.dueDate,
+          tags: formData.tags,
+          assigneeId: formData.assigneeId || undefined,
+        });
+        
+        // Close modal and reset form after editing
+        setShowNewTaskModal(false);
+        setEditingTask(null);
+        setFormData({
+          title: "",
+          description: "",
+          priority: "medium",
+          dueDate: undefined,
+          tags: "",
+          assigneeId: "",
+        });
+      } else {
+        // Create new task
+        await createTask({
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          dueDate: formData.dueDate,
+          tags: formData.tags,
+          assigneeId: formData.assigneeId || undefined,
+        });
+        
+        // Close modal and reset form after creating
+        setShowNewTaskModal(false);
+        setFormData({
+          title: "",
+          description: "",
+          priority: "medium",
+          dueDate: undefined,
+          tags: "",
+          assigneeId: "",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving task:", error);
     }
   };
 
@@ -1024,228 +1061,252 @@ export function RoadMapSection() {
         </>
       )}
 
-      {/* Task Modal */}
+      {/* Task Modal - Side Panel */}
       {showNewTaskModal && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 flex justify-end"
           onClick={saveAndCloseModal}
         >
           <div
-            className="bg-[#23272f] rounded-lg p-6 w-full max-w-md mx-4"
+            className={`h-auto max-h-[90vh] w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-l-xl shadow-2xl transform transition-all duration-500 ease-out m-4 ${
+              showNewTaskModal ? 'translate-x-0' : 'translate-x-full'
+            }`}
             onClick={(e) => e.stopPropagation()}
+            style={{
+              boxShadow: "0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(255, 255, 255, 0.05)"
+            }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">
-                {editingTask ? "Edit Task" : "Create New Task"}
+            {/* Header with Action Buttons */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h3 className="text-sm font-mono font-medium text-white tracking-wide">
+                {editingTask ? "Edit Task" : "New Task"}
               </h3>
-              <button
-                onClick={saveAndCloseModal}
-                className="text-gray-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="submit"
+                  form="task-form"
+                  className="px-3 py-1.5 bg-white/10 hover:bg-white/15 border border-white/20 rounded-md text-white transition-all duration-200 font-mono text-xs tracking-wide"
+                >
+                  {editingTask ? "Update" : "Create"}
+                </button>
+                <button
+                  onClick={() => setShowNewTaskModal(false)}
+                  className="p-1.5 rounded-md bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                >
+                  <div className="w-3 h-3 flex items-center justify-center">
+                    <div className="w-2 h-2 border border-white/60 rounded-sm group-hover:rotate-90 transition-transform duration-200"></div>
+                  </div>
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  className={`w-full px-3 py-2 bg-[#2d313a] border rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    formErrors.title ? "border-red-500" : "border-[#353a45]"
-                  }`}
-                  required
-                />
-                {formErrors.title && (
-                  <p className="text-red-400 text-xs mt-1">
-                    {formErrors.title}
-                  </p>
-                )}
+            {/* Form */}
+            <form id="task-form" onSubmit={handleSubmit} className="flex flex-col h-full">
+              <div className="p-4 space-y-4 flex-shrink-0">
+                {/* Title */}
+                <div>
+                  <label className="block text-xs font-mono text-white/50 tracking-wide uppercase mb-1.5">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    className={`w-full px-3 py-2 bg-[#0f0f0f] border rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200 placeholder:text-white/30 ${
+                      formErrors.title ? "border-red-500/50" : "border-white/10"
+                    }`}
+                    placeholder="Task title..."
+                    required
+                  />
+                  {formErrors.title && (
+                    <p className="text-red-400 text-xs mt-1 font-mono">
+                      {formErrors.title}
+                    </p>
+                  )}
+                </div>
+
+                {/* Compact row for metadata */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Due Date - Better date input */}
+                  <div>
+                    <label className="block text-xs font-mono text-white/50 tracking-wide uppercase mb-1.5">
+                      Due Date
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : ''}
+                      onChange={(e) => {
+                        const date = e.target.value ? new Date(e.target.value) : undefined;
+                        setFormData({ ...formData, dueDate: date });
+                      }}
+                      className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200"
+                    />
+                  </div>
+
+                  {/* Priority */}
+                  <div>
+                    <label className="block text-xs font-mono text-white/50 tracking-wide uppercase mb-1.5">
+                      Priority
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`w-full px-3 py-2 border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200 text-left flex items-center justify-between ${priorityConfig[formData.priority].color} ${priorityConfig[formData.priority].textColor}`}
+                        >
+                          <span className="capitalize tracking-wide text-xs">{formData.priority}</span>
+                          <div className="w-3 h-3 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 border border-current rounded-full opacity-60"></div>
+                          </div>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl p-1 text-white min-w-[100px] backdrop-blur-sm">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setFormData({ ...formData, priority: "low" })
+                          }
+                          className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer px-2.5 py-1.5 rounded text-xs font-mono transition-colors duration-150"
+                        >
+                          Low
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setFormData({ ...formData, priority: "medium" })
+                          }
+                          className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer px-2.5 py-1.5 rounded text-xs font-mono transition-colors duration-150"
+                        >
+                          Medium
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setFormData({ ...formData, priority: "high" })
+                          }
+                          className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer px-2.5 py-1.5 rounded text-xs font-mono transition-colors duration-150"
+                        >
+                          High
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {/* Tags */}
+                  <div>
+                    <label className="block text-xs font-mono text-white/50 tracking-wide uppercase mb-1.5">
+                      Tags
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.tags}
+                      onChange={(e) =>
+                        setFormData({ ...formData, tags: e.target.value })
+                      }
+                      className="w-full px-3 py-2 bg-[#0f0f0f] border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200 placeholder:text-white/30"
+                      placeholder="Add tags..."
+                    />
+                  </div>
+
+                  {/* Assignee */}
+                  <div>
+                    <label className="block text-xs font-mono text-white/50 tracking-wide uppercase mb-1.5">
+                      Assignee
+                    </label>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="w-full px-3 py-2 border border-white/10 rounded-md text-white font-mono text-xs focus:outline-none focus:ring-1 focus:ring-white/30 focus:border-white/30 transition-all duration-200 text-left flex items-center justify-between bg-[#0f0f0f] hover:bg-white/5"
+                        >
+                          <span className="text-xs">
+                            {formData.assigneeId
+                              ? projectUsersData?.data?.assignedUsers.find(
+                                  (user) => user.id === formData.assigneeId
+                                )?.firstName ||
+                                projectUsersData?.data?.assignedUsers.find(
+                                  (user) => user.id === formData.assigneeId
+                                )?.githubUsername ||
+                                "Unknown User"
+                              : "Unassigned"}
+                          </span>
+                          <div className="w-3 h-3 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 border border-white/40 rounded-full opacity-60"></div>
+                          </div>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl p-1 text-white max-h-60 overflow-y-auto min-w-[160px] backdrop-blur-sm">
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setFormData({ ...formData, assigneeId: "" })
+                          }
+                          className="text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer px-2.5 py-1.5 rounded text-xs font-mono transition-colors duration-150"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+                              <User className="w-2 h-2 text-white/60" />
+                            </div>
+                            <span>Unassigned</span>
+                          </div>
+                        </DropdownMenuItem>
+                        {projectUsersData?.data?.assignedUsers.map((user) => (
+                          <DropdownMenuItem
+                            key={user.id}
+                            onClick={() =>
+                              setFormData({ ...formData, assigneeId: user.id })
+                            }
+                            className={`text-white hover:bg-white/10 focus:bg-white/10 cursor-pointer px-2.5 py-1.5 rounded text-xs font-mono transition-colors duration-150 ${
+                              formData.assigneeId === user.id
+                                ? "bg-white/10 text-white"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {user.avatarUrl ? (
+                                <img
+                                  src={user.avatarUrl}
+                                  alt={
+                                    user.firstName || user.githubUsername || "User"
+                                  }
+                                  className="w-4 h-4 rounded-full border border-white/10"
+                                />
+                              ) : (
+                                <div className="w-4 h-4 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+                                  <User className="w-2 h-2 text-white/60" />
+                                </div>
+                              )}
+                              <span className="text-xs">
+                                {user.firstName
+                                  ? `${user.firstName} ${user.lastName || ""}`
+                                  : user.githubUsername || user.email}
+                              </span>
+                            </div>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+
+                {/* Separator line like Notion */}
+                <div className="border-t border-white/10 my-2"></div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Description
-                </label>
+              {/* Description - Truly extends to bottom with proper calculations */}
+              <div className="flex-1 px-4 pb-4 min-h-0">
                 <textarea
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm resize-none"
-                  rows={6}
-                  style={{ whiteSpace: "pre-wrap" }}
+                  className="w-full h-full bg-transparent border-none text-white font-mono text-sm focus:outline-none resize-none placeholder:text-white/30 p-0"
+                  placeholder="Start typing your description..."
+                  style={{ 
+                    whiteSpace: "pre-wrap",
+                    lineHeight: "1.5",
+                    minHeight: "80px",
+                    maxHeight: "550px" // Actually limit how far down it goes
+                  }}
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Priority
-                </label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className={`w-full px-3 py-2 border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between ${priorityConfig[formData.priority].color} ${priorityConfig[formData.priority].textColor}`}
-                    >
-                      <span className="capitalize">{formData.priority}</span>
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setFormData({ ...formData, priority: "low" })
-                      }
-                      className="text-white hover:bg-green-500/20 focus:bg-green-500/20 bg-green-400/10 cursor-pointer"
-                    >
-                      Low
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setFormData({ ...formData, priority: "medium" })
-                      }
-                      className="text-white hover:bg-yellow-500/20 focus:bg-yellow-500/20 bg-yellow-400/10 cursor-pointer"
-                    >
-                      Medium
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setFormData({ ...formData, priority: "high" })
-                      }
-                      className="text-white hover:bg-red-500/20 focus:bg-red-500/20 bg-red-400/10 cursor-pointer"
-                    >
-                      High
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Due Date
-                </label>
-                <DatePicker
-                  value={formData.dueDate}
-                  onChange={(date) =>
-                    setFormData({ ...formData, dueDate: date })
-                  }
-                  placeholder="Pick a due date..."
-                  className="w-full"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Tags (comma-separated)
-                </label>
-                <input
-                  type="text"
-                  value={formData.tags}
-                  onChange={(e) =>
-                    setFormData({ ...formData, tags: e.target.value })
-                  }
-                  className="w-full px-3 py-2 bg-[#2d313a] border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Outreach, School-specific tags"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
-                  Assignee
-                </label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 border border-[#353a45] rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-left flex items-center justify-between"
-                    >
-                      <span className="text-sm">
-                        {formData.assigneeId
-                          ? projectUsersData?.data?.assignedUsers.find(
-                              (user) => user.id === formData.assigneeId
-                            )?.firstName ||
-                            projectUsersData?.data?.assignedUsers.find(
-                              (user) => user.id === formData.assigneeId
-                            )?.githubUsername ||
-                            "Unknown User"
-                          : "Unassigned"}
-                      </span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="bg-[#2d313a] border border-blue-400/20 rounded-lg shadow-lg p-1 text-white max-h-60 overflow-y-auto">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setFormData({ ...formData, assigneeId: "" })
-                      }
-                      className="text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
-                          <User className="w-3 h-3 text-gray-300" />
-                        </div>
-                        <span>Unassigned</span>
-                      </div>
-                    </DropdownMenuItem>
-                    {projectUsersData?.data?.assignedUsers.map((user) => (
-                      <DropdownMenuItem
-                        key={user.id}
-                        onClick={() =>
-                          setFormData({ ...formData, assigneeId: user.id })
-                        }
-                        className={`text-white hover:bg-[#353a45] focus:bg-[#353a45] cursor-pointer ${
-                          formData.assigneeId === user.id
-                            ? "bg-blue-500/20 text-blue-300"
-                            : ""
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {user.avatarUrl ? (
-                            <img
-                              src={user.avatarUrl}
-                              alt={
-                                user.firstName || user.githubUsername || "User"
-                              }
-                              className="w-5 h-5 rounded-full"
-                            />
-                          ) : (
-                            <div className="w-5 h-5 rounded-full bg-gray-500 flex items-center justify-center">
-                              <User className="w-3 h-3 text-gray-300" />
-                            </div>
-                          )}
-                          <span className="text-sm">
-                            {user.firstName
-                              ? `${user.firstName} ${user.lastName || ""}`
-                              : user.githubUsername || user.email}
-                          </span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowNewTaskModal(false)}
-                  className="flex-1 px-4 py-2 border border-[#353a45] rounded-lg text-gray-300 hover:bg-[#2d313a] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
-                >
-                  {editingTask ? "Update Task" : "Create Task"}
-                </button>
               </div>
             </form>
           </div>

@@ -1,4 +1,4 @@
-# Gitty
+# Thestral
 
 [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -6,11 +6,11 @@
 [![Fly.io](https://img.shields.io/badge/Fly.io-000000?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
 [![Neon](https://img.shields.io/badge/Neon-00E599?style=for-the-badge&logo=neon&logoColor=white)](https://neon.tech/)
 
-Welcome to Gitty - Your AI-Powered GitHub Repository Analysis & Team Collaboration Platform.
+Welcome to Thestral - Your AI-Powered GitHub Repository Analysis & Team Collaboration Platform.
 
 > **The tool for people who hate their employees** 🎭
 >
-> _"Why explain your codebase to new hires when AI can do it for you? Gitty: Making onboarding so easy, you'll forget what human interaction feels like!"_
+> _"Why explain your codebase to new hires when AI can do it for you? Thestral: Making onboarding so easy, you'll forget what human interaction feels like!"_
 
 ## 🌐 Production URLs
 

@@ -21,6 +21,7 @@ import {
   ArrowLeft,
   Target,
   Menu,
+  FileSearch,
 } from "lucide-react";
 import Link from "next/link";
 import { AIInsightsSection } from "./_components/AIInsightsSection";
@@ -257,16 +258,6 @@ export default function UserProfilePage() {
           {/* Header */}
           <div className="border-b border-white/10 bg-[#0a0a0a]">
             <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="flex items-center gap-4 mb-6">
-                <Link
-                  href="/dashboard?section=admin"
-                  className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Admin
-                </Link>
-              </div>
-
               {/* User Info Header */}
               <div className="flex items-start gap-6">
                 <div className="flex-shrink-0">
@@ -274,16 +265,16 @@ export default function UserProfilePage() {
                     <img
                       src={profileUser.avatarUrl}
                       alt="Avatar"
-                      className="w-24 h-24 rounded-full border-3 border-white/10 shadow-lg"
+                      className="w-24 h-24 rounded-full border border-white/10 shadow-lg"
                     />
                   ) : (
-                    <div className="w-24 h-24 rounded-full border-3 border-white/10 bg-[#0a0a0a] flex items-center justify-center shadow-lg">
+                    <div className="w-24 h-24 rounded-full border border-white/10 bg-[#0a0a0a] flex items-center justify-center shadow-lg">
                       <User className="w-12 h-12 text-white/60" />
                     </div>
                   )}
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-4xl font-bold mb-3 text-white">
+                  <h1 className="text-4xl font-bold mb-3 text-white font-mono tracking-wide">
                     {profileUser.firstName && profileUser.lastName
                       ? `${profileUser.firstName} ${profileUser.lastName}`
                       : profileUser.githubUsername || "Unknown User"}
@@ -292,26 +283,20 @@ export default function UserProfilePage() {
                     {profileUser.githubUsername && (
                       <div className="flex items-center gap-3 p-3 bg-[#0a0a0a] rounded-lg border border-white/10">
                         <Github className="w-4 h-4 text-blue-400" />
-                        <span className="font-medium">
+                        <span className="font-medium font-mono text-sm tracking-wide">
                           @{profileUser.githubUsername}
                         </span>
                       </div>
                     )}
                     <div className="flex items-center gap-3 p-3 bg-[#0a0a0a] rounded-lg border border-white/10">
                       <Mail className="w-4 h-4 text-green-400" />
-                      <span className="font-medium">{profileUser.email}</span>
+                      <span className="font-medium font-mono text-xs tracking-wide truncate">{profileUser.email}</span>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-[#0a0a0a] rounded-lg border border-white/10">
                       <Calendar className="w-4 h-4 text-purple-400" />
-                      <span className="font-medium">
+                      <span className="font-medium font-mono text-sm tracking-wide">
                         Joined{" "}
                         {format(new Date(profileUser.joinedAt), "MMM yyyy")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-[#0a0a0a] rounded-lg border border-white/10">
-                      <User className="w-4 h-4 text-yellow-400" />
-                      <span className="font-medium uppercase">
-                        {profileUser.subscriptionPlan}
                       </span>
                     </div>
                   </div>
@@ -329,17 +314,17 @@ export default function UserProfilePage() {
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">
+                    <h3 className="text-lg font-semibold text-white font-mono tracking-wide">
                       Total Tasks
                     </h3>
                     <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center border border-blue-500/20">
                       <Target className="w-6 h-6 text-blue-400" />
                     </div>
                   </div>
-                  <div className="text-4xl font-bold text-white mb-2">
+                  <div className="text-4xl font-bold text-white mb-2 font-mono">
                     {statistics.totalTasks}
                   </div>
-                  <div className="text-sm text-white/60">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
                     {statistics.assignedTasks} assigned,{" "}
                     {statistics.createdTasks} created
                   </div>
@@ -352,17 +337,17 @@ export default function UserProfilePage() {
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">
+                    <h3 className="text-lg font-semibold text-white font-mono tracking-wide">
                       Completion Rate
                     </h3>
                     <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center border border-green-500/20">
                       <TrendingUp className="w-6 h-6 text-green-400" />
                     </div>
                   </div>
-                  <div className="text-4xl font-bold text-white mb-2">
+                  <div className="text-4xl font-bold text-white mb-2 font-mono">
                     {statistics.completionRate}%
                   </div>
-                  <div className="text-sm text-white/60">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
                     {statistics.completedTasks} of {statistics.totalTasks}{" "}
                     completed
                   </div>
@@ -375,19 +360,19 @@ export default function UserProfilePage() {
 
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-white">
+                    <h3 className="text-lg font-semibold text-white font-mono tracking-wide">
                       Avg. Completion
                     </h3>
                     <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center border border-yellow-500/20">
                       <Clock className="w-6 h-6 text-yellow-400" />
                     </div>
                   </div>
-                  <div className="text-4xl font-bold text-white mb-2">
+                  <div className="text-4xl font-bold text-white mb-2 font-mono">
                     {statistics.averageCompletionTime
                       ? `${statistics.averageCompletionTime}d`
                       : "N/A"}
                   </div>
-                  <div className="text-sm text-white/60">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
                     Average days to complete
                   </div>
                 </div>
@@ -412,7 +397,7 @@ export default function UserProfilePage() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-4">
                     <h3
-                      className={`text-lg font-semibold ${
+                      className={`text-lg font-semibold font-mono tracking-wide ${
                         statistics.overdueTasks > 0
                           ? "text-red-400"
                           : "text-white"
@@ -437,7 +422,7 @@ export default function UserProfilePage() {
                     </div>
                   </div>
                   <div
-                    className={`text-4xl font-bold mb-2 ${
+                    className={`text-4xl font-bold mb-2 font-mono ${
                       statistics.overdueTasks > 0
                         ? "text-red-400"
                         : "text-white"
@@ -445,7 +430,7 @@ export default function UserProfilePage() {
                   >
                     {statistics.overdueTasks}
                   </div>
-                  <div className="text-sm text-white/60">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
                     {statistics.overdueTasks > 1
                       ? `${statistics.overdueTasks} tasks past due`
                       : statistics.overdueTasks === 1
@@ -468,7 +453,7 @@ export default function UserProfilePage() {
             {/* Task Status Breakdown */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6 hover:border-white/20 transition-all duration-300 shadow-lg">
-                <h3 className="text-xl font-semibold mb-6 text-white">
+                <h3 className="text-xl font-semibold mb-6 text-white font-mono tracking-wide">
                   Task Status Breakdown
                 </h3>
                 <div className="space-y-5">
@@ -477,10 +462,10 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center border border-green-500/20">
                         <CheckCircle className="w-6 h-6 text-green-400" />
                       </div>
-                      <span className="font-medium text-white">Completed</span>
+                      <span className="font-medium text-white font-mono tracking-wide">Completed</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.completedTasks}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -500,12 +485,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center border border-yellow-500/20">
                         <Clock className="w-6 h-6 text-yellow-400" />
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         In Progress
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.inProgressTasks}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -525,12 +510,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center border border-orange-500/20">
                         <AlertCircle className="w-6 h-6 text-orange-400" />
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         Pending Approval
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.pendingApprovalTasks}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -550,12 +535,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center border border-white/20">
                         <Target className="w-6 h-6 text-white/60" />
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         Not Started
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.notStartedTasks}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -574,7 +559,7 @@ export default function UserProfilePage() {
               </div>
 
               <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6 hover:border-white/20 transition-all duration-300 shadow-lg">
-                <h3 className="text-xl font-semibold mb-6 text-white">
+                <h3 className="text-xl font-semibold mb-6 text-white font-mono tracking-wide">
                   Priority Breakdown
                 </h3>
                 <div className="space-y-5">
@@ -583,12 +568,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20">
                         <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         High Priority
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.priorityBreakdown.high}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -608,12 +593,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center border border-yellow-500/20">
                         <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         Medium Priority
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.priorityBreakdown.medium}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -633,12 +618,12 @@ export default function UserProfilePage() {
                       <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center border border-green-500/20">
                         <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                       </div>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-white font-mono tracking-wide">
                         Low Priority
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-white">
+                      <span className="text-2xl font-bold text-white font-mono">
                         {statistics.priorityBreakdown.low}
                       </span>
                       <span className="text-sm text-white/60 bg-[#0a0a0a] px-2 py-1 rounded font-mono">
@@ -658,153 +643,98 @@ export default function UserProfilePage() {
             </div>
 
             {/* Recent Tasks */}
-            <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6 mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-semibold text-white">
-                  Recent Tasks
-                </h3>
-                {/* Pagination Controls - Top */}
-                {recentTasksData?.pagination &&
-                  recentTasksData.pagination.totalPages > 1 && (
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() =>
-                          setRecentTasksPage((prev) => Math.max(1, prev - 1))
-                        }
-                        disabled={!recentTasksData.pagination.hasPrevPage}
-                        className="px-3 py-1 text-sm bg-[#111111] text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        onClick={() => setRecentTasksPage((prev) => prev + 1)}
-                        disabled={!recentTasksData.pagination.hasNextPage}
-                        className="px-3 py-1 text-sm bg-[#111111] text-white rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-              </div>
-
-              <div className="space-y-3 min-h-[400px]">
-                {recentTasksLoading ? (
-                  <RecentTasksSkeleton />
-                ) : recentTasksData?.tasks &&
+            <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-white mb-4 font-mono tracking-wide">
+                Recent Tasks
+              </h3>
+              <div className="space-y-3">
+                {recentTasksData?.tasks &&
                   recentTasksData.tasks.length > 0 ? (
                   <>
                     {recentTasksData.tasks.map((task) => (
                       <div
                         key={task.id}
-                        className={`flex items-center justify-between p-4 bg-[#111111] rounded-lg border ${
+                        className={`p-4 rounded-lg border transition-all duration-200 hover:border-white/20 ${
                           task.isOverdue
                             ? "border-red-500/50 bg-red-500/5"
-                            : "border-white/10"
+                            : "border-white/10 bg-[#111111]"
                         }`}
                       >
-                        <div className="flex items-center gap-4">
-                          {getStatusIcon(task.status)}
-                          <div>
-                            <div className="font-medium text-white">
-                              {task.title}
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-medium text-white font-mono tracking-wide truncate">
+                                {task.title}
+                              </h4>
+                              <span className={`px-2 py-1 text-xs font-mono tracking-wide rounded ${
+                                task.complexity && task.complexity >= 4
+                                  ? "bg-red-500/20 text-red-400"
+                                  : task.complexity && task.complexity >= 3
+                                  ? "bg-yellow-500/20 text-yellow-400"
+                                  : "bg-blue-500/20 text-blue-300"
+                              }`}>
+                                {task.complexity}/5
+                              </span>
                             </div>
-                            <div className="text-sm text-white/60">
-                              {task.isAssignee ? "Assigned" : "Created"} •{" "}
-                              {format(new Date(task.createdAt), "MMM d, yyyy")}
-                              {task.dueDate && (
-                                <span
-                                  className={
-                                    task.isOverdue
-                                      ? "text-red-400 font-medium"
-                                      : ""
-                                  }
-                                >
-                                  {task.isOverdue
-                                    ? ` • Overdue ${formatOverdueDays(task.daysOverdue)}`
-                                    : ` • Due ${format(new Date(task.dueDate), "MMM d, yyyy")}`}
-                                </span>
-                              )}
-                            </div>
-                            {/* Task metadata */}
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {task.estimatedHours && (
-                                <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded font-mono">
-                                  {task.estimatedHours}h
-                                </span>
-                              )}
-                              {task.complexity && (
-                                <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded font-mono">
-                                  {task.complexity}/5
-                                </span>
-                              )}
-                              {task.taskType && (
-                                <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded capitalize font-mono">
-                                  {task.taskType.replace("_", " ")}
-                                </span>
-                              )}
+                            <div className="flex items-center gap-4 text-xs font-mono text-white/60">
+                              <div className="flex items-center gap-2">
+                                <Clock className="w-3 h-3" />
+                                <span>{task.estimatedHours}h</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <FileSearch className="w-3 h-3" />
+                                <span>{task.taskType}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {task.isOverdue && (
-                            <span className="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded-full border border-red-500/30 font-mono">
-                              OVERDUE
+                          <div className="flex items-center gap-2 ml-4">
+                            {task.isOverdue && (
+                              <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-mono tracking-wide rounded">
+                                Overdue
+                              </span>
+                            )}
+                            <span className={`px-2 py-1 text-xs font-mono tracking-wide rounded ${
+                              task.priority === "high"
+                                ? "bg-red-500/20 text-red-400"
+                                : task.priority === "medium"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-blue-500/20 text-blue-300"
+                            }`}>
+                              {task.priority}
                             </span>
-                          )}
-                          <span
-                            className={`text-sm ${getPriorityColor(task.priority)}`}
-                          >
-                            {task.priority}
-                          </span>
-                          <span
-                            className={`text-sm ${getStatusColor(task.status)}`}
-                          >
-                            {task.status.replace("_", " ")}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                    {/* Fill remaining space with empty slots to maintain consistent height */}
-                    {Array.from({
-                      length: Math.max(0, 5 - recentTasksData.tasks.length),
-                    }).map((_, index) => (
-                      <div
-                        key={`empty-${index}`}
-                        className="flex items-center justify-between p-4 bg-[#111111] rounded-lg border border-white/10 opacity-20"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-5 h-5 bg-white/20 rounded-full"></div>
-                          <div className="flex-1">
-                            <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
-                            <div className="h-3 bg-white/20 rounded w-1/2"></div>
+                            <span className={`px-2 py-1 text-xs font-mono tracking-wide rounded ${
+                              task.status === "completed"
+                                ? "bg-green-500/20 text-green-400"
+                                : task.status === "in_progress"
+                                ? "bg-blue-500/20 text-blue-400"
+                                : "bg-gray-500/20 text-gray-400"
+                            }`}>
+                              {task.status}
+                            </span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-4 bg-white/20 rounded"></div>
-                          <div className="w-12 h-4 bg-white/20 rounded"></div>
                         </div>
                       </div>
                     ))}
                   </>
                 ) : (
-                  <div className="text-center text-white/40 py-8">
+                  <div className="text-center text-white/40 py-8 font-mono tracking-wide">
                     No recent tasks found
                   </div>
                 )}
               </div>
-
-              {/* Page Info - Centered at bottom */}
-              {recentTasksData?.pagination &&
-                recentTasksData.pagination.totalPages > 1 && (
-                  <div className="flex justify-center mt-6 pt-4 border-t border-white/10">
-                    <div className="text-sm text-white/60 font-mono">
-                      Page {recentTasksData.pagination.page} of{" "}
-                      {recentTasksData.pagination.totalPages} (
-                      {recentTasksData.pagination.total} total tasks)
-                    </div>
-                  </div>
-                )}
             </div>
+
+            {/* Page Info - Centered at bottom */}
+            {recentTasksData?.pagination &&
+              recentTasksData.pagination.totalPages > 1 && (
+                <div className="flex justify-center mt-6 pt-4 border-t border-white/10">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
+                    Page {recentTasksData.pagination.page} of{" "}
+                    {recentTasksData.pagination.totalPages} (
+                    {recentTasksData.pagination.total} total tasks)
+                  </div>
+                </div>
+              )}
           </div>
         </main>
       </div>

@@ -71,10 +71,10 @@ export function TeamPerformanceAnalytics({
           <span className="text-white/30 font-mono text-lg">{"{"}</span>
           <div>
             <h3 className="text-lg font-mono text-white/90 tracking-wide mb-1">
-              enterprise_performance_analytics
+              Enterprise performance analytics
             </h3>
             <p className="text-xs font-mono text-white/50 tracking-wider">
-              insights_for_enterprise_timeline_predictions
+              Insights for enterprise timeline predictions
             </p>
           </div>
           <span className="text-white/30 font-mono text-lg">{"}"}</span>
@@ -96,7 +96,7 @@ export function TeamPerformanceAnalytics({
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
-              completion_rate
+              completion rate
             </h4>
             <div className="w-2 h-2 bg-green-500/60 rounded-full"></div>
           </div>
@@ -111,7 +111,7 @@ export function TeamPerformanceAnalytics({
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
-              task_velocity
+              task velocity
             </h4>
             <div className="w-2 h-2 bg-blue-500/60 rounded-full"></div>
           </div>
@@ -124,7 +124,7 @@ export function TeamPerformanceAnalytics({
         <div className="bg-gradient-to-b from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-lg p-5 hover:border-white/20 transition-all">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs font-mono text-white/60 tracking-wider uppercase">
-              avg_time
+              avg time
             </h4>
             <div className="w-2 h-2 bg-yellow-500/60 rounded-full"></div>
           </div>
@@ -155,7 +155,7 @@ export function TeamPerformanceAnalytics({
         <div className="flex items-center gap-2 mb-5">
           <span className="text-white/30 font-mono text-sm">{"{"}</span>
           <h4 className="text-sm font-mono text-white/80 tracking-wide">
-            enterprise_task_status_overview
+            Enterprise task status overview
           </h4>
           <span className="text-white/30 font-mono text-sm">{"}"}</span>
         </div>
@@ -209,7 +209,7 @@ export function TeamPerformanceAnalytics({
         <div className="flex items-center gap-2 mb-5">
           <span className="text-white/30 font-mono text-sm">{"{"}</span>
           <h4 className="text-sm font-mono text-white/80 tracking-wide">
-            enterprise_individual_performance
+            Individual performance(s)
           </h4>
           <span className="text-white/30 font-mono text-sm">{"}"}</span>
         </div>

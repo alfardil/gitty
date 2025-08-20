@@ -45,8 +45,11 @@ export function useAuth() {
     queryKey: ["auth", "session"],
     queryFn: fetchUserSession,
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 10 * 60 * 1000, // 10 minutes (increased from 5)
+    gcTime: 30 * 60 * 1000, // 30 minutes (increased from 10)
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnMount: false, // Prevent refetch on component mount if data exists
+    refetchOnReconnect: false, // Prevent refetch on network reconnect
   });
 
   // Logout mutation

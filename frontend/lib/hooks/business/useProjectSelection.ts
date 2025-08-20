@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const PROJECT_SELECTION_KEY = "gitty-selected-project";
+const PROJECT_SELECTION_KEY = "thestral-selected-project";
 
 export function useProjectSelection() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);

@@ -167,7 +167,7 @@ export const Lid = ({
         <div className="absolute inset-0 rounded-lg bg-[#272729]" />
         <Image
           src={src as string}
-          alt="gitty logo"
+          alt="thestral logo"
           width={2000}
           height={2000}
           quality={100}

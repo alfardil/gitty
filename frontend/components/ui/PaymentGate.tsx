@@ -26,7 +26,7 @@ export function PaymentGate({
 }: PaymentGateProps) {
   const router = useRouter();
   const { data: seats } = useSubscriptionSeats();
-  const [quantity, setQuantity] = useState(1);
+  // const [quantity, setQuantity] = useState(1); // Commented out seating logic
 
   // If still loading, show a loading state instead of the gate
   if (isLoading) {
@@ -46,8 +46,10 @@ export function PaymentGate({
     seats.some((seat) => seat.status === "assigned" && seat.assignedToUserId);
 
   // Allow access if: paid subscription OR developer OR (admin with paid subscription) OR has seat access
-  const canAccess =
-    hasPaid || isDeveloper || (isAdmin && hasPaid) || hasSeatAccess;
+  // const canAccess = hasPaid || isDeveloper || (isAdmin && hasPaid) || hasSeatAccess;
+
+  // TEMPORARILY BYPASS PAYMENT GATE - COMMENT OUT ABOVE LINE AND UNCOMMENT BELOW
+  const canAccess = true; // Bypass payment gate - always allow access
 
   // Debug logging
   console.log("PaymentGate Debug:", {
@@ -82,20 +84,18 @@ export function PaymentGate({
   const sectionInfo = {
     insights: {
       title: "Insights & Analytics",
-      description:
-        "Unlock detailed insights, performance metrics, and advanced analytics for your repositories.",
+      description: "Unlock advanced analytics and performance insights.",
       icon: Zap,
       features: [
         "Repository analytics",
-        "Performance metrics",
+        "Performance metrics", 
         "Trend analysis",
         "Custom dashboards",
       ],
     },
     roadmap: {
       title: "Project Roadmap",
-      description:
-        "Access advanced project planning tools, timeline visualization, and strategic roadmapping.",
+      description: "Access advanced project planning and timeline tools.",
       icon: Users,
       features: [
         "Timeline visualization",
@@ -106,8 +106,7 @@ export function PaymentGate({
     },
     analysis: {
       title: "Code Analysis",
-      description:
-        "Get deep code insights, dependency analysis, and comprehensive repository scanning.",
+      description: "Get deep code insights and dependency analysis.",
       icon: Zap,
       features: [
         "Deep code analysis",
@@ -118,8 +117,7 @@ export function PaymentGate({
     },
     admin: {
       title: "Admin Dashboard",
-      description:
-        "Manage your enterprise, set up team seats, and configure advanced settings.",
+      description: "Manage your enterprise and team settings.",
       icon: Users,
       features: [
         "Team management",
@@ -142,15 +140,15 @@ export function PaymentGate({
       {/* Glassmorphic overlay */}
       <div className="absolute inset-0 flex items-start justify-center pt-20">
         <div className="backdrop-blur-md bg-white/5 border border-white/20 rounded-2xl p-8 max-w-md mx-4 relative overflow-hidden">
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-500/10 to-transparent rounded-full"></div>
+          {/* Background gradient - removed purple */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/5 to-transparent rounded-full"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-blue-500/5 to-transparent rounded-full"></div>
 
           {/* Content */}
           <div className="relative z-10 text-center">
             {/* Icon */}
-            <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center border border-white/20">
+            <div className="w-16 h-16 mx-auto mb-6 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
               <Lock className="w-8 h-8 text-white/80" />
             </div>
 
@@ -182,8 +180,8 @@ export function PaymentGate({
               </ul>
             </div>
 
-            {/* Seat Selection */}
-            <div className="mb-6 w-full flex flex-col items-center justify-center">
+            {/* Seat Selection - Commented out */}
+            {/* <div className="mb-6 w-full flex flex-col items-center justify-center">
               <label className="block text-white/80 text-sm font-medium mb-2 text-center w-full">
                 Number of Seats
               </label>
@@ -211,22 +209,21 @@ export function PaymentGate({
               <p className="text-white/50 text-xs text-center w-full">
                 ${(quantity * 99.99).toFixed(2)}/month total
               </p>
-            </div>
+            </div> */}
 
             {/* CTA Buttons */}
             <div className="space-y-3">
-              <Button
-                onClick={() => redirectToCheckout(quantity)}
+              {/* <Button
+                onClick={() => redirectToCheckout()}
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <CreditCard className="w-4 h-4 mr-2" />
-                Upgrade to Pro ({quantity} seat{quantity > 1 ? "s" : ""})
-              </Button>
+                Upgrade to Pro
+              </Button> */}
 
               <Button
                 onClick={() => router.push("/dashboard?section=billing")}
-                variant="outline"
-                className="w-full border-white/20 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+                className="w-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-mono text-sm tracking-wide transition-all duration-200 py-3 rounded-lg"
               >
                 View Plans & Pricing
               </Button>

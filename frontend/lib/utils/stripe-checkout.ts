@@ -8,6 +8,8 @@ export async function createCheckoutSession(
   quantity: number = 1,
   enterpriseId?: string
 ): Promise<string> {
+  console.log("Creating checkout session with:", { quantity, enterpriseId });
+  
   const response = await fetch("/api/stripe/create-checkout-session", {
     method: "POST",
     headers: {
@@ -16,25 +18,35 @@ export async function createCheckoutSession(
     body: JSON.stringify({ quantity, enterpriseId }),
   });
 
+  console.log("Checkout session response status:", response.status);
+  
   if (!response.ok) {
-    throw new Error("Failed to create checkout session");
+    const errorData = await response.json().catch(() => ({}));
+    console.error("Checkout session creation failed:", errorData);
+    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
   }
 
-  const { sessionId } = await response.json();
+  const data = await response.json();
+  console.log("Checkout session response data:", data);
+  
+  const { sessionId } = data;
   return sessionId;
 }
 
 export async function redirectToCheckout(
-  quantity: number = 1,
   enterpriseId?: string
 ): Promise<void> {
   try {
+    console.log("Starting checkout process with enterpriseId:", enterpriseId);
+    
     const stripe = await stripePromise;
     if (!stripe) {
       throw new Error("Stripe failed to load");
     }
 
-    const sessionId = await createCheckoutSession(quantity, enterpriseId);
+    console.log("Stripe loaded successfully, creating checkout session...");
+    const sessionId = await createCheckoutSession(1, enterpriseId); // Fixed quantity to 1
+    console.log("Checkout session created:", sessionId);
 
     const { error } = await stripe.redirectToCheckout({
       sessionId: sessionId,
@@ -45,7 +57,7 @@ export async function redirectToCheckout(
       alert("Failed to redirect to checkout. Please try again.");
     }
   } catch (error) {
-    console.error("Error creating checkout session:", error);
+    console.error("Error in redirectToCheckout:", error);
     alert("Failed to create checkout session. Please try again.");
   }
 }

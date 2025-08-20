@@ -14,10 +14,10 @@ interface WaitlistNotificationEmailProps {
   email: string;
 }
 
-const logoUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://devboard.ai/gittylogo.png"
-    : "http://localhost:3000/gittylogo.png";
+  const logoUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://devboard.ai/LexorLogoChange.png"
+      : "http://localhost:3000/LexorLogoChange.png";
 
 export const WaitlistNotificationEmail = ({
   email,
@@ -27,21 +27,21 @@ export const WaitlistNotificationEmail = ({
     <Body style={main}>
       <Preview>New waitlist signup: {email}</Preview>
       <Container style={container}>
-        <Img src={logoUrl} width="120" height="120" alt="Gitty" style={logo} />
+        <Img src={logoUrl} width="120" height="120" alt="Thestral" style={logo} />
         <Text style={title}>New Waitlist Signup</Text>
-        <Text style={paragraph}>Someone just joined the Gitty waitlist!</Text>
+        <Text style={paragraph}>Someone just joined the Thestral waitlist!</Text>
         <Section style={emailContainer}>
           <Text style={emailText}>
             <strong>Email:</strong> {email}
           </Text>
         </Section>
         <Text style={paragraph}>
-          This user is now on the waitlist and will be notified when Gitty
+          This user is now on the waitlist and will be notified when Thestral
           launches.
         </Text>
         <Hr style={hr} />
         <Text style={footer}>
-          Gitty - AI-powered code analysis and insights
+          Thestral - AI-powered code analysis and insights
         </Text>
       </Container>
     </Body>

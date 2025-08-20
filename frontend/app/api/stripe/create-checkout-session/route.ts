@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       request.headers.get("origin") ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       "http://localhost:3000";
-    const PRICE_ID = process.env.STRIPE_PRICE_ID;
+    const PRICE_ID = process.env.STRIPE_PRICE_ID || "price_1Ry3A5LIPCLxtb5egjKS2L4Q"; // Use environment variable with fallback
     if (!PRICE_ID) {
       console.error("ERROR: STRIPE_PRICE_ID is not set");
       return NextResponse.json(

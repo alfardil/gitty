@@ -28,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={sen.className}>
       <head>
-        <link rel="icon" type="image/png" href="/gittylogo.png" />
+        <link rel="icon" type="image/png" href="/LexorLogoChange.png" />
+        <link rel="shortcut icon" href="/LexorLogoChange.png" />
+        <link rel="apple-touch-icon" href="/LexorLogoChange.png" />
       </head>
       <body className="bg-background text-foreground">
         <ReactQueryProvider>

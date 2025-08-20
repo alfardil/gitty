@@ -194,33 +194,32 @@ export function AIInsightsSection({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Brain className="w-6 h-6 text-purple-400" />
-          <h3 className="text-xl font-bold text-white">
+        <div className="flex items-center gap-3">
+          <h3 className="text-xl font-semibold text-white font-mono tracking-wide">
             AI Performance Insights
           </h3>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setShowLogs(!showLogs)}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-[#0a0a0a] hover:bg-white/5 border border-white/10 text-white rounded-lg font-mono text-sm tracking-wide transition-all duration-200 flex items-center gap-2"
           >
-            <Eye className="w-4 h-4" />
+            <Eye className="w-4 h-4 text-white/60" />
             {showLogs ? "Hide Logs" : "See Logs"}
           </button>
           <button
             onClick={handleGenerateInsights}
             disabled={isGenerating}
-            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50"
+            className="px-6 py-2 bg-white/10 hover:bg-white/15 border border-white/20 disabled:bg-white/5 disabled:border-white/10 text-white rounded-lg font-mono text-sm tracking-wide transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
           >
             {isGenerating ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
                 <span>Generating...</span>
               </>
             ) : (
               <>
-                <Brain className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4 text-white/60" />
                 <span>Generate Insights</span>
               </>
             )}
@@ -230,12 +229,11 @@ export function AIInsightsSection({
 
       {/* Last Generated Insight */}
       {lastInsight && (
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-white">
-              Last Generated Insight
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h4 className="text-lg font-semibold text-white font-mono tracking-wide">
             </h4>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-white/60 font-mono">
               <Clock className="w-4 h-4" />
               <span>{formatDate(lastInsight.generatedAt)}</span>
             </div>
@@ -243,24 +241,20 @@ export function AIInsightsSection({
 
           {/* Score and Grade */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg p-4">
+            <div className="bg-[#111111] border border-white/10 rounded-lg p-4">
               <div className="text-center">
-                <div
-                  className={`text-4xl font-bold ${getScoreColor(lastInsight.overallScore)}`}
-                >
+                <div className="text-4xl font-bold text-blue-400 font-mono">
                   {lastInsight.overallScore}
                 </div>
-                <div className="text-sm text-gray-400">Overall Score</div>
+                <div className="text-sm text-white/60 font-mono tracking-wide">Overall Score</div>
               </div>
             </div>
-            <div className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg p-4">
+            <div className="bg-[#111111] border border-white/10 rounded-lg p-4">
               <div className="text-center">
-                <div
-                  className={`text-4xl font-bold ${getGradeColor(lastInsight.performanceGrade)}`}
-                >
+                <div className="text-4xl font-bold text-green-400 font-mono">
                   {lastInsight.performanceGrade}
                 </div>
-                <div className="text-sm text-gray-400">Performance Grade</div>
+                <div className="text-sm text-white/60 font-mono tracking-wide">Performance Grade</div>
               </div>
             </div>
           </div>
@@ -269,17 +263,19 @@ export function AIInsightsSection({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Critical Issues */}
             <div>
-              <h5 className="text-lg font-semibold text-red-400 mb-3 flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
+              <h5 className="text-lg font-semibold text-white mb-3 flex items-center gap-2 font-mono tracking-wide">
+                <div className="w-5 h-5 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20">
+                  <AlertTriangle className="w-3 h-3 text-red-400" />
+                </div>
                 Critical Issues
               </h5>
               <ul className="space-y-2">
                 {lastInsight.criticalIssues.map((issue, index) => (
                   <li
                     key={index}
-                    className="text-gray-300 text-sm flex items-start gap-2"
+                    className="text-white/80 text-sm flex items-start gap-2 font-mono tracking-wide"
                   >
-                    <span className="text-red-400 mt-1">•</span>
+                    <span className="text-white/60 mt-1">•</span>
                     <span>{issue}</span>
                   </li>
                 ))}
@@ -288,17 +284,19 @@ export function AIInsightsSection({
 
             {/* Strengths */}
             <div>
-              <h5 className="text-lg font-semibold text-green-400 mb-3 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
+              <h5 className="text-lg font-semibold text-white mb-3 flex items-center gap-2 font-mono tracking-wide">
+                <div className="w-5 h-5 bg-green-500/10 rounded-lg flex items-center justify-center border border-green-500/20">
+                  <CheckCircle className="w-3 h-3 text-green-400" />
+                </div>
                 Strengths
               </h5>
               <ul className="space-y-2">
                 {lastInsight.strengths.map((strength, index) => (
                   <li
                     key={index}
-                    className="text-gray-300 text-sm flex items-start gap-2"
+                    className="text-white/80 text-sm flex items-start gap-2 font-mono tracking-wide"
                   >
-                    <span className="text-green-400 mt-1">•</span>
+                    <span className="text-white/60 mt-1">•</span>
                     <span>{strength}</span>
                   </li>
                 ))}
@@ -307,17 +305,19 @@ export function AIInsightsSection({
 
             {/* Recommendations */}
             <div className="lg:col-span-2">
-              <h5 className="text-lg font-semibold text-blue-400 mb-3 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
+              <h5 className="text-lg font-semibold text-white mb-3 flex items-center gap-2 font-mono tracking-wide">
+                <div className="w-5 h-5 bg-blue-500/10 rounded-lg flex items-center justify-center border border-blue-500/20">
+                  <TrendingUp className="w-3 h-3 text-blue-400" />
+                </div>
                 Recommendations
               </h5>
               <ul className="space-y-2">
                 {lastInsight.recommendations.map((rec, index) => (
                   <li
                     key={index}
-                    className="text-gray-300 text-sm flex items-start gap-2"
+                    className="text-white/80 text-sm flex items-start gap-2 font-mono tracking-wide"
                   >
-                    <span className="text-blue-400 mt-1">•</span>
+                    <span className="text-white/60 mt-1">•</span>
                     <span>{rec}</span>
                   </li>
                 ))}
@@ -327,7 +327,7 @@ export function AIInsightsSection({
 
           {/* Detailed Analysis */}
           <div className="mt-6">
-            <h5 className="text-lg font-semibold text-white mb-3">
+            <h5 className="text-lg font-semibold text-white mb-3 font-mono tracking-wide">
               Detailed Analysis
             </h5>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -335,12 +335,12 @@ export function AIInsightsSection({
                 ([key, value]) => (
                   <div
                     key={key}
-                    className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg p-3"
+                    className="bg-[#111111] border border-white/10 rounded-lg p-3"
                   >
-                    <div className="text-sm font-medium text-gray-400 mb-1 capitalize">
+                    <div className="text-sm font-medium text-white/60 mb-1 capitalize font-mono tracking-wide">
                       {key.replace(/([A-Z])/g, " $1").trim()}
                     </div>
-                    <div className="text-sm text-gray-300">{value}</div>
+                    <div className="text-sm text-white/80 font-mono">{value}</div>
                   </div>
                 )
               )}
@@ -351,12 +351,14 @@ export function AIInsightsSection({
 
       {/* No Insight Message */}
       {!lastInsight && !isGenerating && (
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-12 text-center">
-          <Brain className="w-16 h-16 text-purple-400 mx-auto mb-4 opacity-50" />
-          <h4 className="text-xl font-bold text-white mb-2">
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-12 text-center">
+          <div className="w-16 h-16 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 mx-auto mb-4">
+            <TrendingUp className="w-8 h-8 text-white/60" />
+          </div>
+          <h4 className="text-xl font-bold text-white mb-2 font-mono tracking-wide">
             No Performance Insights
           </h4>
-          <p className="text-gray-400 mb-6">
+          <p className="text-white/60 mb-6 font-mono tracking-wide">
             Generate AI-powered performance insights to get started.
           </p>
         </div>
@@ -364,56 +366,52 @@ export function AIInsightsSection({
 
       {/* Insights Logs */}
       {showLogs && allInsights && allInsights.length > 0 && (
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-          <h4 className="text-lg font-semibold text-white mb-4">
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-6">
+          <h4 className="text-lg font-semibold text-white mb-4 font-mono tracking-wide">
             Performance Insights History
           </h4>
           <div className="space-y-4">
             {allInsights.map((insight, index) => (
               <div
                 key={insight.id}
-                className="bg-[#0F0F0F] border border-[#2A2A2A] rounded-lg p-4"
+                className="bg-[#111111] border border-white/10 rounded-lg p-4"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-4">
-                    <div
-                      className={`text-2xl font-bold ${getScoreColor(insight.overallScore)}`}
-                    >
+                    <div className="text-2xl font-bold text-white font-mono">
                       {insight.overallScore}
                     </div>
-                    <div
-                      className={`text-xl font-bold ${getGradeColor(insight.performanceGrade)}`}
-                    >
+                    <div className="text-xl font-bold text-white font-mono">
                       {insight.performanceGrade}
                     </div>
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-white/60 font-mono tracking-wide">
                     {formatDate(insight.generatedAt)}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <div className="text-red-400 font-medium mb-1">
+                    <div className="text-white/80 font-medium mb-1 font-mono tracking-wide">
                       Critical Issues
                     </div>
-                    <div className="text-gray-300">
+                    <div className="text-white/60 font-mono">
                       {insight.criticalIssues.length} issues
                     </div>
                   </div>
                   <div>
-                    <div className="text-green-400 font-medium mb-1">
+                    <div className="text-white/80 font-medium mb-1 font-mono tracking-wide">
                       Strengths
                     </div>
-                    <div className="text-gray-300">
+                    <div className="text-white/60 font-mono">
                       {insight.strengths.length} strengths
                     </div>
                   </div>
                   <div>
-                    <div className="text-blue-400 font-medium mb-1">
+                    <div className="text-white/80 font-medium mb-1 font-mono tracking-wide">
                       Recommendations
                     </div>
-                    <div className="text-gray-300">
+                    <div className="text-white/60 font-mono">
                       {insight.recommendations.length} recommendations
                     </div>
                   </div>
@@ -426,12 +424,14 @@ export function AIInsightsSection({
 
       {/* Empty Logs */}
       {showLogs && (!allInsights || allInsights.length === 0) && (
-        <div className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-8 text-center">
-          <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4 opacity-50" />
-          <h4 className="text-lg font-semibold text-white mb-2">
+        <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-8 text-center">
+          <div className="w-12 h-12 bg-white/5 rounded-lg flex items-center justify-center border border-white/10 mx-auto mb-4">
+            <Clock className="w-6 h-6 text-white/60" />
+          </div>
+          <h4 className="text-lg font-semibold text-white mb-2 font-mono tracking-wide">
             No Insights History
           </h4>
-          <p className="text-gray-400">
+          <p className="text-white/60 font-mono tracking-wide">
             Generate your first performance insight to see the history here.
           </p>
         </div>

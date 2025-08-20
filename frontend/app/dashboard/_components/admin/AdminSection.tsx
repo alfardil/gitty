@@ -10,6 +10,7 @@ import { ProjectUserManagement } from "./ProjectUserManagement";
 import { ComingSoonSection } from "./ComingSoonSection";
 import { toast } from "sonner";
 import { Target } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 
 interface EnterpriseUser {
   id: string;
@@ -247,7 +248,7 @@ function AdminSection({ userId }: AdminSectionProps) {
                 : "border-transparent text-white/60 hover:text-white hover:border-white/30"
             }`}
           >
-            Users
+            Team
           </button>
           <button
             onClick={() => handleTabChange("analytics")}
@@ -257,7 +258,7 @@ function AdminSection({ userId }: AdminSectionProps) {
                 : "border-transparent text-white/60 hover:text-white hover:border-white/30"
             }`}
           >
-            Analytics
+            Oracle
           </button>
           <button
             onClick={() => handleTabChange("project-users")}
@@ -267,7 +268,7 @@ function AdminSection({ userId }: AdminSectionProps) {
                 : "border-transparent text-white/60 hover:text-white hover:border-white/30"
             }`}
           >
-            Project Users
+            Bond
           </button>
         </div>
       </div>
@@ -280,7 +281,7 @@ function AdminSection({ userId }: AdminSectionProps) {
             {users.map((user: EnterpriseUser) => (
               <div
                 key={user.id}
-                className="flex items-center space-x-4 p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer"
+                className="flex items-center space-x-4 p-4 border border-white/10 rounded-lg hover:bg-white/5 transition-all duration-200 cursor-pointer group"
                 onClick={(e) => {
                   const url = `/users/${user.id}?enterpriseId=${selectedEnterprise}${selectedProject ? `&projectId=${selectedProject}` : ""}`;
 
@@ -292,25 +293,33 @@ function AdminSection({ userId }: AdminSectionProps) {
                   }
                 }}
               >
-                {user.avatarUrl && (
+                {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
                     alt="avatar"
-                    className="w-10 h-10 rounded-full border border-white/10"
+                    className="w-10 h-10 rounded-full border border-white/10 bg-[#1a1a1a] flex-shrink-0"
                   />
-                )}
-                <div className="flex-1">
-                  <div className="text-sm font-mono text-white/80 font-medium">
-                    {user.firstName && user.lastName
-                      ? `${user.firstName} ${user.lastName}`
-                      : user.githubUsername}
+                ) : (
+                  <div className="w-10 h-10 rounded-full border border-white/10 bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
+                    <UserIcon className="w-5 h-5 text-white/30" />
                   </div>
-                  <div className="text-xs font-mono text-white/50">
-                    {user.subscription_plan}
+                )}
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="text-sm font-mono text-white font-semibold tracking-wide truncate">
+                      {user.firstName && user.lastName
+                        ? `${user.firstName} ${user.lastName}`
+                        : user.githubUsername}
+                    </div>
+                    <span className="text-white/30 font-mono text-xs">
+                      {"{ "}{user.role || "member"}{" }"}
+                    </span>
                   </div>
                 </div>
-                <div className="text-xs font-mono text-white/40">
-                  View Profile →
+                
+                <div className="text-white/40 font-mono text-xs tracking-wider uppercase">
+                  view
                 </div>
               </div>
             ))}
@@ -364,55 +373,53 @@ function AdminSection({ userId }: AdminSectionProps) {
       )}
 
       {activeTab === "project-users" && selectedEnterprise && (
-        <div className="space-y-8">
-          {/* Project Selection for Project Users */}
-          <div className="flex items-center gap-4">
-            <label className="text-sm font-mono text-white/60 tracking-wider">
-              Project:
-            </label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  id="project-select"
-                  className="border border-white/10 rounded-lg px-4 py-2 min-w-[200px] text-left bg-[#0f0f0f] text-white/80 focus:outline-none focus:ring-2 focus:ring-green-500/30 hover:border-white/20 transition-all duration-200 text-sm font-mono"
-                >
-                  {projects.find((p) => p.id === selectedProject)?.name ||
-                    "Select Project"}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
-                {projects.map((project) => (
-                  <DropdownMenuItem
-                    key={project.id}
-                    onSelect={() => setSelectedProject(project.id)}
-                    className={`px-3 py-2 rounded cursor-pointer text-sm font-mono hover:bg-white/5 transition-colors ${project.id === selectedProject ? "bg-white/10 text-green-400" : "text-white/70"}`}
-                  >
-                    {project.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <button
-              onClick={() => setShowProjectForm(!showProjectForm)}
-              className="px-4 py-2 bg-green-600/80 hover:bg-green-600 border border-green-500/30 text-white rounded-lg text-sm font-mono transition-all duration-200"
-            >
-              {showProjectForm ? "Cancel" : "+ New Project"}
-            </button>
+        <div className="space-y-6">
+          {/* Header with {} styling like analytics */}
+          <div className="flex items-center justify-end">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                <span className="text-white/30 font-mono text-lg">{"{"}</span>
+                <label className="text-xs font-mono text-white/60 tracking-wider uppercase">
+                  Project
+                </label>
+                <span className="text-white/30 font-mono text-lg">{"}"}</span>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="border border-white/10 rounded-lg px-3 py-2 min-w-[180px] text-left bg-[#0f0f0f] text-white/80 focus:outline-none focus:ring-1 focus:ring-white/20 hover:border-white/20 transition-all duration-200 text-sm font-mono">
+                    {selectedProject ? projects.find((p) => p.id === selectedProject)?.name : "Select Project"}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
+                  {projects.map((project) => (
+                    <DropdownMenuItem
+                      key={project.id}
+                      onSelect={() => setSelectedProject(project.id)}
+                      className={`px-3 py-2 rounded cursor-pointer text-sm font-mono hover:bg-white/5 transition-colors ${project.id === selectedProject ? "bg-white/10 text-white" : "text-white/70"}`}
+                    >
+                      {project.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
+
+          {/* Project User Management with smooth transitions */}
+          {selectedProject && (
+            <div className="transition-all duration-300 ease-in-out">
+              <ProjectUserManagement
+                projectId={selectedProject}
+                projectName={
+                  projects.find((p) => p.id === selectedProject)?.name ||
+                  "Unknown Project"
+                }
+              />
+            </div>
+          )}
 
           {/* Project Creation Form */}
           {renderProjectCreationForm()}
-
-          {/* Project User Management */}
-          {selectedProject && (
-            <ProjectUserManagement
-              projectId={selectedProject}
-              projectName={
-                projects.find((p) => p.id === selectedProject)?.name ||
-                "Unknown Project"
-              }
-            />
-          )}
         </div>
       )}
 
