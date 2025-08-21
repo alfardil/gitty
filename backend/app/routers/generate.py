@@ -41,6 +41,10 @@ from app.prompts import (
     ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT,
     SYSTEM_VALIDATION_PROMPT,
 )
+from app.utils.mermaid_validator import (
+    validate_mermaid_syntax,
+    quick_fix_mermaid_syntax,
+)
 
 load_dotenv()
 
@@ -65,6 +69,7 @@ async def test():
 def get_github_data(username: str, repo: str, githubAccessToken: str):
     """
     Fetches key metadata from a GitHub repository including the default branch, file tree, and README contents.
+    If no README exists, generates one using AI. Prioritizes cached README from database.
 
     Args:
         username (str): The GitHub username or organization name.
@@ -86,7 +91,66 @@ def get_github_data(username: str, repo: str, githubAccessToken: str):
     file_tree = github_service.get_github_file_paths_as_list(
         username, repo, githubAccessToken
     )
-    readme = github_service.get_github_readme(username, repo, githubAccessToken)
+
+    # First, try to get cached README from database
+    readme = None
+    try:
+        from app.cache_utils import get_cached_readme
+
+        cached_readme = get_cached_readme(username, repo)
+        if cached_readme:
+            readme = cached_readme
+            print(f"Using cached README for {username}/{repo}")
+    except Exception as cache_error:
+        print(f"Could not fetch cached README: {cache_error}")
+
+    # If no cached README, try to get existing README from GitHub
+    if not readme:
+        try:
+            readme = github_service.get_github_readme(username, repo, githubAccessToken)
+            print(f"Using GitHub README for {username}/{repo}")
+        except ValueError as e:
+            if "No README found" in str(e):
+                print(f"No README found for {username}/{repo}, generating one...")
+                # Generate README using AI
+                try:
+                    files = github_service.get_repository_files_with_contents(
+                        username, repo, githubAccessToken, max_files=20
+                    )
+
+                    if files:
+                        # Format files for the AI prompt
+                        formatted_files = []
+                        for file in files:
+                            formatted_files.append(
+                                f'<file path="{file["path"]}">\n{file["content"]}\n</file>'
+                            )
+                        files_text = "\n\n".join(formatted_files)
+
+                        # Generate README using AI
+                        from app.prompts import SYSTEM_README_GENERATION_PROMPT
+
+                        readme = o4_service.call_o4_api(
+                            system_prompt=SYSTEM_README_GENERATION_PROMPT,
+                            data={"files": files_text},
+                        )
+
+                        # Cache the generated README
+                        try:
+                            from app.cache_utils import cache_readme
+
+                            cache_readme(username, repo, readme)
+                            print(f"Cached generated README for {username}/{repo}")
+                        except Exception as cache_error:
+                            print(f"Failed to cache generated README: {cache_error}")
+                    else:
+                        readme = "# Project Documentation\n\nThis repository contains code for a software project. Please refer to the source code for more details."
+                except Exception as gen_error:
+                    # Fallback to a basic README
+                    readme = "# Project Documentation\n\nThis repository contains code for a software project. Please refer to the source code for more details."
+            else:
+                raise e
+
     return {"default_branch": default_branch, "file_tree": file_tree, "readme": readme}
 
 
@@ -224,15 +288,51 @@ async def generate_non_stream(request: Request, body: ApiRequest):
         if "BAD_INSTRUCTIONS" in mermaid_code:
             return {"error": "Invalid or unclear instructions provided"}
 
-        # Phase 4: Validate and fix syntax errors
-        validated_diagram = o4_service.call_o4_api(
-            system_prompt=SYSTEM_VALIDATION_PROMPT,
-            data={"diagram": mermaid_code},
-        )
+        # Quick fix common syntax issues before AI validation
+        mermaid_code = quick_fix_mermaid_syntax(mermaid_code)
 
-        processed_diagram = process_click_events(
-            validated_diagram, body.username, body.repo, default_branch
-        )
+        # Basic syntax validation
+        is_valid, errors = validate_mermaid_syntax(mermaid_code)
+        if not is_valid:
+            print(f"Basic syntax errors found: {errors}")
+            # Continue with AI validation to fix these issues
+
+        # Phase 4: Validate and fix syntax errors (with multiple attempts)
+        validated_diagram = mermaid_code
+        max_validation_attempts = 3
+
+        for attempt in range(max_validation_attempts):
+            try:
+                validation_response = o4_service.call_o4_api(
+                    system_prompt=SYSTEM_VALIDATION_PROMPT,
+                    data={"diagram": validated_diagram},
+                )
+
+                # Update the validated diagram for next attempt
+                validated_diagram = validation_response.strip()
+
+                # If we get the same result twice, assume it's correct
+                if attempt > 0 and validated_diagram == mermaid_code:
+                    break
+
+                mermaid_code = validated_diagram
+
+            except Exception as validation_error:
+                print(f"Validation attempt {attempt + 1} failed: {validation_error}")
+                if attempt == max_validation_attempts - 1:
+                    # On final attempt, use the original diagram
+                    validated_diagram = mermaid_code
+                continue
+
+        # Process click events on the validated diagram
+        try:
+            processed_diagram = process_click_events(
+                validated_diagram, body.username, body.repo, default_branch
+            )
+        except Exception as click_error:
+            print(f"Click event processing failed: {click_error}")
+            # Use the validated diagram without click events
+            processed_diagram = validated_diagram
 
         # Return final result
         return {
@@ -354,22 +454,61 @@ async def generate_stream(request: Request, body: ApiRequest):
                     yield f"data: {json.dumps({'error': 'Invalid or unclear instructions provided'})}\n\n"
                     return
 
-                # Phase 4: Validate and fix syntax errors
+                # Quick fix common syntax issues before AI validation
+                mermaid_code = quick_fix_mermaid_syntax(mermaid_code)
+
+                # Basic syntax validation
+                is_valid, errors = validate_mermaid_syntax(mermaid_code)
+                if not is_valid:
+                    print(f"Basic syntax errors found: {errors}")
+                    # Continue with AI validation to fix these issues
+
+                # Phase 4: Validate and fix syntax errors (with multiple attempts)
                 yield f"data: {json.dumps({'status': 'validation_sent', 'message': 'Validating diagram syntax...'})}\n\n"
                 await asyncio.sleep(0.1)
                 yield f"data: {json.dumps({'status': 'validation', 'message': 'Checking for syntax errors...'})}\n\n"
 
-                validated_diagram = ""
-                async for chunk in o4_service.call_o4_api_stream(
-                    system_prompt=SYSTEM_VALIDATION_PROMPT,
-                    data={"diagram": mermaid_code},
-                ):
-                    validated_diagram += chunk
-                    yield f"data: {json.dumps({'status': 'validation_chunk', 'chunk': chunk})}\n\n"
+                # Multiple validation attempts to ensure syntax is correct
+                validated_diagram = mermaid_code
+                max_validation_attempts = 3
 
-                processed_diagram = process_click_events(
-                    validated_diagram, body.username, body.repo, default_branch
-                )
+                for attempt in range(max_validation_attempts):
+                    try:
+                        validation_response = ""
+                        async for chunk in o4_service.call_o4_api_stream(
+                            system_prompt=SYSTEM_VALIDATION_PROMPT,
+                            data={"diagram": validated_diagram},
+                        ):
+                            validation_response += chunk
+                            yield f"data: {json.dumps({'status': 'validation_chunk', 'chunk': chunk})}\n\n"
+
+                        # Update the validated diagram for next attempt
+                        validated_diagram = validation_response.strip()
+
+                        # If we get the same result twice, assume it's correct
+                        if attempt > 0 and validated_diagram == mermaid_code:
+                            break
+
+                        mermaid_code = validated_diagram
+
+                    except Exception as validation_error:
+                        print(
+                            f"Validation attempt {attempt + 1} failed: {validation_error}"
+                        )
+                        if attempt == max_validation_attempts - 1:
+                            # On final attempt, use the original diagram
+                            validated_diagram = mermaid_code
+                        continue
+
+                # Process click events on the validated diagram
+                try:
+                    processed_diagram = process_click_events(
+                        validated_diagram, body.username, body.repo, default_branch
+                    )
+                except Exception as click_error:
+                    print(f"Click event processing failed: {click_error}")
+                    # Use the validated diagram without click events
+                    processed_diagram = validated_diagram
 
                 # Send final result
                 final_data = {

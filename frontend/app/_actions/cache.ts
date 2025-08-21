@@ -2,7 +2,7 @@
 
 import { db } from "@/server/src/db";
 import { eq, and } from "drizzle-orm";
-import { diagramCache } from "@/server/src/db/schema";
+import { diagramCache, readmeCache } from "@/server/src/db/schema";
 import { sql } from "drizzle-orm";
 import { getRowCount } from "@/server/src/db/actions";
 import { getUserByGithubId } from "@/server/src/db/actions";
@@ -159,5 +159,94 @@ export async function addAnalyzedReposCount(githubId: string): Promise<void> {
     await addAnalyzedReposCountDB(githubId);
   } catch (error) {
     console.error("Error incrementing analyzedReposCount:", error);
+  }
+}
+
+// README Cache Functions
+export async function getCachedReadme(username: string, repo: string) {
+  try {
+    const cached = await db
+      .select()
+      .from(readmeCache)
+      .where(
+        and(eq(readmeCache.username, username), eq(readmeCache.repo, repo))
+      )
+      .limit(1);
+
+    return cached[0]?.readme ?? null;
+  } catch (error) {
+    console.error("Error fetching cached README:", error);
+    return null;
+  }
+}
+
+export async function getCachedReadmeInstructions(
+  username: string,
+  repo: string
+) {
+  try {
+    const cached = await db
+      .select()
+      .from(readmeCache)
+      .where(
+        and(eq(readmeCache.username, username), eq(readmeCache.repo, repo))
+      )
+      .limit(1);
+
+    return cached[0]?.instructions ?? null;
+  } catch (error) {
+    console.error("Error fetching cached README instructions:", error);
+    return null;
+  }
+}
+
+export async function getLastReadmeGeneratedDate(
+  username: string,
+  repo: string
+) {
+  try {
+    const cached = await db
+      .select({
+        updatedAt: readmeCache.updatedAt,
+      })
+      .from(readmeCache)
+      .where(
+        and(eq(readmeCache.username, username), eq(readmeCache.repo, repo))
+      )
+      .limit(1);
+
+    return cached[0]?.updatedAt ?? null;
+  } catch (error) {
+    console.error("Error fetching last README generated date:", error);
+    return null;
+  }
+}
+
+export async function cacheReadme(
+  username: string,
+  repo: string,
+  readme: string,
+  instructions?: string
+) {
+  try {
+    await db
+      .insert(readmeCache)
+      .values({
+        username,
+        repo,
+        readme,
+        instructions,
+        updatedAt: new Date().toISOString(),
+      })
+      .onConflictDoUpdate({
+        target: [readmeCache.username, readmeCache.repo],
+        set: {
+          readme,
+          instructions,
+          updatedAt: new Date().toISOString(),
+        },
+      });
+  } catch (error) {
+    console.error("Error caching README:", error);
   }
 }

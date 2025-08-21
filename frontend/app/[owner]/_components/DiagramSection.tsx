@@ -42,46 +42,48 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
 
   return (
     <div className="w-full flex flex-col items-center justify-center p-0 bg-transparent">
-      {/* Controls - Right Aligned */}
-      <div className="flex items-center gap-2 mb-4 justify-end w-full">
-        <button
-          onClick={handleDownload}
-          className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white/70 hover:text-white hover:border-white/20 transition-all duration-200 text-xs font-mono"
-        >
-          <svg
-            className="w-3 h-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      {/* Controls - Right Aligned - Only show when diagram exists or is loading */}
+      {(diagram || loading) && (
+        <div className="flex items-center gap-2 mb-4 justify-end w-full">
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white/70 hover:text-white hover:border-white/20 transition-all duration-200 text-xs font-mono"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-          Download
-        </button>
+            <svg
+              className="w-3 h-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Download
+          </button>
 
-        <button
-          onClick={() => handleRegenerate("")}
-          className="px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white/70 hover:text-white hover:border-white/20 transition-all duration-200 text-xs font-mono"
-        >
-          Regenerate
-        </button>
+          <button
+            onClick={() => handleRegenerate("")}
+            className="px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg text-white/70 hover:text-white hover:border-white/20 transition-all duration-200 text-xs font-mono"
+          >
+            Regenerate
+          </button>
 
-        <button
-          onClick={() => setZoomingEnabled(!zoomingEnabled)}
-          className={`px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg transition-all duration-200 text-xs font-mono ${
-            zoomingEnabled
-              ? "text-white border-white/20"
-              : "text-white/70 hover:text-white hover:border-white/20"
-          }`}
-        >
-          Zoom
-        </button>
-      </div>
+          <button
+            onClick={() => setZoomingEnabled(!zoomingEnabled)}
+            className={`px-3 py-2 bg-[#0a0a0a] border border-white/10 rounded-lg transition-all duration-200 text-xs font-mono ${
+              zoomingEnabled
+                ? "text-white border-white/20"
+                : "text-white/70 hover:text-white hover:border-white/20"
+            }`}
+          >
+            Zoom
+          </button>
+        </div>
+      )}
 
       {/* Content Area */}
       {loading ? (
@@ -148,8 +150,16 @@ export function DiagramSection({ owner, repo }: DiagramSectionProps) {
           )}
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-xl p-8 text-white/40 font-mono tracking-wide">
-          No diagram available.
+        <div className="bg-gradient-to-r from-[#0a0a0a] to-[#0f0f0f] border border-white/10 rounded-xl p-8 text-center">
+          <div className="text-white/40 font-mono tracking-wide mb-4">
+            No diagram generated yet.
+          </div>
+          <button
+            onClick={() => handleRegenerate("")}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-mono text-sm"
+          >
+            Generate Diagram
+          </button>
         </div>
       )}
     </div>

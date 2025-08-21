@@ -425,9 +425,37 @@ export function useDiagram(username: string, repo: string) {
     }
   }, [username, repo, generateDiagram]);
 
+  // Check for cached diagram on mount, but don't auto-generate
   useEffect(() => {
-    void getDiagram();
-  }, [getDiagram]);
+    const checkCachedDiagram = async () => {
+      setLoading(true);
+      setError("");
+      setCost("");
+
+      try {
+        // Check cache first - always allow access to cached diagrams
+        const cached = await getCachedDiagram(username, repo);
+
+        if (cached) {
+          setDiagram(cached);
+          const explanation = await getCachedExplanation(username, repo);
+          setState((prev) => ({
+            ...prev,
+            status: "complete",
+            explanation: explanation || "",
+          }));
+          const date = await getLastGeneratedDate(username, repo);
+          setLastGenerated(date ? new Date(date) : undefined);
+        }
+      } catch (error) {
+        console.error("Error checking cached diagram:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void checkCachedDiagram();
+  }, [username, repo]);
 
   const handleModify = async (instructions: string) => {
     setLoading(true);

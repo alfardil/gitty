@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import generate, chat, task_analysis, user_insights, status
+from app.routers import generate, chat, task_analysis, user_insights, status, readme
 
 app = FastAPI()
 app.include_router(generate.router)
@@ -8,6 +8,7 @@ app.include_router(chat.router)
 app.include_router(task_analysis.router)
 app.include_router(user_insights.router)
 app.include_router(status.router)
+app.include_router(readme.router)
 
 origins = [
     "http://localhost:3000",

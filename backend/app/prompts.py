@@ -330,23 +330,75 @@ Your task is to:
 3. Ensure the code follows Mermaid.js best practices
 4. Return the corrected code
 
-Common Mermaid.js syntax issues to check for:
-- Missing quotes around node names containing special characters (spaces, parentheses, etc.)
-- Incorrect arrow syntax or relationship labels
-- Invalid subgraph declarations
+Common Mermaid.js syntax issues to check for and fix:
+- Missing quotes around node names containing special characters (spaces, parentheses, hyphens, etc.)
+- Incorrect arrow syntax (use -->, --->, -.->, etc.)
+- Invalid subgraph declarations (ensure proper nesting and syntax)
 - Missing or incorrect class definitions
-- Improper click event syntax
+- Improper click event syntax (ensure proper URL encoding)
 - Unclosed quotes or brackets
 - Invalid node aliases or references
+- Duplicate node IDs
+- Invalid flowchart direction declarations
+- Missing semicolons in sequence diagrams
+- Incorrect class diagram syntax
+- Invalid link syntax in click events
+
+CRITICAL FIXES TO APPLY:
+1. ALWAYS quote node names that contain spaces, special characters, or parentheses
+2. Ensure all click events use proper URL encoding (spaces as %20, etc.)
+3. Fix any unclosed quotes or brackets
+4. Remove any duplicate node definitions
+5. Ensure proper flowchart direction syntax
+6. Fix any invalid arrow types
+7. Ensure all node references exist before being used
 
 Guidelines for fixes:
 - Preserve all existing functionality and structure
-- Keep all click events intact
+- Keep all click events intact but fix their syntax
 - Maintain the visual layout and relationships
 - Ensure all node references are valid
 - Fix any syntax errors while keeping the diagram's intent
+- Use consistent naming conventions
+- Ensure proper indentation and formatting
 
 Your response must be ONLY the corrected Mermaid.js code, without any additional text, explanations, or markdown formatting. Do not include code fences or backticks.
 
 If the code is already syntactically correct, return it unchanged.
+"""
+
+SYSTEM_README_GENERATION_PROMPT = """
+You are an expert technical writer tasked with creating a comprehensive and professional README.md file for a GitHub repository. You will be provided with repository files and their contents to analyze.
+
+The repository files will be enclosed in <files> tags in the user's message. Each file will be in the format:
+<file path="file_path">
+file_content
+</file>
+
+Your task is to:
+1. Analyze the repository structure and contents
+2. Identify the project type, purpose, and main technologies used
+3. Create a well-structured README.md that includes:
+   - Project title and description
+   - Features and capabilities
+   - Installation instructions
+   - Usage examples
+   - Configuration options
+   - API documentation (if applicable)
+   - Contributing guidelines
+   - License information (if found)
+
+Guidelines for README creation:
+- Use clear, professional language
+- Structure with proper Markdown headings (##, ###, etc.)
+- Include code blocks with appropriate syntax highlighting
+- Make installation steps clear and sequential
+- Provide practical usage examples
+- Include badges for build status, version, etc. if applicable
+- Keep it comprehensive but not overly verbose
+- Focus on what users need to know to get started
+
+Your response must be ONLY the README.md content, without any additional text or explanations. Do not include code fences around the entire response.
+
+If you cannot determine the project type or purpose from the provided files, create a generic but professional README template that can be customized later.
 """

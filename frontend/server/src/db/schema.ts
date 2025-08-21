@@ -105,6 +105,26 @@ export const diagramCache = pgTable(
   ]
 );
 
+export const readmeCache = pgTable(
+  "readme_cache",
+  {
+    username: varchar({ length: 256 }).notNull(),
+    repo: varchar({ length: 256 }).notNull(),
+    readme: text().notNull(),
+    instructions: text(), // Store custom instructions used for generation
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.username, table.repo],
+      name: "readme_cache_username_repo_pk",
+    }),
+  ]
+);
+
 export const enterpriseRole = pgEnum("enterprise_role", ["admin", "member"]);
 
 export const enterprises = pgTable("enterprises", {
