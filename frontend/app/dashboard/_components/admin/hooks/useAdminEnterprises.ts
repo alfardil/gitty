@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Enterprise } from "@/lib/types/business/Enterprise";
+import { localStorageUtils } from "@/lib/utils/localStorage";
+
+const ADMIN_SELECTED_ENTERPRISE_KEY = "admin-selected-enterprise-id";
 
 interface EnterpriseUser {
   id: string;
@@ -22,7 +25,7 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
     queryKey: ["admin-enterprises", userId],
     queryFn: async (): Promise<Enterprise[]> => {
       if (!userId) return [];
-      
+
       const res = await fetch(
         `/api/admin?action=getAdminEnterprises&userId=${userId}`
       );
@@ -39,19 +42,47 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
     refetchOnMount: false, // Prevent refetch on component mount if data exists
   });
 
-  // Select the first enterprise by default
   const [selectedEnterprise, setSelectedEnterprise] = useState<string | null>(
     null
   );
 
-  // Set default selected enterprise when enterprisesData changes
+  // Load selected enterprise from localStorage on mount
   useEffect(() => {
-    if (enterprisesData && enterprisesData.length > 0 && !selectedEnterprise) {
-      setSelectedEnterprise(enterprisesData[0].id);
-    } else if (enterprisesData && enterprisesData.length === 0) {
-      setSelectedEnterprise(null);
+    const stored = localStorageUtils.getItem(ADMIN_SELECTED_ENTERPRISE_KEY);
+    if (stored) {
+      setSelectedEnterprise(stored);
     }
-  }, [enterprisesData, selectedEnterprise]);
+  }, []);
+
+  // Handle enterprise data changes and validate stored selection
+  useEffect(() => {
+    if (enterprisesData && enterprisesData.length > 0) {
+      // Check if current selection is valid
+      const isValidSelection =
+        selectedEnterprise &&
+        enterprisesData.find((e) => e.id === selectedEnterprise);
+
+      if (!isValidSelection) {
+        // Select first enterprise if current selection is invalid
+        const newSelection = enterprisesData[0].id;
+        setSelectedEnterprise(newSelection);
+        localStorageUtils.setItem(ADMIN_SELECTED_ENTERPRISE_KEY, newSelection);
+      }
+    } else if (enterprisesData && enterprisesData.length === 0) {
+      // Clear selection if no enterprises available
+      setSelectedEnterprise(null);
+      localStorageUtils.removeItem(ADMIN_SELECTED_ENTERPRISE_KEY);
+    }
+  }, [enterprisesData]); // Remove selectedEnterprise from dependencies to prevent loops
+
+  const updateSelectedEnterprise = (enterpriseId: string | null) => {
+    setSelectedEnterprise(enterpriseId);
+    if (enterpriseId) {
+      localStorageUtils.setItem(ADMIN_SELECTED_ENTERPRISE_KEY, enterpriseId);
+    } else {
+      localStorageUtils.removeItem(ADMIN_SELECTED_ENTERPRISE_KEY);
+    }
+  };
 
   const {
     data: usersData,
@@ -61,7 +92,7 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
     queryKey: ["enterprise-users", selectedEnterprise, projectId],
     queryFn: async (): Promise<EnterpriseUser[]> => {
       if (!selectedEnterprise) return [];
-      
+
       const params = new URLSearchParams({ enterpriseId: selectedEnterprise });
       if (projectId) params.append("projectId", projectId);
 
@@ -82,7 +113,7 @@ export function useAdminEnterprises(userId: string, projectId?: string) {
   return {
     enterprises: enterprisesData ?? [],
     selectedEnterprise,
-    setSelectedEnterprise,
+    setSelectedEnterprise: updateSelectedEnterprise,
     users: usersData ?? [],
     loading: enterprisesLoading || usersLoading,
     enterprisesError,

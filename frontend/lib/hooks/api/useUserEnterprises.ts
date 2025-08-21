@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Enterprise } from "@/lib/types/business/Enterprise";
+import { localStorageUtils } from "@/lib/utils/localStorage";
 
 const SELECTED_ENTERPRISE_KEY = "selected-enterprise-id";
 
@@ -31,43 +32,41 @@ export function useUserEnterprises(userId?: string) {
     null
   );
 
+  // Load selected enterprise from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem(SELECTED_ENTERPRISE_KEY);
-      if (stored) {
-        setSelectedEnterprise(stored);
-      }
+    const stored = localStorageUtils.getItem(SELECTED_ENTERPRISE_KEY);
+    if (stored) {
+      setSelectedEnterprise(stored);
     }
   }, []);
 
+  // Handle enterprise data changes and validate stored selection
   useEffect(() => {
     if (enterprisesData && enterprisesData.length > 0) {
-      if (
-        !selectedEnterprise ||
-        !enterprisesData.find((e) => e.id === selectedEnterprise)
-      ) {
+      // Check if current selection is valid
+      const isValidSelection =
+        selectedEnterprise &&
+        enterprisesData.find((e) => e.id === selectedEnterprise);
+
+      if (!isValidSelection) {
+        // Select first enterprise if current selection is invalid
         const newSelection = enterprisesData[0].id;
         setSelectedEnterprise(newSelection);
-        if (typeof window !== "undefined") {
-          localStorage.setItem(SELECTED_ENTERPRISE_KEY, newSelection);
-        }
+        localStorageUtils.setItem(SELECTED_ENTERPRISE_KEY, newSelection);
       }
-    } else {
+    } else if (enterprisesData && enterprisesData.length === 0) {
+      // Clear selection if no enterprises available
       setSelectedEnterprise(null);
-      if (typeof window !== "undefined") {
-        localStorage.removeItem(SELECTED_ENTERPRISE_KEY);
-      }
+      localStorageUtils.removeItem(SELECTED_ENTERPRISE_KEY);
     }
-  }, [enterprisesData, selectedEnterprise]);
+  }, [enterprisesData]); // Remove selectedEnterprise from dependencies to prevent loops
 
   const updateSelectedEnterprise = (enterpriseId: string | null) => {
     setSelectedEnterprise(enterpriseId);
-    if (typeof window !== "undefined") {
-      if (enterpriseId) {
-        localStorage.setItem(SELECTED_ENTERPRISE_KEY, enterpriseId);
-      } else {
-        localStorage.removeItem(SELECTED_ENTERPRISE_KEY);
-      }
+    if (enterpriseId) {
+      localStorageUtils.setItem(SELECTED_ENTERPRISE_KEY, enterpriseId);
+    } else {
+      localStorageUtils.removeItem(SELECTED_ENTERPRISE_KEY);
     }
   };
 

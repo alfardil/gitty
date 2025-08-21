@@ -10,11 +10,11 @@ backend:
 	cd backend && pip install -r requirements.txt && uvicorn app.main:app --reload
 
 self:
-	git remote set-url origin https://github.com/alfardil/gitty.git
+	git remote set-url origin https://github.com/alfardil/thestral.git
 
 selfPush:
 	git remote -v
-	git remote set-url origin https://github.com/alfardil/gitty.git
+	git remote set-url origin https://github.com/alfardil/thestral.git
 	git push -u origin main
 
 org:

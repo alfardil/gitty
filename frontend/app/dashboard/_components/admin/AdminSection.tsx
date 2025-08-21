@@ -7,10 +7,10 @@ import { User } from "@/lib/types/business/User";
 import { useRouter, useSearchParams } from "next/navigation";
 import { TeamPerformanceAnalytics } from "./TeamPerformanceAnalytics";
 import { ProjectUserManagement } from "./ProjectUserManagement";
-import { ComingSoonSection } from "./ComingSoonSection";
 import { toast } from "sonner";
 import { Target } from "lucide-react";
 import { User as UserIcon } from "lucide-react";
+import { localStorageUtils } from "@/lib/utils/localStorage";
 
 interface EnterpriseUser {
   id: string;
@@ -55,7 +55,33 @@ function AdminSection({ userId }: AdminSectionProps) {
   const { projects, createProject, isCreating } = useProjects(
     selectedEnterprise || undefined
   );
+
+  const ADMIN_SELECTED_PROJECT_KEY = "admin-selected-project-id";
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+
+  // Load selected project from localStorage on mount
+  useEffect(() => {
+    const stored = localStorageUtils.getItem(ADMIN_SELECTED_PROJECT_KEY);
+    if (stored) {
+      setSelectedProject(stored);
+    }
+  }, []);
+
+  // Update localStorage when selected project changes
+  const updateSelectedProject = (projectId: string | null) => {
+    setSelectedProject(projectId);
+    if (projectId) {
+      localStorageUtils.setItem(ADMIN_SELECTED_PROJECT_KEY, projectId);
+    } else {
+      localStorageUtils.removeItem(ADMIN_SELECTED_PROJECT_KEY);
+    }
+  };
+
+  // Clear project selection (useful when enterprise changes)
+  const clearProjectSelection = () => {
+    setSelectedProject(null);
+    localStorageUtils.removeItem(ADMIN_SELECTED_PROJECT_KEY);
+  };
 
   // Filter users based on selected project
   const users = selectedProject
@@ -66,12 +92,31 @@ function AdminSection({ userId }: AdminSectionProps) {
       })
     : allUsers;
 
+  // Validate project selection when enterprise or projects change
+  useEffect(() => {
+    if (selectedProject && projects.length > 0) {
+      const projectExists = projects.find((p) => p.id === selectedProject);
+      if (!projectExists) {
+        // Clear invalid project selection
+        clearProjectSelection();
+      }
+    }
+  }, [selectedProject, projects]);
+
   // Auto-select first project if available and none selected
-  React.useEffect(() => {
+  useEffect(() => {
     if (projects.length > 0 && !selectedProject) {
-      setSelectedProject(projects[0].id);
+      updateSelectedProject(projects[0].id);
     }
   }, [projects, selectedProject]);
+
+  // Clear project selection when enterprise changes
+  useEffect(() => {
+    if (selectedEnterprise) {
+      // Project selection will be validated against the new enterprise's projects
+      // and cleared if invalid in the validation useEffect above
+    }
+  }, [selectedEnterprise]);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
@@ -304,7 +349,7 @@ function AdminSection({ userId }: AdminSectionProps) {
                     <UserIcon className="w-5 h-5 text-white/30" />
                   </div>
                 )}
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="text-sm font-mono text-white font-semibold tracking-wide truncate">
@@ -313,11 +358,13 @@ function AdminSection({ userId }: AdminSectionProps) {
                         : user.githubUsername}
                     </div>
                     <span className="text-white/30 font-mono text-xs">
-                      {"{ "}{user.role || "member"}{" }"}
+                      {"{ "}
+                      {user.role || "member"}
+                      {" }"}
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="text-white/40 font-mono text-xs tracking-wider uppercase">
                   view
                 </div>
@@ -387,14 +434,16 @@ function AdminSection({ userId }: AdminSectionProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="border border-white/10 rounded-lg px-3 py-2 min-w-[180px] text-left bg-[#0f0f0f] text-white/80 focus:outline-none focus:ring-1 focus:ring-white/20 hover:border-white/20 transition-all duration-200 text-sm font-mono">
-                    {selectedProject ? projects.find((p) => p.id === selectedProject)?.name : "Select Project"}
+                    {selectedProject
+                      ? projects.find((p) => p.id === selectedProject)?.name
+                      : "Select Project"}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-[#0a0a0a] border border-white/10 rounded-lg shadow-lg p-1 text-white max-h-[400px] overflow-y-auto">
                   {projects.map((project) => (
                     <DropdownMenuItem
                       key={project.id}
-                      onSelect={() => setSelectedProject(project.id)}
+                      onSelect={() => updateSelectedProject(project.id)}
                       className={`px-3 py-2 rounded cursor-pointer text-sm font-mono hover:bg-white/5 transition-colors ${project.id === selectedProject ? "bg-white/10 text-white" : "text-white/70"}`}
                     >
                       {project.name}

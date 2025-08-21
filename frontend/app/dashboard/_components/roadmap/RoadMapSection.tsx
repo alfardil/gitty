@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Plus,
@@ -114,6 +114,7 @@ export function RoadMapSection() {
   const {
     selectedProject,
     setSelectedProject,
+    clearProjectSelection,
     isLoading: projectSelectionLoading,
   } = useProjectSelection();
 
@@ -128,11 +129,22 @@ export function RoadMapSection() {
   );
 
   // Update selected project when projectId changes from URL
-  React.useEffect(() => {
+  useEffect(() => {
     if (projectId && projectId !== selectedProject) {
       setSelectedProject(projectId);
     }
   }, [projectId, selectedProject, setSelectedProject]);
+
+  // Validate project selection when enterprise or projects change
+  useEffect(() => {
+    if (selectedProject && projects.length > 0) {
+      const projectExists = projects.find((p) => p.id === selectedProject);
+      if (!projectExists) {
+        // Clear invalid project selection
+        clearProjectSelection();
+      }
+    }
+  }, [selectedProject, projects, clearProjectSelection]);
 
   const {
     tasks,
@@ -657,7 +669,7 @@ export function RoadMapSection() {
                       key={enterprise.id}
                       onClick={() => {
                         setSelectedEnterprise(enterprise.id);
-                        setSelectedProject(null); // Reset project when enterprise changes
+                        clearProjectSelection(); // Clear project selection when enterprise changes
                       }}
                       className={`text-xs font-mono hover:bg-white/10 focus:bg-white/10 cursor-pointer ${
                         selectedEnterprise === enterprise.id
