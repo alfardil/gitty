@@ -213,12 +213,7 @@ export async function createEnterprise({
 }) {
   const inserted = await db.insert(enterprises).values({ name }).returning();
   const enterprise = inserted[0];
-  // Add owner as admin
-  await db.insert(enterpriseUsers).values({
-    enterpriseId: enterprise.id,
-    userId: ownerUserId,
-    role: "admin",
-  });
+  // Don't automatically add owner as admin - they need to redeem an invite code
   return enterprise;
 }
 
@@ -229,10 +224,17 @@ export async function createPersonalEnterprise(
   const personalName = githubUsername
     ? `${githubUsername}'s Personal`
     : "Personal";
-  return await createEnterprise({
+  const enterprise = await createEnterprise({
     name: personalName,
     ownerUserId: userId,
   });
+  // For personal enterprises, automatically add the user as admin
+  await db.insert(enterpriseUsers).values({
+    enterpriseId: enterprise.id,
+    userId: userId,
+    role: "admin",
+  });
+  return enterprise;
 }
 
 export async function createPersonalProject(
@@ -442,6 +444,7 @@ export async function redeemEnterpriseInviteCodeForAdmin({
     });
   }
 
+  // Mark the invite code as used (this was missing for the upgrade case)
   await db
     .update(enterpriseInviteCodes)
     .set({ used: true, usedBy: userId, usedAt: new Date().toISOString() })

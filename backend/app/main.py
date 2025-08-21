@@ -9,7 +9,13 @@ app.include_router(task_analysis.router)
 app.include_router(user_insights.router)
 app.include_router(status.router)
 
-origins = ["http://localhost:3000", "https://www.devboard.ai", "https://devboard.ai"]
+origins = [
+    "http://localhost:3000",
+    "https://www.devboard.ai",
+    "https://devboard.ai",
+    "https://www.thestral.ai",
+    "https://thestral.ai",
+]
 
 # CORS
 app.add_middleware(
