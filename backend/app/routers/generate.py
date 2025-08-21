@@ -39,6 +39,7 @@ from app.prompts import (
     SYSTEM_SECOND_PROMPT,
     SYSTEM_THIRD_PROMPT,
     ADDITIONAL_SYSTEM_INSTRUCTIONS_PROMPT,
+    SYSTEM_VALIDATION_PROMPT,
 )
 
 load_dotenv()
@@ -223,8 +224,14 @@ async def generate_non_stream(request: Request, body: ApiRequest):
         if "BAD_INSTRUCTIONS" in mermaid_code:
             return {"error": "Invalid or unclear instructions provided"}
 
+        # Phase 4: Validate and fix syntax errors
+        validated_diagram = o4_service.call_o4_api(
+            system_prompt=SYSTEM_VALIDATION_PROMPT,
+            data={"diagram": mermaid_code},
+        )
+
         processed_diagram = process_click_events(
-            mermaid_code, body.username, body.repo, default_branch
+            validated_diagram, body.username, body.repo, default_branch
         )
 
         # Return final result
@@ -347,8 +354,21 @@ async def generate_stream(request: Request, body: ApiRequest):
                     yield f"data: {json.dumps({'error': 'Invalid or unclear instructions provided'})}\n\n"
                     return
 
+                # Phase 4: Validate and fix syntax errors
+                yield f"data: {json.dumps({'status': 'validation_sent', 'message': 'Validating diagram syntax...'})}\n\n"
+                await asyncio.sleep(0.1)
+                yield f"data: {json.dumps({'status': 'validation', 'message': 'Checking for syntax errors...'})}\n\n"
+
+                validated_diagram = ""
+                async for chunk in o4_service.call_o4_api_stream(
+                    system_prompt=SYSTEM_VALIDATION_PROMPT,
+                    data={"diagram": mermaid_code},
+                ):
+                    validated_diagram += chunk
+                    yield f"data: {json.dumps({'status': 'validation_chunk', 'chunk': chunk})}\n\n"
+
                 processed_diagram = process_click_events(
-                    mermaid_code, body.username, body.repo, default_branch
+                    validated_diagram, body.username, body.repo, default_branch
                 )
 
                 # Send final result

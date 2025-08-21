@@ -22,6 +22,9 @@ interface StreamState {
     | "diagram_sent"
     | "diagram"
     | "diagram_chunk"
+    | "validation_sent"
+    | "validation"
+    | "validation_chunk"
     | "complete"
     | "error";
   message?: string;
@@ -30,7 +33,12 @@ interface StreamState {
   diagram?: string;
   error?: string;
   progress?: number;
-  currentPhase?: "explanation" | "mapping" | "diagram" | "complete";
+  currentPhase?:
+    | "explanation"
+    | "mapping"
+    | "diagram"
+    | "validation"
+    | "complete";
 }
 
 interface StreamResponse {
@@ -52,7 +60,7 @@ export function useDiagram(username: string, repo: string) {
   const [lastGenerated, setLastGenerated] = useState<Date | undefined>();
   const [progress, setProgress] = useState<number>(0);
   const [currentPhase, setCurrentPhase] = useState<
-    "explanation" | "mapping" | "diagram" | "complete"
+    "explanation" | "mapping" | "diagram" | "validation" | "complete"
   >("explanation");
 
   const generateDiagram = useCallback(
@@ -247,13 +255,51 @@ export function useDiagram(username: string, repo: string) {
                         if (data.chunk) {
                           diagram += data.chunk;
                           phaseProgress = Math.min(
-                            95,
-                            75 + (diagram.length / 2000) * 20
+                            85,
+                            75 + (diagram.length / 2000) * 10
                           );
                           setState((prev) => ({
                             ...prev,
                             diagram,
                             currentPhase: "diagram",
+                            progress: phaseProgress,
+                          }));
+                          setProgress(phaseProgress);
+                        }
+                        break;
+                      case "validation_sent":
+                        setState((prev) => ({
+                          ...prev,
+                          status: "validation_sent",
+                          message: data.message,
+                          currentPhase: "validation",
+                          progress: 90,
+                        }));
+                        setCurrentPhase("validation");
+                        setProgress(90);
+                        break;
+                      case "validation":
+                        setState((prev) => ({
+                          ...prev,
+                          status: "validation",
+                          diagram: data.message,
+                          currentPhase: "validation",
+                          progress: 92,
+                        }));
+                        setCurrentPhase("validation");
+                        setProgress(92);
+                        break;
+                      case "validation_chunk":
+                        if (data.chunk) {
+                          diagram += data.chunk;
+                          phaseProgress = Math.min(
+                            95,
+                            92 + (diagram.length / 1000) * 3
+                          );
+                          setState((prev) => ({
+                            ...prev,
+                            diagram,
+                            currentPhase: "validation",
                             progress: phaseProgress,
                           }));
                           setProgress(phaseProgress);

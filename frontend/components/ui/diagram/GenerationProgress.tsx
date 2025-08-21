@@ -4,7 +4,12 @@ import { Spinner } from "@/components/ui/neo/spinner";
 import { CheckCircle, Circle } from "lucide-react";
 
 interface GenerationProgressProps {
-  currentPhase: "explanation" | "mapping" | "diagram" | "complete";
+  currentPhase:
+    | "explanation"
+    | "mapping"
+    | "diagram"
+    | "validation"
+    | "complete";
   progress: number; // 0-100
   message?: string;
 }
@@ -24,6 +29,11 @@ const phases = [
     key: "diagram",
     label: "Generating Diagram",
     description: "Creating Mermaid diagram",
+  },
+  {
+    key: "validation",
+    label: "Validating Syntax",
+    description: "Checking and fixing errors",
   },
 ];
 
