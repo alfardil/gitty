@@ -50,7 +50,7 @@ export function ReadmeSection({ username, repo }: ReadmeSectionProps) {
   const [instructions, setInstructions] = useState("");
   const [showInstructions, setShowInstructions] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<Date | undefined>();
-  const [cachedSuccess, setCachedSuccess] = useState(false);
+  const [wasJustGenerated, setWasJustGenerated] = useState(false);
 
   // Get last generated date when README is loaded
   useEffect(() => {
@@ -59,12 +59,6 @@ export function ReadmeSection({ username, repo }: ReadmeSectionProps) {
         try {
           const date = await getLastReadmeGeneratedDate(username, repo);
           setLastGenerated(date ? new Date(date) : undefined);
-
-          // Show success message for newly generated README
-          if (!cachedSuccess) {
-            setCachedSuccess(true);
-            toast.success("README generated and saved successfully!");
-          }
         } catch (error) {
           console.error("Error getting last generated date:", error);
         }
@@ -72,10 +66,18 @@ export function ReadmeSection({ username, repo }: ReadmeSectionProps) {
     };
 
     void getLastGenerated();
-  }, [readme, state.status, username, repo, cachedSuccess]);
+  }, [readme, state.status, username, repo]);
+
+  // Show success toast only when README is newly generated
+  useEffect(() => {
+    if (readme && state.status === "complete" && wasJustGenerated) {
+      setWasJustGenerated(false);
+      toast.success("README generated and saved successfully!");
+    }
+  }, [readme, state.status, wasJustGenerated]);
 
   const handleGenerateClick = async () => {
-    setCachedSuccess(false);
+    setWasJustGenerated(true);
     await handleGenerate(instructions);
   };
 
