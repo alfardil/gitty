@@ -397,6 +397,11 @@ Guidelines for README creation:
 - Include badges for build status, version, etc. if applicable
 - Keep it comprehensive but not overly verbose
 - Focus on what users need to know to get started
+- IMPORTANT: Do not include any HTML anchor tags (like <a id="..."></a>) in the README content
+- Generate only pure Markdown content without any HTML elements
+- DO NOT include placeholder or example badge URLs (like "example.com/badge" or "placeholder-url")
+- Only include badges if you can determine the actual, working badge URLs from the repository
+- If you cannot find actual badge URLs, omit badges entirely rather than using placeholders
 
 Your response must be ONLY the README.md content, without any additional text or explanations. Do not include code fences around the entire response.
 

@@ -11,6 +11,7 @@ to generate high-quality documentation.
 
 import json
 import asyncio
+import re
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException
@@ -24,6 +25,55 @@ router = APIRouter(prefix="/readme", tags=["readme"])
 
 o4_service = OpenAIo4Service()
 github_service = GitHubService()
+
+
+def clean_readme_content(content: str) -> str:
+    """
+    Post-process README content to clean up anchor tags and improve formatting.
+
+    Args:
+        content: Raw README content from AI generation
+
+    Returns:
+        Cleaned README content with improved anchor tag formatting
+    """
+    if not content:
+        return content
+
+    # Clean up common anchor tags that the AI generates
+    # Replace empty anchor tags with proper formatting or remove them
+    content = re.sub(r'<a id="readme-top"></a>', "", content)
+    content = re.sub(r'<a id="license-shield"></a>', "", content)
+    content = re.sub(r'<a id="license-url"></a>', "", content)
+
+    # Clean up any other empty anchor tags
+    content = re.sub(r'<a id="[^"]*"></a>', "", content)
+
+    # Remove any standalone HTML comments that might be generated
+    content = re.sub(r"<!--\s*-->", "", content)
+
+    # Clean up problematic badge URLs that show "REPO OR WORKFLOW NOT FOUND"
+    # Remove badges with placeholder URLs or error messages
+    content = re.sub(r"!\[.*?\]\([^)]*workflow[^)]*not[^)]*found[^)]*\)", "", content)
+    content = re.sub(r"!\[.*?\]\([^)]*repo[^)]*not[^)]*found[^)]*\)", "", content)
+    content = re.sub(r"!\[.*?\]\([^)]*placeholder[^)]*\)", "", content)
+    content = re.sub(r"!\[.*?\]\([^)]*example[^)]*\)", "", content)
+
+    # Remove badges that are likely to be broken (common patterns)
+    content = re.sub(r"!\[BUILD\]\([^)]*\)", "", content)
+    content = re.sub(r"!\[VERSION\]\([^)]*\)", "", content)
+    content = re.sub(r"!\[STATUS\]\([^)]*\)", "", content)
+
+    # Clean up any remaining broken badge patterns
+    content = re.sub(r"!\[.*?\]\([^)]*\)", "", content)
+
+    # Clean up extra whitespace that might be left after removing tags
+    content = re.sub(r"\n\s*\n\s*\n", "\n\n", content)
+
+    # Ensure proper spacing around headings
+    content = re.sub(r"([^\n])\n(#+\s)", r"\1\n\n\2", content)
+
+    return content.strip()
 
 
 class ReadmeRequest(BaseModel):
@@ -116,6 +166,9 @@ async def generate_readme(request: ReadmeRequest):
         readme_content = o4_service.call_o4_api(
             system_prompt=system_prompt, data={"files": formatted_files}
         )
+
+        # Clean up the generated content
+        readme_content = clean_readme_content(readme_content)
 
         # Save README to database (async, don't wait for it)
         asyncio.create_task(
@@ -215,6 +268,9 @@ async def generate_readme_stream(request: ReadmeRequest):
                 ):
                     full_readme += chunk
                     yield f"data: {json.dumps({'status': 'llm_chunk', 'chunk': chunk})}\n\n"
+
+                # Clean up the generated content
+                full_readme = clean_readme_content(full_readme)
 
                 # Send final complete response
                 yield f"data: {json.dumps({'status': 'complete', 'readme': full_readme})}\n\n"
