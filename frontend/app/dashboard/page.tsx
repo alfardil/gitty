@@ -12,7 +12,7 @@ import { useUserOrgs } from "@/lib/hooks/api/useUserOrgs";
 import { useUserRepos } from "@/lib/hooks/api/useUserRepos";
 import { ChevronDown, Lock, Menu, Search, Unlock } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FreeTrialBilling } from "@/app/dashboard/_components/billing/FreeTrialBilling";
 import { Settings } from "@/app/dashboard/_components/settings/Settings";
 import { Suspense } from "react";
