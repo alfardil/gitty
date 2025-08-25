@@ -402,6 +402,8 @@ Guidelines for README creation:
 - DO NOT include placeholder or example badge URLs (like "example.com/badge" or "placeholder-url")
 - Only include badges if you can determine the actual, working badge URLs from the repository
 - If you cannot find actual badge URLs, omit badges entirely rather than using placeholders
+- Use badges for the tech stack. The stack should also appear near the top of the README. For example: [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/).
+
 
 Your response must be ONLY the README.md content, without any additional text or explanations. Do not include code fences around the entire response.
 
