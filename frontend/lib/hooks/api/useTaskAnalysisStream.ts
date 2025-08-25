@@ -75,6 +75,27 @@ export function useTaskAnalysisStream(
               data.status,
               data.message
             );
+
+            // Optimistically reflect partial/final result in the UI
+            if (data.result && data.taskId) {
+              queryClient.setQueryData(
+                ["tasks", enterpriseId, projectId],
+                (oldTasks: any[]) => {
+                  if (!oldTasks) return oldTasks;
+
+                  return oldTasks.map((task) =>
+                    task.id === data.taskId
+                      ? {
+                          ...task,
+                          estimatedHours: data.result!.estimated_hours,
+                          complexity: data.result!.complexity,
+                          taskType: data.result!.task_type,
+                        }
+                      : task
+                  );
+                }
+              );
+            }
             break;
 
           case "task_analyzed":

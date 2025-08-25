@@ -261,12 +261,10 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
         async def event_generator():
             try:
                 # Send initial status
-                yield f"data: {json.dumps({'status': 'starting', 'message': 'Starting task analysis...'})}\n\n"
-                await asyncio.sleep(0.1)
+                yield f"data: {json.dumps({'type': 'status', 'status': 'starting', 'message': 'Starting task analysis...'})}\n\n"
 
                 # Send analysis step
-                yield f"data: {json.dumps({'status': 'analyzing', 'message': 'Analyzing task complexity and requirements...'})}\n\n"
-                await asyncio.sleep(0.1)
+                yield f"data: {json.dumps({'type': 'status', 'status': 'analyzing', 'message': 'Analyzing task complexity and requirements...'})}\n\n"
 
                 # Create the prompt for GPT analysis
                 prompt = f"""
@@ -303,8 +301,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                 """
 
                 # Send GPT processing step
-                yield f"data: {json.dumps({'status': 'gpt_processing', 'message': 'Processing with AI model...'})}\n\n"
-                await asyncio.sleep(0.1)
+                yield f"data: {json.dumps({'type': 'status', 'status': 'gpt_processing', 'message': 'Processing with AI model...'})}\n\n"
 
                 # Call GPT service
                 from ..services.o4_mini_service import OpenAIo4Service
@@ -317,8 +314,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                     )
 
                     # Send processing complete
-                    yield f"data: {json.dumps({'status': 'processing_complete', 'message': 'AI analysis complete, validating results...'})}\n\n"
-                    await asyncio.sleep(0.1)
+                    yield f"data: {json.dumps({'type': 'status', 'status': 'processing_complete', 'message': 'AI analysis complete, validating results...'})}\n\n"
 
                     # Clean the response - remove any markdown formatting or extra text
                     cleaned_response = gpt_response.strip()
@@ -368,7 +364,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                         confidence = 0.7
 
                     # Send final results
-                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                    yield f"data: {json.dumps({'type': 'complete', 'result': {
                         'estimated_hours': estimated_hours,
                         'complexity': complexity,
                         'task_type': task_type,
@@ -381,11 +377,10 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                     print(f"DEBUG: JSON decode error in streaming: {e}")
                     print(f"DEBUG: Failed to parse response: {gpt_response}")
                     print(f"DEBUG: Cleaned response that failed: {cleaned_response}")
-                    yield f"data: {json.dumps({'status': 'fallback', 'message': 'Using fallback analysis...'})}\n\n"
-                    await asyncio.sleep(0.1)
+                    yield f"data: {json.dumps({'type': 'status', 'status': 'fallback', 'message': 'Using fallback analysis...'})}\n\n"
 
                     fallback_result = await _fallback_analysis(task_data)
-                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                    yield f"data: {json.dumps({'type': 'complete', 'result': {
                         'estimated_hours': fallback_result.estimated_hours,
                         'complexity': fallback_result.complexity,
                         'task_type': fallback_result.task_type,
@@ -395,11 +390,10 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
 
                 except Exception as e:
                     # Fallback to heuristics
-                    yield f"data: {json.dumps({'status': 'fallback', 'message': f'AI analysis failed, using fallback: {str(e)}'})}\n\n"
-                    await asyncio.sleep(0.1)
+                    yield f"data: {json.dumps({'type': 'status', 'status': 'fallback', 'message': f'AI analysis failed, using fallback: {str(e)}'})}\n\n"
 
                     fallback_result = await _fallback_analysis(task_data)
-                    yield f"data: {json.dumps({'status': 'complete', 'result': {
+                    yield f"data: {json.dumps({'type': 'complete', 'result': {
                         'estimated_hours': fallback_result.estimated_hours,
                         'complexity': fallback_result.complexity,
                         'task_type': fallback_result.task_type,
@@ -408,7 +402,7 @@ async def stream_analyze_task(request: TaskAnalysisRequest):
                     }})}\n\n"
 
             except Exception as e:
-                yield f"data: {json.dumps({'status': 'error', 'message': str(e)})}\n\n"
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
 
         return StreamingResponse(
             event_generator(),

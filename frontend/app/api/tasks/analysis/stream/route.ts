@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
                 // Try to call the backend streaming analysis endpoint
                 try {
                   const analysisResponse = await fetch(
-                    `${process.env.BACKEND_URL || "http://localhost:8000"}/task-analysis/stream-analyze`,
+                    `${process.env.NEXT_PUBLIC_API_DEV_URL || "http://localhost:8000"}/task-analysis/stream-analyze`,
                     {
                       method: "POST",
                       headers: {
@@ -132,17 +132,20 @@ export async function GET(request: NextRequest) {
                             try {
                               const data = JSON.parse(line.slice(6));
 
-                              // Forward the analysis status to the client
+                              // Forward the analysis status to the client immediately
                               sendEvent({
                                 type: "analysis_progress",
                                 taskId: task.id,
-                                status: data.status,
+                                status:
+                                  data.type === "status"
+                                    ? data.status
+                                    : data.type,
                                 message: data.message,
                                 result: data.result,
                               });
 
                               // If analysis is complete, update the task in the database
-                              if (data.status === "complete" && data.result) {
+                              if (data.type === "complete" && data.result) {
                                 await db
                                   .update(tasks)
                                   .set({
@@ -164,6 +167,15 @@ export async function GET(request: NextRequest) {
                                     complexity: data.result.complexity,
                                     taskType: data.result.task_type,
                                   },
+                                });
+
+                                // Also emit a final explicit completion event for clients
+                                sendEvent({
+                                  type: "analysis_progress",
+                                  taskId: task.id,
+                                  status: "complete",
+                                  message: "Analysis complete",
+                                  result: data.result,
                                 });
                               }
                             } catch (parseError) {
