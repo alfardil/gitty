@@ -1,4 +1,4 @@
-app = "devboard-api"
+app = "thestral-api"
 primary_region = "iad"
 
 [build]

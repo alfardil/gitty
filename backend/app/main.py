@@ -16,6 +16,7 @@ origins = [
     "https://devboard.ai",
     "https://www.thestral.ai",
     "https://thestral.ai",
+    "https://thestral.alfardil.com",
 ]
 
 # CORS

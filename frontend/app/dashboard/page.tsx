@@ -4,7 +4,6 @@ import { GitHubLoginButton } from "@/components/features/auth/LoginButton";
 import { InsightsView } from "@/app/dashboard/_components/insights/InsightsView";
 import { Sidebar } from "@/app/dashboard/_components/Sidebar";
 import { PageSpinner, Spinner } from "@/components/ui/neo/spinner";
-import { SIDEBAR_SECTIONS } from "@/lib/constants/index";
 import { useAuth } from "@/lib/hooks/business/useAuth";
 import { useRecentCommits } from "@/lib/hooks/api/useRecentCommits";
 import { useScopeRepos } from "@/lib/hooks/api/useScopeRepos";
@@ -236,7 +235,7 @@ function DashboardPage() {
                     </h3>
                     <button
                       className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/5 border border-white/20 hover:bg-white/10 transition-all duration-200"
-                      onClick={() => setShowSearch((prev) => !prev)}
+                      onClick={() => setShowSearch((prev: boolean) => !prev)}
                       aria-label="Toggle search"
                     >
                       <Search

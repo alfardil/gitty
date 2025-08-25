@@ -32,13 +32,16 @@ export default function LoginPage() {
       {/* Animated background grid */}
       <div className="fixed inset-0 z-0 opacity-20">
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#111111] to-[#0a0a0a]" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
             linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
           `,
-          backgroundSize: '50px 50px'
-        }} />
+            backgroundSize: "50px 50px",
+          }}
+        />
       </div>
 
       {/* Main content */}
@@ -52,7 +55,7 @@ export default function LoginPage() {
               </div>
               <span className="text-white font-semibold text-xl">Thestral</span>
             </div>
-            
+
             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight tracking-tight">
               Access the
               <br />
@@ -60,7 +63,7 @@ export default function LoginPage() {
                 Intelligence System
               </span>
             </h1>
-            
+
             <p className="text-white/60 text-lg leading-relaxed">
               Secure authentication required for startup intelligence platform
             </p>
@@ -70,12 +73,14 @@ export default function LoginPage() {
           <div className="space-y-6">
             <div className="flex items-center justify-center mb-6 opacity-60">
               <div className="w-16 h-px bg-white/30"></div>
-              <span className="mx-4 text-white/60 text-sm tracking-widest font-mono">[AUTH]</span>
+              <span className="mx-4 text-white/60 text-sm tracking-widest font-mono">
+                [AUTH]
+              </span>
               <div className="w-16 h-px bg-white/30"></div>
             </div>
-            
+
             <GitHubLoginButton />
-            
+
             <div className="text-xs text-white/40 font-mono">
               Authorized personnel only
             </div>
