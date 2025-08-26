@@ -30,7 +30,7 @@ export async function getCost(
   const isProd = process.env.NODE_ENV === "production";
   try {
     const baseUrl = isProd
-      ? "https://devboard-api.fly.dev"
+      ? process.env.NEXT_PUBLIC_API_DEV_URL
       : "http://localhost:8000";
     const url = new URL(`${baseUrl}/generate/cost`);
 
@@ -69,7 +69,7 @@ export async function generateAndCacheDiagram(
   const isProd = process.env.NODE_ENV === "production";
   try {
     const baseUrl = isProd
-      ? "https://devboard-api.fly.dev"
+      ? process.env.NEXT_PUBLIC_API_DEV_URL
       : "http://localhost:8000";
     const url = new URL(`${baseUrl}/generate`);
 
@@ -126,7 +126,7 @@ export async function modifyAndCacheDiagram(
     }
 
     const baseUrl = isProd
-      ? "https://devboard-api.fly.dev"
+      ? process.env.NEXT_PUBLIC_API_DEV_URL
       : "http://localhost:8000";
     const url = new URL(`${baseUrl}/modify`);
 

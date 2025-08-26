@@ -14,9 +14,9 @@ Welcome to Thestral - Your AI-Powered GitHub Repository Analysis & Team Collabor
 
 ## 🌐 Production URLs
 
-- Frontend: [https://devboard.ai/](https://devboard.ai/)
-- API Documentation: [https://devboard-api.fly.dev/docs](https://devboard-api.fly.dev/docs)
-- API Base URL: [https://devboard-api.fly.dev](https://devboard-api.fly.dev)
+- Frontend: [https://thestral.alfardill.com/](https://thestral.alfardil.com/)
+- API Documentation: [https://thestral-api.fly.dev/docs](https://thestral-api.fly.dev/docs)
+- API Base URL: [https://thestral-api.fly.dev](https://thestral-api.fly.dev)
 
 **Deployment Details:**
 

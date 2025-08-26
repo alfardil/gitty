@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     // Get the backend URL based on environment
     const isProd = process.env.NODE_ENV === "production";
     const baseUrl = isProd
-      ? "https://devboard-api.fly.dev"
+      ? process.env.NEXT_PUBLIC_API_DEV_URL
       : "http://localhost:8000";
 
     const backendUrl = `${baseUrl}/user-insights/analyze`;

@@ -11,7 +11,7 @@ export async function GET(
 
     const isProd = process.env.NODE_ENV === "production";
     const baseUrl = isProd
-      ? "https://devboard-api.fly.dev"
+      ? process.env.NEXT_PUBLIC_API_DEV_URL
       : "http://localhost:8000";
 
     const url = new URL(`${baseUrl}/user-insights/insights/${userId}`);
