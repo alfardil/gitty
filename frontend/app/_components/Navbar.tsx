@@ -30,7 +30,9 @@ export function Navbar({ navItems, onItemClick }: NavbarProps) {
       <AceNavbar>
         <NavBody className="bg-[#0a0a0a]/95 backdrop-blur-md border border-white/10 relative z-10">
           <div className="flex items-center gap-4">
-            <span className="text-white/60 text-sm tracking-widest">SOFTWARE</span>
+            <span className="text-white/60 text-sm tracking-widest">
+              SOFTWARE
+            </span>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 border border-white rounded-full flex items-center justify-center">
                 <div className="w-3 h-3 bg-white rounded-full"></div>
@@ -38,17 +40,28 @@ export function Navbar({ navItems, onItemClick }: NavbarProps) {
               <span className="text-white font-semibold text-lg">Thestral</span>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4">
-            <NavItems items={navItems} className="ml-8" onItemClick={onItemClick} />
+            <NavItems
+              items={navItems}
+              className="ml-8"
+              onItemClick={onItemClick}
+            />
             <button
               className="px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium rounded-lg hover:bg-white/20 transition-all duration-300 text-sm"
               onClick={() => {
-                const waitlistSection = document.getElementById('waitlist-section');
+                const waitlistSection =
+                  document.getElementById("waitlist-section");
                 if (waitlistSection) {
-                  waitlistSection.scrollIntoView({ behavior: 'smooth' });
+                  waitlistSection.scrollIntoView({ behavior: "smooth" });
                 }
               }}
+            >
+              Waitlist
+            </button>
+            <button
+              className="px-4 py-2 bg-white text-black font-medium rounded-lg hover:bg-white/90 transition-all duration-300 text-sm"
+              onClick={() => router.push("/login")}
             >
               Get Started
             </button>
@@ -132,10 +145,35 @@ export function Navbar({ navItems, onItemClick }: NavbarProps) {
                     ))}
                     <button
                       onClick={() => {
-                        const waitlistSection = document.getElementById('waitlist-section');
+                        const waitlistSection =
+                          document.getElementById("waitlist-section");
                         if (waitlistSection) {
-                          waitlistSection.scrollIntoView({ behavior: 'smooth' });
+                          waitlistSection.scrollIntoView({
+                            behavior: "smooth",
+                          });
                         }
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="px-4 py-3 cursor-pointer text-white hover:bg-white/10 rounded-none transition-colors text-left flex items-center justify-between w-full"
+                    >
+                      Waitlist
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push("/login");
                         setIsMobileMenuOpen(false);
                       }}
                       className="px-4 py-3 cursor-pointer text-white hover:bg-white/10 rounded-none transition-colors text-left flex items-center justify-between w-full"
